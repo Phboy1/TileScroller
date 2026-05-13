@@ -9,7 +9,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int HEIGHT = 720;
     static final int FRAME_DELAY = 16;
 
-    static final int rows = 40;
+    static final int rows = 38*2;
     static final int cols = 40;
 
     static final int TILE_SIZE = 40;
@@ -17,13 +17,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int CAMERA_SPEED = 10;
 
-    static String[][] map = new String[rows][cols];
+    static Tile[][] map = new Tile[rows][cols];
 
     static int xOffset = 0;
     static int yOffset = 0;
 
-    static int playerXOffset = 0;
-    static int playerYOffset = 0;
+    static Player player = new Player(PLAYER_SIZE, CAMERA_SPEED);
 
     static boolean goingUp = false;
     static boolean goingDown = false;
@@ -60,7 +59,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 String character[] = line.split(",");
                 while (i < character.length)
                 {
-                    map[i][j] = character[i];
+                    map[i][j] = new Tile(i*TILE_SIZE, j*TILE_SIZE, TILE_SIZE, character[i]);
                     i++;
                 }
                 line = br.readLine();
@@ -99,88 +98,190 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
     }
 
-    // --- GAME ENGINE METHODS ---
-
     public static void update() {
 
-        //Moving the Background
-        if (xOffset > 0) xOffset = 0;
-        if (yOffset > 0) yOffset = 0;
-        if (xOffset < -(rows*TILE_SIZE - WIDTH)) xOffset = -(rows*TILE_SIZE - WIDTH);
-        if (yOffset < -((cols)*TILE_SIZE - HEIGHT)) yOffset = -((cols)*TILE_SIZE - HEIGHT);
+        int testXOffset = xOffset;
+        int testYOffset = yOffset;
+        int testPlayerXOffset = player.playerXOffset;
+        int testPlayerYOffset = player.playerYOffset;
 
-        //Moving the player at the edges
-        if (xOffset == 0 && goingLeft) playerXOffset += CAMERA_SPEED;
-        if (yOffset == 0 && goingUp) playerYOffset += CAMERA_SPEED;
-        if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight) playerXOffset -= CAMERA_SPEED;
-        if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown) playerYOffset -= CAMERA_SPEED;
-            
-        if (playerXOffset > 0 && goingRight) 
+                // LEFT
+        if (goingLeft)
         {
-            playerXOffset -= CAMERA_SPEED;
-        } 
-        else if (goingRight)
-        {
-            xOffset -= CAMERA_SPEED;
-        } 
+            // if player is offset right, recenter first
+            if (player.playerXOffset < 0)
+            {
+                testPlayerXOffset += CAMERA_SPEED;
+            }
+            else
+            {
+                // move player if camera at edge
+                if (xOffset == 0)
+                {
+                    testPlayerXOffset += CAMERA_SPEED;
+                    
+                }
+                else
+                {
+                    testXOffset += CAMERA_SPEED;
+                    
+                }
+            }
+        }
 
-        if (playerYOffset > 0 && goingDown) 
+        // RIGHT
+        if (goingRight)
         {
-            playerYOffset -= CAMERA_SPEED;
-        } 
-        else if (goingDown)
+            // if player is offset left, recenter first
+            if (player.playerXOffset > 0)
+            {
+                testPlayerXOffset -= CAMERA_SPEED;
+            }
+            else
+            {
+                // move player if camera at edge
+                if (xOffset == -(rows * TILE_SIZE - WIDTH))
+                {
+                    testPlayerXOffset -= CAMERA_SPEED;
+                }
+                else
+                {
+                    testXOffset -= CAMERA_SPEED;
+                }
+            }
+        }
+
+        // UP
+        if (goingUp)
         {
-            yOffset -= CAMERA_SPEED;
-        } 
-        if (playerXOffset < 0 && goingLeft) 
+            if (player.playerYOffset < 0)
+            {
+                testPlayerYOffset += CAMERA_SPEED;
+            }
+            else
+            {
+                if (yOffset == 0)
+                {
+                    testPlayerYOffset += CAMERA_SPEED;
+                }
+                else
+                {
+                    testYOffset += CAMERA_SPEED;
+                }
+            }
+        }
+
+        // DOWN
+        if (goingDown)
         {
-            playerXOffset += CAMERA_SPEED;
-        } 
-        else if (goingLeft)
+            if (player.playerYOffset > 0)
+            {
+                testPlayerYOffset -= CAMERA_SPEED;
+            }
+            else
+            {
+                if (yOffset == -(cols * TILE_SIZE - HEIGHT))
+                {
+                    testPlayerYOffset -= CAMERA_SPEED;
+                }
+                else
+                {
+                    testYOffset -= CAMERA_SPEED;
+                }
+            }
+        }
+
+        // CAMERA BOUNDS
+        if (testXOffset > 0)
         {
-            xOffset += CAMERA_SPEED;
-        } 
-        if (playerYOffset < 0 && goingUp) 
+            testXOffset = 0;
+        }
+
+        if (testYOffset > 0)
         {
-            playerYOffset += CAMERA_SPEED;
-        } 
-        else if (goingUp)
+            testYOffset = 0;
+        }
+
+        if (testXOffset < -(rows * TILE_SIZE - WIDTH))
         {
-            yOffset += CAMERA_SPEED;
-        } 
+            testXOffset = -(rows * TILE_SIZE - WIDTH);
+        }
+
+        if (testYOffset < -(cols * TILE_SIZE - HEIGHT))
+        {
+            testYOffset = -(cols * TILE_SIZE - HEIGHT);
+        }
 
         //Boundaries
-        if (playerXOffset > (WIDTH-PLAYER_SIZE)/2 - TILE_SIZE) playerXOffset = (WIDTH-PLAYER_SIZE)/2 - TILE_SIZE;
-        if (playerYOffset > (HEIGHT-PLAYER_SIZE)/2 - TILE_SIZE) playerYOffset = (HEIGHT-PLAYER_SIZE)/2 - TILE_SIZE;
-        if (playerXOffset < -((WIDTH - PLAYER_SIZE)/2 - TILE_SIZE)) playerXOffset = -((WIDTH - PLAYER_SIZE)/2 - TILE_SIZE);
-        if (playerYOffset < -((HEIGHT - PLAYER_SIZE)/2 - TILE_SIZE)) playerYOffset = -((HEIGHT - PLAYER_SIZE)/2 - TILE_SIZE);
+        if (!isColliding(testXOffset, testYOffset,testPlayerXOffset,testPlayerYOffset))
+        {
+            xOffset = testXOffset;
+            yOffset = testYOffset;
+            player.playerXOffset = testPlayerXOffset;
+            player.playerYOffset = testPlayerYOffset;
+            System.out.println("playerXOffset: " + player.playerXOffset);
+        }
+
+        
+
+        //if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2;
+        //if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
+        //if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
+        //if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
+
+        
 
 
-        System.out.println(playerXOffset);
+        System.out.println(player.playerXOffset);
     }
 
     public static void draw(Graphics2D g2d) {
+
+        for (int i = 0; i < rows; i++) {
+
+            for (int j = 0; j < cols; j++) {
+
+                Tile tile = map[i][j];
+
+                if (tile != null) {
+
+                    int x = tile.x + xOffset;
+                    int y = tile.y + yOffset;
+
+                    if (x + TILE_SIZE > 0 && x < WIDTH && y + TILE_SIZE > 0 && y < HEIGHT)
+                    {
+                        tile.draw(g2d, xOffset, yOffset);
+                    }
+                }
+            }
+        }
+
+        player.draw(g2d, WIDTH, HEIGHT);
+    }
+
+    public static boolean isColliding(int testXOffset, int testYOffset, int testPlayerXOffset, int testPlayerYOffset)
+    {
+        Rectangle playerBounds = new Rectangle(WIDTH / 2 - PLAYER_SIZE / 2 + testPlayerXOffset, HEIGHT / 2 - PLAYER_SIZE / 2 + testPlayerYOffset, PLAYER_SIZE, PLAYER_SIZE);
+
         for (int i = 0; i < rows; i++)
         {
             for (int j = 0; j < cols; j++)
             {
-                if (map[i][j] != null && map[i][j].equals("#"))
-                {
-                    g2d.setColor(Color.CYAN);
-                }
-                else if (map[i][j] != null && map[i][j].equals("_"))
-                {
-                    g2d.setColor(Color.BLUE);
-                }
+                Tile tile = map[i][j];
 
-                g2d.fillRect(i*TILE_SIZE + xOffset, j*TILE_SIZE + yOffset, TILE_SIZE, TILE_SIZE);
-                g2d.setColor(Color.WHITE);
-                g2d.drawRect(i*TILE_SIZE + xOffset, j*TILE_SIZE + yOffset, TILE_SIZE, TILE_SIZE);
+                if (tile != null && tile.solid)
+                {
+                    Rectangle tileBounds = new Rectangle(tile.x + testXOffset, tile.y + testYOffset, TILE_SIZE, TILE_SIZE);
+
+                    if (playerBounds.intersects(tileBounds))
+                    {
+                        return true;
+                    }
+                }
             }
         }
 
-        g2d.setColor(Color.GREEN);
-        g2d.fillRect(WIDTH/2 - PLAYER_SIZE/2 - playerXOffset, HEIGHT/2 - PLAYER_SIZE/2 - playerYOffset, PLAYER_SIZE, PLAYER_SIZE);
+        return false;
     }
 
     public void mouseDragged(MouseEvent e) {
