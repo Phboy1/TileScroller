@@ -49,7 +49,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         BufferStrategy bs = game.getBufferStrategy();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("TileGrid.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
             String line = br.readLine();
             int j = 0;
 
