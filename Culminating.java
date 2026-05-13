@@ -9,7 +9,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int HEIGHT = 720;
     static final int FRAME_DELAY = 16;
 
-    static final int rows = 40;
+    static final int rows = 38;
     static final int cols = 40;
 
     static final int TILE_SIZE = 40;
@@ -50,7 +50,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         BufferStrategy bs = game.getBufferStrategy();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("TileGrid.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
             String line = br.readLine();
             int j = 0;
 
@@ -150,10 +150,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         } 
 
         //Boundaries
-        if (playerXOffset > (WIDTH-PLAYER_SIZE)/2 - TILE_SIZE) playerXOffset = (WIDTH-PLAYER_SIZE)/2 - TILE_SIZE;
-        if (playerYOffset > (HEIGHT-PLAYER_SIZE)/2 - TILE_SIZE) playerYOffset = (HEIGHT-PLAYER_SIZE)/2 - TILE_SIZE;
-        if (playerXOffset < -((WIDTH - PLAYER_SIZE)/2 - TILE_SIZE)) playerXOffset = -((WIDTH - PLAYER_SIZE)/2 - TILE_SIZE);
-        if (playerYOffset < -((HEIGHT - PLAYER_SIZE)/2 - TILE_SIZE)) playerYOffset = -((HEIGHT - PLAYER_SIZE)/2 - TILE_SIZE);
+        if (playerXOffset > (WIDTH-PLAYER_SIZE)/2) playerXOffset = (WIDTH-PLAYER_SIZE)/2;
+        if (playerYOffset > (HEIGHT-PLAYER_SIZE)/2) playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
+        if (playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
+        if (playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
 
 
         System.out.println(playerXOffset);
@@ -166,16 +166,24 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             {
                 if (map[i][j] != null && map[i][j].equals("#"))
                 {
-                    g2d.setColor(Color.CYAN);
+                    g2d.setColor(Color.GRAY);
                 }
                 else if (map[i][j] != null && map[i][j].equals("_"))
                 {
-                    g2d.setColor(Color.BLUE);
+                    g2d.setColor(Color.BLACK);
                 }
 
-                g2d.fillRect(i*TILE_SIZE + xOffset, j*TILE_SIZE + yOffset, TILE_SIZE, TILE_SIZE);
-                g2d.setColor(Color.WHITE);
-                g2d.drawRect(i*TILE_SIZE + xOffset, j*TILE_SIZE + yOffset, TILE_SIZE, TILE_SIZE);
+                int x = i * TILE_SIZE + xOffset;
+                int y = j * TILE_SIZE + yOffset;
+
+                if (x + TILE_SIZE > 0 && x < WIDTH &&
+                    y + TILE_SIZE > 0 && y < HEIGHT)
+                {
+                    g2d.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+                    g2d.setColor(Color.WHITE);
+                    g2d.drawRect(x, y, TILE_SIZE, TILE_SIZE);
+                }
             }
         }
 
