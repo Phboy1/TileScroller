@@ -33,8 +33,8 @@ public class Player {
         g2d.fillRect(x, y, size, size);
 
         
-        g2d.setColor(Color.BLACK);
-        g2d.fillRect(x + hitboxOffset, y + hitboxOffset, HITBOX_SIZE, HITBOX_SIZE);
+        //g2d.setColor(Color.BLACK);
+        //g2d.fillRect(x + hitboxOffset, y + hitboxOffset, HITBOX_SIZE, HITBOX_SIZE);
     }
 
     public Rectangle getBounds(int WIDTH, int HEIGHT) {

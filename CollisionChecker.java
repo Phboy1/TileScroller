@@ -29,8 +29,8 @@ public class CollisionChecker {
                     Rectangle tileBounds = tile.getBounds(Culminating.xOffset, Culminating.yOffset);
 
                     if (futureBounds.intersects(tileBounds)) {
-                        System.out.println("HIT: " + tile.type + " @ " + tile.x + "," + tile.y);
-                        System.out.println("COLLIDING");
+                        //System.out.println("HIT: " + tile.type + " @ " + tile.x + "," + tile.y);
+                        //System.out.println("COLLIDING");
                         return false;
                     }
                 }
