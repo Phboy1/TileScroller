@@ -52,7 +52,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         BufferStrategy bs = game.getBufferStrategy();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("TileGrid.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
             String line = br.readLine();
             int j = 0;
 
@@ -62,7 +62,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 String character[] = line.split(",");
                 while (i < character.length)
                 {
-                    map[i][j] = new Tile(i*TILE_SIZE, j*TILE_SIZE, TILE_SIZE, character[i]);
+                    map[j][i] = new Tile(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, character[i]);
                     i++;
                 }
                 line = br.readLine();
@@ -79,6 +79,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         while (true) {
             // 1. Logic (Thinking)
             update();
+
 
             // 2. Rendering (Showing)
             Graphics g = bs.getDrawGraphics();
@@ -110,10 +111,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (yOffset < -((cols)*TILE_SIZE - HEIGHT)) yOffset = -((cols)*TILE_SIZE - HEIGHT);
 
         //Moving the player at the edges
-        if (xOffset == 0 && goingLeft) player.playerXOffset += CAMERA_SPEED;
-        if (yOffset == 0 && goingUp) player.playerYOffset += CAMERA_SPEED;
-        if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight) player.playerXOffset -= CAMERA_SPEED;
-        if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown) player.playerYOffset -= CAMERA_SPEED;
+        if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) player.playerXOffset += CAMERA_SPEED;
+        if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED)) player.playerYOffset += CAMERA_SPEED;
+        if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0)) player.playerXOffset -= CAMERA_SPEED;
+        if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown &&  CollisionChecker.canMove(player, 0, CAMERA_SPEED)) player.playerYOffset -= CAMERA_SPEED;
 
         if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
         {
@@ -123,7 +124,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             else
             {
-                xOffset -= CAMERA_SPEED;
+                if (player.playerXOffset == 0)
+                {
+                    xOffset -= CAMERA_SPEED;
+                } 
             }
         }
 
@@ -135,7 +139,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             else
             {
-                yOffset -= CAMERA_SPEED;
+                if (player.playerYOffset == 0)
+                {
+                    yOffset -= CAMERA_SPEED;
+                } 
             }
         }
         if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
@@ -146,7 +153,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             else
             {
-                xOffset += CAMERA_SPEED;
+                if (player.playerXOffset == 0)
+                {
+                    xOffset += CAMERA_SPEED;
+                } 
             }
         }
         if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
@@ -157,22 +167,23 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             else
             {
-                yOffset += CAMERA_SPEED;
+                if (player.playerYOffset == 0)
+                {
+                    yOffset += CAMERA_SPEED;
+                } 
             }
         }
 
         //Boundaries
-        if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2 - TILE_SIZE) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2 - TILE_SIZE;
-        if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2 - TILE_SIZE) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2 - TILE_SIZE;
-        if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2 - TILE_SIZE)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2 - TILE_SIZE);
-        if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2 - TILE_SIZE)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2 - TILE_SIZE);
+        if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2;
+        if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
+        if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
+        if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
         if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2;
         if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
         if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
         if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
 
-
-        System.out.println(player.playerXOffset);
     }
 
     public static void draw(Graphics2D g2d) {

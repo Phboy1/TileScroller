@@ -20,7 +20,6 @@ public class CollisionChecker {
         Rectangle futureBounds = new Rectangle(futureX + hitboxOffset, futureY + hitboxOffset, hitboxSize, hitboxSize);
 
         for (int i = 0; i < Culminating.rows; i++) {
-
             for (int j = 0; j < Culminating.cols; j++) {
 
                 Tile tile = Culminating.map[i][j];
@@ -30,6 +29,8 @@ public class CollisionChecker {
                     Rectangle tileBounds = tile.getBounds(Culminating.xOffset, Culminating.yOffset);
 
                     if (futureBounds.intersects(tileBounds)) {
+                        System.out.println("HIT: " + tile.type + " @ " + tile.x + "," + tile.y);
+                        System.out.println("COLLIDING");
                         return false;
                     }
                 }
