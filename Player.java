@@ -1,9 +1,8 @@
+package TileScroller;
+
 import java.awt.*;
 
 public class Player {
-
-    int playerXOffset = 0;
-    int playerYOffset = 0;
 
     int worldX;
     int worldY;
@@ -12,35 +11,24 @@ public class Player {
     int speed;
 
     static final int HITBOX_SIZE = 30;
-
-    
-    int hitboxOffset = (size - HITBOX_SIZE)/2;
+    int hitboxOffset;
 
     public Player(int size, int speed) {
         this.size = size;
         this.speed = speed;
-
         this.hitboxOffset = (size - HITBOX_SIZE) / 2;
     }
 
-    public void draw(Graphics2D g2d, int WIDTH, int HEIGHT) {
-
-        int x = WIDTH / 2 - size / 2 - playerXOffset;
-        int y = HEIGHT / 2 - size / 2 - playerYOffset;
-
-
+    public void draw(Graphics2D g2d, int WIDTH, int HEIGHT) 
+    {
         g2d.setColor(Color.RED);
-        g2d.fillRect(x, y, size, size);
-
-        
-        //g2d.setColor(Color.BLACK);
-        //g2d.fillRect(x + hitboxOffset, y + hitboxOffset, HITBOX_SIZE, HITBOX_SIZE);
+        g2d.fillRect(WIDTH / 2 - size / 2 - worldX, HEIGHT / 2 - size / 2 - worldY, size, size);
     }
 
-    public Rectangle getBounds(int WIDTH, int HEIGHT) {
-
-        int x = WIDTH / 2 - size / 2 - playerXOffset;
-        int y = HEIGHT / 2 - size / 2 - playerYOffset;
+    public Rectangle getBounds(int WIDTH, int HEIGHT)
+    {
+        int x = WIDTH / 2 - size / 2 - worldX;
+        int y = HEIGHT / 2 - size / 2 - worldY;
 
         return new Rectangle(x + hitboxOffset, y + hitboxOffset, HITBOX_SIZE, HITBOX_SIZE);
     }

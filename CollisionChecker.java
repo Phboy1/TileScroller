@@ -1,3 +1,5 @@
+package TileScroller;
+
 import java.awt.Rectangle;
 
 public class CollisionChecker {
@@ -5,8 +7,8 @@ public class CollisionChecker {
     public boolean canMove(Player player, int moveX, int moveY) {
 
         int buffer = Culminating.CAMERA_SPEED*2;
-        int futureX = Culminating.WIDTH / 2 - player.size / 2 - player.playerXOffset - moveX;
-        int futureY = Culminating.HEIGHT / 2 - player.size / 2 - player.playerYOffset - moveY;
+        int futureX = Culminating.WIDTH / 2 - player.size / 2 - player.worldX - moveX;
+        int futureY = Culminating.HEIGHT / 2 - player.size / 2 - player.worldY - moveY;
 
         if (moveX > 0) futureX += buffer;
         if (moveX < 0) futureX -= buffer;

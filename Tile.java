@@ -1,3 +1,5 @@
+package TileScroller;
+
 import java.awt.*;
 
 public class Tile {
@@ -10,6 +12,8 @@ public class Tile {
     String type;
 
     boolean solid;
+
+    boolean interactable;
 
     public Tile(int x, int y, int size, String type) {
 
@@ -25,6 +29,11 @@ public class Tile {
         }
         else {
             solid = false;
+        }
+
+        if (type.equals("0"))
+        {
+            interactable = true;
         }
     }
 
