@@ -4,8 +4,8 @@ import java.awt.*;
 
 public class Player {
 
-    int worldX;
-    int worldY;
+    int playerXOffset;
+    int playerYOffset;
 
     int size;
     int speed;
@@ -22,13 +22,13 @@ public class Player {
     public void draw(Graphics2D g2d, int WIDTH, int HEIGHT) 
     {
         g2d.setColor(Color.RED);
-        g2d.fillRect(WIDTH / 2 - size / 2 - worldX, HEIGHT / 2 - size / 2 - worldY, size, size);
+        g2d.fillRect(WIDTH / 2 - size / 2 - playerXOffset, HEIGHT / 2 - size / 2 - playerYOffset, size, size);
     }
 
     public Rectangle getBounds(int WIDTH, int HEIGHT)
     {
-        int x = WIDTH / 2 - size / 2 - worldX;
-        int y = HEIGHT / 2 - size / 2 - worldY;
+        int x = WIDTH / 2 - size / 2 - playerXOffset;
+        int y = HEIGHT / 2 - size / 2 - playerYOffset;
 
         return new Rectangle(x + hitboxOffset, y + hitboxOffset, HITBOX_SIZE, HITBOX_SIZE);
     }

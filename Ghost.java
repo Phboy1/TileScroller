@@ -31,16 +31,6 @@ public class Ghost {
             ghostY -= actions.get(i).playerY;
             ghostCameraX -= actions.get(i).cameraX;
             ghostCameraY -= actions.get(i).cameraY;
-            if(actions.get(i).interacted)
-            {
-                for (Items item : items)
-                {
-                    if (item.isTouchingPlayer(player))
-                    {
-                        item.activated = !item.activated;
-                    }
-                }
-            }
             i++;
         }
         else

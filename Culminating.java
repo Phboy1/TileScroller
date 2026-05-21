@@ -26,8 +26,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static Player player = new Player(PLAYER_SIZE, CAMERA_SPEED);
 
-    static int xOffset = -(player.worldX - WIDTH / 2);
-    static int yOffset = -(player.worldY - HEIGHT / 2);
+    static int xOffset = 0;
+    static int yOffset = 0;
 
     static CollisionChecker CollisionChecker;
 
@@ -77,7 +77,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         BufferStrategy bs = game.getBufferStrategy();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileScroller/TileGrid.txt"));
             String line = br.readLine();
             int j = 0;
 
@@ -149,8 +149,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 {
                     rewindIndex--;
                     Movement movement = movementHistory.get(rewindCount).get(rewindIndex);
-                    player.worldX += movement.playerX;
-                    player.worldY += movement.playerY;
+                    player.playerXOffset += movement.playerX;
+                    player.playerYOffset += movement.playerY;
                     xOffset += movement.cameraX;
                     yOffset += movement.cameraY;
                     if (movement.interacted)
@@ -212,52 +212,52 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
             {
-                player.worldX += CAMERA_SPEED;
+                player.playerXOffset += CAMERA_SPEED;
                 frameMovement.playerX -= CAMERA_SPEED;
             }
             if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
             {
-                player.worldY += CAMERA_SPEED;
+                player.playerYOffset += CAMERA_SPEED;
                 frameMovement.playerY -= CAMERA_SPEED;
             }
             if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
             {
-                player.worldX -= CAMERA_SPEED;
+                player.playerXOffset -= CAMERA_SPEED;
                 frameMovement.playerX += CAMERA_SPEED;
             }
             if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
             {
-                player.worldY -= CAMERA_SPEED;
+                player.playerYOffset -= CAMERA_SPEED;
                 frameMovement.playerY += CAMERA_SPEED;
             }
             if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
             {
-                if (player.worldX > 0) { player.worldX -= CAMERA_SPEED; frameMovement.playerX += CAMERA_SPEED; }
-                else if (player.worldX == 0) { xOffset -= CAMERA_SPEED; frameMovement.cameraX += CAMERA_SPEED; }
+                if (player.playerXOffset > 0) { player.playerXOffset -= CAMERA_SPEED; frameMovement.playerX += CAMERA_SPEED; }
+                else if (player.playerXOffset == 0) { xOffset -= CAMERA_SPEED; frameMovement.cameraX += CAMERA_SPEED; }
             }
             if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
             {
-                if (player.worldY > 0) { player.worldY -= CAMERA_SPEED; frameMovement.playerY += CAMERA_SPEED; }
-                else if (player.worldY == 0) { yOffset -= CAMERA_SPEED; frameMovement.cameraY += CAMERA_SPEED; }
+                if (player.playerYOffset > 0) { player.playerYOffset -= CAMERA_SPEED; frameMovement.playerY += CAMERA_SPEED; }
+                else if (player.playerYOffset == 0) { yOffset -= CAMERA_SPEED; frameMovement.cameraY += CAMERA_SPEED; }
             }
             if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
             {
-                if (player.worldX < 0) { player.worldX += CAMERA_SPEED; frameMovement.playerX -= CAMERA_SPEED; }
-                else if (player.worldX == 0) { xOffset += CAMERA_SPEED; frameMovement.cameraX -= CAMERA_SPEED; }
+                if (player.playerXOffset < 0) { player.playerXOffset += CAMERA_SPEED; frameMovement.playerX -= CAMERA_SPEED; }
+                else if (player.playerXOffset == 0) { xOffset += CAMERA_SPEED; frameMovement.cameraX -= CAMERA_SPEED; }
             }
             if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
             {
-                if (player.worldY < 0) { player.worldY += CAMERA_SPEED; frameMovement.playerY -= CAMERA_SPEED; }
-                else if (player.worldY == 0) { yOffset += CAMERA_SPEED; frameMovement.cameraY -= CAMERA_SPEED; }
+                if (player.playerYOffset < 0) { player.playerYOffset += CAMERA_SPEED; frameMovement.playerY -= CAMERA_SPEED; }
+                else if (player.playerYOffset == 0) { yOffset += CAMERA_SPEED; frameMovement.cameraY -= CAMERA_SPEED; }
             }
 
             
 
             //Boundaries
-            if (player.worldX > (WIDTH-PLAYER_SIZE)/2) player.worldX = (WIDTH-PLAYER_SIZE)/2;
-            if (player.worldY > (HEIGHT-PLAYER_SIZE)/2) player.worldY = (HEIGHT-PLAYER_SIZE)/2;
-            if (player.worldX < -((WIDTH - PLAYER_SIZE)/2)) player.worldX = -((WIDTH - PLAYER_SIZE)/2);
-            if (player.worldY < -((HEIGHT - PLAYER_SIZE)/2)) player.worldY = -((HEIGHT - PLAYER_SIZE)/2);
+            if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2;
+            if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
+            if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
+            if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
 
             if (interactPressed && !interactHeld)
             {
@@ -284,6 +284,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 rewinding = true;
                 rewindIndex = movementHistory.get(rewindCount).size();
             }
+
+            System.out.println(xOffset);
+            System.out.println(yOffset);
+            System.out.println(player.playerXOffset);
+            System.out.println(player.playerYOffset);
         }
 
 

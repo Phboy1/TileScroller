@@ -13,8 +13,6 @@ public class Tile {
 
     boolean solid;
 
-    boolean interactable;
-
     public Tile(int x, int y, int size, String type) {
 
         this.x = x;
@@ -29,11 +27,6 @@ public class Tile {
         }
         else {
             solid = false;
-        }
-
-        if (type.equals("0"))
-        {
-            interactable = true;
         }
     }
 
