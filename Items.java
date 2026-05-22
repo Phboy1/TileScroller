@@ -52,4 +52,13 @@ public class Items {
 
         return playerBounds.intersects(itemBounds);
     }
+
+    public boolean isTouchingGhost(Ghost ghost)
+    {
+        Rectangle ghostBounds = ghost.getBounds(Culminating.WIDTH, Culminating.HEIGHT, Culminating.xOffset, Culminating.yOffset);
+
+        Rectangle itemBounds = new Rectangle(x + Culminating.xOffset, y + Culminating.yOffset, width, height);
+        
+        return ghostBounds.intersects(itemBounds);
+    }
 }

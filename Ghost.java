@@ -31,6 +31,20 @@ public class Ghost {
             ghostY -= actions.get(i).playerY;
             ghostCameraX -= actions.get(i).cameraX;
             ghostCameraY -= actions.get(i).cameraY;
+
+            if (actions.get(i).interacted)
+            {
+                Rectangle ghostBounds = getBounds(Culminating.WIDTH, Culminating.HEIGHT, Culminating.xOffset, Culminating.yOffset);
+                for (Items item : Culminating.items)
+                {
+                    Rectangle itemBounds = new Rectangle(item.x + Culminating.xOffset, item.y + Culminating.yOffset, item.width, item.height);
+                    if (ghostBounds.intersects(itemBounds))
+                    {
+                        item.activated = !item.activated;
+                    }
+                }
+            }
+
             i++;
         }
         else
@@ -51,5 +65,12 @@ public class Ghost {
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Serif", Font.BOLD, 30));
         g2d.drawString(String.valueOf(ghostIndex), drawX + 10, drawY + 10);
+    }
+
+    public Rectangle getBounds(int WIDTH, int HEIGHT, int currentCameraX, int currentCameraY)
+    {
+        int drawX = WIDTH / 2 - size / 2 - ghostX + (currentCameraX - ghostCameraX);
+        int drawY = HEIGHT / 2 - size / 2 - ghostY + (currentCameraY - ghostCameraY);
+        return new Rectangle(drawX, drawY, size, size);
     }
 }
