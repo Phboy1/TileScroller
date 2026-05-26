@@ -20,7 +20,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int CAMERA_SPEED = 5;
 
-    static final int RESET_TIME = 7000;
+    static final int RESET_TIME = 15000;
 
     static Tile[][] map = new Tile[rows][cols];
 
@@ -47,12 +47,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static ArrayList<Items> items = new ArrayList<>();
 
+    static ArrayList<Door> doors = new ArrayList<>();
+
     static boolean rewinding = false;
     static final int REWIND_SPEED = 4;
 
     static {movementHistory.add(new java.util.ArrayList<>());}
-
-    static int objectAmount = 200;
 
     static boolean interactPressed = false;
     static boolean interactHeld = false;
@@ -101,17 +101,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             System.out.println("SOMETHING WENT WRONG WITH THE FILE!!!!!!");
         }
 
-        for (int i = 0; i < objectAmount; i++)
-        {
-            int x, y;
-            do {
-                x = (int) (Math.random()*rows);
-                y = (int) (Math.random()*cols);
-            }
-            while (map[x][y].type.equals("8") || map[x][y].type.equals("1"));
-            items.add(new Items(Color.YELLOW, x * TILE_SIZE, y * TILE_SIZE));
-        }
-        
+        items.add(new Items(Color.YELLOW, 20 * TILE_SIZE, 7 * TILE_SIZE, "A"));
+        items.add(new Items(Color.YELLOW, 27 * TILE_SIZE, 10 * TILE_SIZE, "T"));
+
+
+        doors.add(new Door(31 * TILE_SIZE, 10 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", false));
+        doors.add(new Door(28 * TILE_SIZE, 9 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "T", false));
+
 
         while (true) {
             // 1. Logic (Thinking)
@@ -196,19 +192,26 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
         else
         {
+            //Moving the player at the edges
+            Movement frameMovement = new Movement(0, 0, 0, 0, false);
+
             //Update Ghosts only when NOT rewinding
             for (Ghost ghost : ghosts) {
                 ghost.update();
             }
 
+            for (Door door : doors)
+            {
+                door.update();
+            }
+            
              //Moving the Background
             if (xOffset > 0) xOffset = 0;
             if (yOffset > 0) yOffset = 0;
             if (xOffset < -(rows*TILE_SIZE - WIDTH)) xOffset = -(rows*TILE_SIZE - WIDTH);
             if (yOffset < -((cols)*TILE_SIZE - HEIGHT)) yOffset = -((cols)*TILE_SIZE - HEIGHT);
 
-            //Moving the player at the edges
-            Movement frameMovement = new Movement(0, 0, 0, 0, false);
+            
 
             if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
             {
@@ -249,6 +252,14 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             {
                 if (player.playerYOffset < 0) { player.playerYOffset += CAMERA_SPEED; frameMovement.playerY -= CAMERA_SPEED; }
                 else if (player.playerYOffset == 0) { yOffset += CAMERA_SPEED; frameMovement.cameraY -= CAMERA_SPEED; }
+            }
+
+            for (Door door : doors)
+            {
+                if (!door.isOpen && player.getBounds(WIDTH, HEIGHT).intersects(new Rectangle(door.x + xOffset, door.y + yOffset, door.width, door.height)))
+                {
+                    pushOut(door, frameMovement);
+                }
             }
 
             
@@ -322,6 +333,14 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             item.draw(g2d, xOffset, yOffset);
         }
+
+        for (Door door : doors)
+        {
+            door.draw(g2d, xOffset, yOffset);
+
+        }
+
+        
 
 
         //Text
@@ -405,5 +424,80 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             interactHeld = false; 
         }
         
+    }
+
+    public static void pushOut(Door door, Movement frameMovement)
+    {
+        Rectangle playerBounds = player.getBounds(WIDTH, HEIGHT);
+
+        Rectangle doorBounds = new Rectangle(door.x + xOffset, door.y + yOffset, door.width, door.height);
+
+        if (!playerBounds.intersects(doorBounds)) return;
+
+
+        Rectangle intersection = playerBounds.intersection(doorBounds);
+
+        if (door.type.equals("vertical"))
+        {
+            // Push from left
+            if (playerBounds.x < doorBounds.x)
+            {
+                if (player.playerXOffset > 0 || xOffset == 0)
+                {
+                    player.playerXOffset += intersection.width;
+                    frameMovement.playerX -= intersection.width;
+                }
+                else
+                {
+                    xOffset += intersection.width;
+                    frameMovement.cameraX -= intersection.width;
+                }
+            }
+            // Push from right
+            else
+            {
+                if (player.playerXOffset < 0 || xOffset == -(rows * TILE_SIZE - WIDTH))
+                {
+                    player.playerXOffset -= intersection.width;
+                    frameMovement.playerX += intersection.width;
+                }
+                else
+                {
+                    xOffset -= intersection.width;
+                    frameMovement.cameraX += intersection.width;
+                }
+            }
+        }
+        else if (door.type.equals("horizontal"))
+        {
+            // Push from top
+            if (playerBounds.y < doorBounds.y)
+            {
+                if (player.playerYOffset > 0 || yOffset == 0)
+                {
+                    player.playerYOffset += intersection.height;
+                    frameMovement.playerY += intersection.height;
+                }
+                else
+                {
+                    yOffset += intersection.height;
+                    frameMovement.cameraY -= intersection.height;
+                }
+            }
+            // Push from bottom
+            else
+            {
+                if (player.playerYOffset < 0 || yOffset == -(cols * TILE_SIZE - HEIGHT))
+                {
+                    player.playerYOffset -= intersection.height;
+                    frameMovement.playerY -= intersection.height;
+                }
+                else
+                {
+                    yOffset -= intersection.height;
+                    frameMovement.cameraY += intersection.height;
+                }
+            }
+        }
     }
 }

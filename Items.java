@@ -13,12 +13,15 @@ public class Items {
     boolean position = false;
     boolean activated = false;
 
+    String id;
 
-    Items (Color color, int x, int y)
+
+    Items (Color color, int x, int y, String id)
     {
         this.color = color;
         this.x = x;
         this.y = y;
+        this.id = id;
     }
 
     public Rectangle getBounds()

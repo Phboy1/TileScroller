@@ -31,10 +31,22 @@ public class CollisionChecker {
                     Rectangle tileBounds = tile.getBounds(Culminating.xOffset, Culminating.yOffset);
 
                     if (futureBounds.intersects(tileBounds)) {
-                        //System.out.println("HIT: " + tile.type + " @ " + tile.x + "," + tile.y);
+                        System.out.println("HIT: " + tile.type + " @ " + tile.x + "," + tile.y);
                         //System.out.println("COLLIDING");
                         return false;
                     }
+                }
+            }
+        }
+        for (Door door : Culminating.doors)
+        {
+            if (!door.isOpen)
+            {
+                Rectangle doorBounds = new Rectangle(door.x, door.y, door.width, door.height);
+
+                if (futureBounds.intersects(doorBounds))
+                {
+                    return false;
                 }
             }
         }
