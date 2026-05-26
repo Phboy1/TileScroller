@@ -54,7 +54,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static {movementHistory.add(new java.util.ArrayList<>());}
 
-    static boolean interactPressed = false;
     static boolean interactHeld = false;
 
 
@@ -96,16 +95,19 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             br.close();
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("SOMETHING WENT WRONG WITH THE FILE!!!!!!");
         }
 
         items.add(new Items(Color.YELLOW, 20 * TILE_SIZE, 7 * TILE_SIZE, "A"));
+        items.add(new Items(Color.YELLOW, 15 * TILE_SIZE, 7 * TILE_SIZE, "B"));
+        items.add(new Items(Color.YELLOW, 20 * TILE_SIZE, 7 * TILE_SIZE, "C"));
         items.add(new Items(Color.YELLOW, 27 * TILE_SIZE, 10 * TILE_SIZE, "T"));
 
 
         doors.add(new Door(31 * TILE_SIZE, 10 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", false));
+        doors.add(new Door(10 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", true));
+        doors.add(new Door(18 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", false));
         doors.add(new Door(28 * TILE_SIZE, 9 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "T", false));
 
 
@@ -270,18 +272,24 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
             if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
 
-            if (interactPressed && !interactHeld)
+            if (interactHeld)
             {
-                interactHeld = true;
                 for (Items item : items)
                 {
                     if (item.isTouchingPlayer(player))
                     {
                         System.out.println("HERE");
-                        item.activated = !item.activated;
+                        item.activated = true;
                         frameMovement.interacted = true;
-
+                        
                     }
+                }
+            }
+            else
+            {
+                for (Items item : items)
+                {
+                    item.activated = false;
                 }
             }
             // Add the frame
@@ -392,7 +400,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public void keyPressed(KeyEvent e) {
-        if (!rewinding)
+        if (!rewinding && !interactHeld)
         {
             if (e.getKeyCode() == KeyEvent.VK_S) goingDown = true;
             if (e.getKeyCode() == KeyEvent.VK_W) goingUp = true;
@@ -404,7 +412,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (e.getKeyCode() == KeyEvent.VK_LEFT) goingLeft = true;
             if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = true;
 
-            if (e.getKeyCode() == KeyEvent.VK_E) interactPressed = true;
+            if (e.getKeyCode() == KeyEvent.VK_E) interactHeld = true;
         }
     }
 
@@ -420,7 +428,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = false;
 
         if (e.getKeyCode() == KeyEvent.VK_E) { 
-            interactPressed = false; 
             interactHeld = false; 
         }
         
@@ -501,3 +508,4 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
     }
 }
+

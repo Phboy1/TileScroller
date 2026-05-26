@@ -11,6 +11,7 @@ public class Door {
     String id;
 
     boolean isOpen = false;
+    String startPosition;
 
     String type;
 
@@ -25,19 +26,22 @@ public class Door {
         this.height = height;
         this.id = id;
         this.isOpen = isOpen;
-        this.type = (width > height ? "horizontal" : "vertical");
+        this.startPosition = (isOpen ? "Open" : "Closed");
+        this.type = (width >= height ? "horizontal" : "vertical");
     }
 
     public void update()
     {
-        isOpen = false;
-
         for (Items item : Culminating.items)
         {
             if (id.equals(item.id) && item.activated)
             {
-                isOpen = true;
+                isOpen = (startPosition.equals("Open") ? false : true);
                 break;
+            }
+            else
+            {
+                isOpen = (startPosition.equals("Closed") ? false : true);
             }
         }
     }
