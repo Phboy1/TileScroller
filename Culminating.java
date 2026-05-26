@@ -20,7 +20,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int CAMERA_SPEED = 5;
 
-    static final int RESET_TIME = 15000;
+    static final int RESET_TIME = 7000;
 
     static Tile[][] map = new Tile[rows][cols];
 
@@ -101,7 +101,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         items.add(new Items(Color.YELLOW, 20 * TILE_SIZE, 7 * TILE_SIZE, "A"));
         items.add(new Items(Color.YELLOW, 15 * TILE_SIZE, 7 * TILE_SIZE, "B"));
-        items.add(new Items(Color.YELLOW, 20 * TILE_SIZE, 7 * TILE_SIZE, "C"));
+        items.add(new Items(Color.YELLOW, 17 * TILE_SIZE, 7 * TILE_SIZE, "B"));
+
         items.add(new Items(Color.YELLOW, 27 * TILE_SIZE, 10 * TILE_SIZE, "T"));
 
 
@@ -157,7 +158,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                         {
                             if (item.isTouchingPlayer(player))
                             {
-                                item.activated = !item.activated;
+                                item.activated = true;
                             }
                         }
                     }
@@ -197,9 +198,29 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             //Moving the player at the edges
             Movement frameMovement = new Movement(0, 0, 0, 0, false);
 
+            // Reset all items first
+            for (Items item : items)
+            {
+                item.activated = false;
+            }
+
             //Update Ghosts only when NOT rewinding
             for (Ghost ghost : ghosts) {
                 ghost.update();
+            }
+            
+            // Player votes true
+            if (interactHeld)
+            {
+                for (Items item : items)
+                {
+                    if (item.isTouchingPlayer(player))
+                    {
+                        item.activated = true;
+                        frameMovement.interacted = true;
+                        frameMovement.interactedItemId = item.id;
+                    }
+                }
             }
 
             for (Door door : doors)
@@ -272,26 +293,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
             if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
 
-            if (interactHeld)
-            {
-                for (Items item : items)
-                {
-                    if (item.isTouchingPlayer(player))
-                    {
-                        System.out.println("HERE");
-                        item.activated = true;
-                        frameMovement.interacted = true;
-                        
-                    }
-                }
-            }
-            else
-            {
-                for (Items item : items)
-                {
-                    item.activated = false;
-                }
-            }
+            
+
+            
+            
             // Add the frame
             movementHistory.get(rewindCount).add(frameMovement);
 

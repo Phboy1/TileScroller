@@ -34,13 +34,14 @@ public class Ghost {
 
             if (actions.get(i).interacted)
             {
-                Rectangle ghostBounds = getBounds(Culminating.WIDTH, Culminating.HEIGHT, Culminating.xOffset, Culminating.yOffset);
+                System.out.println("GHOST INTERACTING: " + actions.get(i).interactedItemId);
                 for (Items item : Culminating.items)
                 {
-                    Rectangle itemBounds = new Rectangle(item.x + Culminating.xOffset, item.y + Culminating.yOffset, item.width, item.height);
-                    if (ghostBounds.intersects(itemBounds))
+                    if (item.id.equals(actions.get(i).interactedItemId))
                     {
-                        item.activated = !item.activated;
+                        System.out.println("SETTING " + item.id + " TO TRUE");
+                        item.activated = true;
+                        
                     }
                 }
             }

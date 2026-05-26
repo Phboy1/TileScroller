@@ -6,6 +6,7 @@ public class Movement {
     int cameraX;
     int cameraY;
     boolean interacted;
+    String interactedItemId = null;
 
     Movement (int playerX, int playerY, int cameraX, int cameraY, boolean interacted)
     {
