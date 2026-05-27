@@ -8,6 +8,8 @@ import java.io.*;
 import java.util.*;
 
 public class Culminating extends Canvas implements KeyListener, MouseListener, MouseMotionListener {
+    static final int NO_TIMER_DOOR = 0;
+
     static final int WIDTH = 1280;
     static final int HEIGHT = 720;
     static final int FRAME_DELAY = 16;
@@ -106,10 +108,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         items.add(new Items(Color.YELLOW, 27 * TILE_SIZE, 10 * TILE_SIZE, "T"));
 
 
-        doors.add(new Door(31 * TILE_SIZE, 10 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", false));
-        doors.add(new Door(10 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", true));
-        doors.add(new Door(18 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", false));
-        doors.add(new Door(28 * TILE_SIZE, 9 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "T", false));
+        doors.add(new Door(31 * TILE_SIZE, 10 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", false, NO_TIMER_DOOR));
+        doors.add(new Door(10 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", true, NO_TIMER_DOOR));
+        doors.add(new Door(18 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", true, 4));
+        doors.add(new Door(28 * TILE_SIZE, 9 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "T", true, 4));
 
 
         while (true) {
@@ -208,7 +210,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             for (Ghost ghost : ghosts) {
                 ghost.update();
             }
-            
+
             // Player votes true
             if (interactHeld)
             {

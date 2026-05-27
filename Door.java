@@ -3,10 +3,16 @@ package TileScroller;
 import java.awt.*;
 
 public class Door {
+    static final int FRAMES_PER_SECOND = 30;
+    static final int BUFFER = 5;
+    
     int x;
     int y;
     int width;
     int height;
+
+    int timer = 0;        
+    int timerMax = 0;
 
     String id;
 
@@ -18,7 +24,7 @@ public class Door {
     final Color CLOSED_DOOR = new Color(255, 0, 0);
     final Color OPEN_DOOR = new Color(255, 0, 0, 150);
 
-    Door (int x, int y, int width, int height, String id, boolean isOpen)
+    Door (int x, int y, int width, int height, String id, boolean isOpen, int timerMax)
     {
         this.x = x;
         this.y = y;
@@ -28,6 +34,7 @@ public class Door {
         this.isOpen = isOpen;
         this.startPosition = (isOpen ? "Open" : "Closed");
         this.type = (width >= height ? "horizontal" : "vertical");
+        this.timerMax = FRAMES_PER_SECOND * timerMax + BUFFER;
     }
 
     public void update()
@@ -42,6 +49,16 @@ public class Door {
             else
             {
                 isOpen = (startPosition.equals("Closed") ? false : true);
+            }
+        }
+
+        if (isOpen && timerMax > 0)
+        {
+            timer++;
+
+            if (timer > timerMax)
+            {
+                isOpen = false;
             }
         }
     }
