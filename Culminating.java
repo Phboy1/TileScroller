@@ -9,6 +9,7 @@ import java.util.*;
 
 public class Culminating extends Canvas implements KeyListener, MouseListener, MouseMotionListener {
     static final int NO_TIMER_DOOR = 0;
+    static final int FRAMES_PER_SECOND = 30;
 
     static final int WIDTH = 1280;
     static final int HEIGHT = 720;
@@ -104,7 +105,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         items.add(new Items(Color.YELLOW, 20 * TILE_SIZE, 7 * TILE_SIZE, "A"));
         items.add(new Items(Color.YELLOW, 15 * TILE_SIZE, 7 * TILE_SIZE, "B"));
         items.add(new Items(Color.YELLOW, 17 * TILE_SIZE, 7 * TILE_SIZE, "B"));
-
         items.add(new Items(Color.YELLOW, 27 * TILE_SIZE, 10 * TILE_SIZE, "T"));
 
 
@@ -189,6 +189,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     {
                         item.activated = false;
                     }
+
+                    for (Door door : doors)
+                    {
+                        door.timer = -FRAMES_PER_SECOND/2;
+                    }
+                    
                     rewinding = false;
 
                     break;
@@ -199,6 +205,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             //Moving the player at the edges
             Movement frameMovement = new Movement(0, 0, 0, 0, false);
+
 
             // Reset all items first
             for (Items item : items)
