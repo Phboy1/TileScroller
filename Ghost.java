@@ -39,7 +39,7 @@ public class Ghost {
                 {
                     if (item.id.equals(actions.get(i).interactedItemId))
                     {
-                        System.out.println("SETTING " + item.id + " TO TRUE");
+                        //System.out.println("SETTING " + item.id + " TO TRUE");
                         item.activated = true;
                         
                     }
@@ -53,7 +53,7 @@ public class Ghost {
             
             finished = true;
         }
-        System.out.println("ghostIndex: " + ghostIndex + " rewindCount: " + Culminating.rewindCount + " actions: " + actions.size());
+        //System.out.println("ghostIndex: " + ghostIndex + " rewindCount: " + Culminating.rewindCount + " actions: " + actions.size());
     }
 
     public void draw(Graphics2D g2d, int WIDTH, int HEIGHT, int currentCameraX, int currentCameraY)
@@ -73,5 +73,9 @@ public class Ghost {
         int drawX = WIDTH / 2 - size / 2 - ghostX + (currentCameraX - ghostCameraX);
         int drawY = HEIGHT / 2 - size / 2 - ghostY + (currentCameraY - ghostCameraY);
         return new Rectangle(drawX, drawY, size, size);
+    }
+    public boolean isClicked(int mouseX, int mouseY)
+    {
+        return getBounds(Culminating.WIDTH, Culminating.HEIGHT, Culminating.xOffset, Culminating.yOffset).contains(mouseX, mouseY);
     }
 }

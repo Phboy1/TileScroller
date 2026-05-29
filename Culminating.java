@@ -11,9 +11,16 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int NO_TIMER_DOOR = 0;
     static final int FRAMES_PER_SECOND = 30;
 
+    static int state = 0;
+
+    static final int MENU = 0;
+    static final int PLAYING = 1;
+
     static final int WIDTH = 1280;
     static final int HEIGHT = 720;
     static final int FRAME_DELAY = 16;
+
+    static final long SECONDS_TO_NANO = 1000000000L;
 
     static final int rows = 100;
     static final int cols = 100;
@@ -23,7 +30,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int CAMERA_SPEED = 5;
 
-    static final int RESET_TIME = 7000;
+    static final long RESET_TIME = 7 * SECONDS_TO_NANO;
 
     static Tile[][] map = new Tile[rows][cols];
 
@@ -39,8 +46,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static boolean goingLeft = false;
     static boolean goingRight = false;
 
-    static long startTime = System.currentTimeMillis();
+    static long startTime;
     static long currentTime;
+    static double elapsedTime;
     static int rewindIndex;
     static int rewindCount = 0;
 
@@ -51,6 +59,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static ArrayList<Items> items = new ArrayList<>();
 
     static ArrayList<Door> doors = new ArrayList<>();
+
+    static Ghost possessedGhost = null;
 
     static boolean rewinding = false;
     static final int REWIND_SPEED = 4;
@@ -104,14 +114,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         items.add(new Items(Color.YELLOW, 20 * TILE_SIZE, 7 * TILE_SIZE, "A"));
         items.add(new Items(Color.YELLOW, 15 * TILE_SIZE, 7 * TILE_SIZE, "B"));
-        items.add(new Items(Color.YELLOW, 17 * TILE_SIZE, 7 * TILE_SIZE, "B"));
         items.add(new Items(Color.YELLOW, 27 * TILE_SIZE, 10 * TILE_SIZE, "T"));
 
-
         doors.add(new Door(31 * TILE_SIZE, 10 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", false, NO_TIMER_DOOR));
-        doors.add(new Door(10 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", true, NO_TIMER_DOOR));
-        doors.add(new Door(18 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", true, 4));
-        doors.add(new Door(28 * TILE_SIZE, 9 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "T", true, 4));
+        doors.add(new Door(10 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", false, NO_TIMER_DOOR));
+        doors.add(new Door(18 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", false, NO_TIMER_DOOR));
+        doors.add(new Door(28 * TILE_SIZE, 9 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "T", false, NO_TIMER_DOOR));
 
 
         while (true) {
@@ -141,244 +149,266 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public static void update() {
-        if (rewinding)
+        switch (state)
         {
-            for (int i = 0; i < REWIND_SPEED; i++)
+            case PLAYING:
             {
-                //Rewind Index: Frame that the rewind is on. REWIND_SPEED: Amount of frames that it rewinds by every time.
-                if (rewindIndex > 0)
+                if (rewinding)
                 {
-                    rewindIndex--;
-                    Movement movement = movementHistory.get(rewindCount).get(rewindIndex);
-                    player.playerXOffset += movement.playerX;
-                    player.playerYOffset += movement.playerY;
-                    xOffset += movement.cameraX;
-                    yOffset += movement.cameraY;
-                    if (movement.interacted)
+                    for (int i = 0; i < REWIND_SPEED; i++)
+                    {
+                        //Rewind Index: Frame that the rewind is on. REWIND_SPEED: Amount of frames that it rewinds by every time.
+                        if (rewindIndex > 0)
+                        {
+                            rewindIndex--;
+                            Movement movement = movementHistory.get(rewindCount).get(rewindIndex);
+                            player.playerXOffset += movement.playerX;
+                            player.playerYOffset += movement.playerY;
+                            xOffset += movement.cameraX;
+                            yOffset += movement.cameraY;
+                            if (movement.interacted)
+                            {
+                                for (Items item : items)
+                                {
+                                    if (item.isTouchingPlayer(player))
+                                    {
+                                        item.activated = true;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            //Reset time, add new ghost, amount of ghosts gets increased, add a new list for the new ghost.
+                            startTime = System.nanoTime();
+                            ghosts.add(new Ghost(rewindCount, PLAYER_SIZE)); 
+                            rewindCount++;
+                            movementHistory.add(new java.util.ArrayList<>()); 
+                            
+                            //Resetting all ghosts
+                            for (Ghost ghost : ghosts)
+                            {
+                                ghost.i = 0;
+                                ghost.ghostX = 0;
+                                ghost.ghostY = 0;
+                                ghost.ghostCameraX = 0;
+                                ghost.ghostCameraY = 0;
+                                ghost.finished = false;
+                            }
+
+                            //Reset items
+                            for (Items item : items)
+                            {
+                                item.activated = false;
+                            }
+
+                            for (Door door : doors)
+                            {
+                                door.timer = -FRAMES_PER_SECOND/2;
+                            }
+                            
+                            rewinding = false;
+
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    //Moving the player at the edges
+                    Movement frameMovement = new Movement(0, 0, 0, 0, false);
+
+
+                    // Reset all items first
+                    for (Items item : items)
+                    {
+                        item.activated = false;
+                    }
+
+                    //Update Ghosts only when NOT rewinding
+                    for (Ghost ghost : ghosts) {
+                        ghost.update();
+                    }
+
+                    // Player votes true
+                    if (interactHeld)
                     {
                         for (Items item : items)
                         {
                             if (item.isTouchingPlayer(player))
                             {
                                 item.activated = true;
+                                frameMovement.interacted = true;
+                                frameMovement.interactedItemId = item.id;
                             }
                         }
-                    }
-                }
-                else
-                {
-                    //Reset time, add new ghost, amount of ghosts gets increased, add a new list for the new ghost.
-                    startTime = System.currentTimeMillis();
-                    ghosts.add(new Ghost(rewindCount, PLAYER_SIZE)); 
-                    rewindCount++;
-                    movementHistory.add(new java.util.ArrayList<>()); 
-                    
-                    //Resetting all ghosts
-                    for (Ghost ghost : ghosts)
-                    {
-                        ghost.i = 0;
-                        ghost.ghostX = 0;
-                        ghost.ghostY = 0;
-                        ghost.ghostCameraX = 0;
-                        ghost.ghostCameraY = 0;
-                        ghost.finished = false;
-                    }
-
-                    //Reset items
-                    for (Items item : items)
-                    {
-                        item.activated = false;
                     }
 
                     for (Door door : doors)
                     {
-                        door.timer = -FRAMES_PER_SECOND/2;
+                        door.update();
                     }
                     
-                    rewinding = false;
+                    //Moving the Background
+                    if (xOffset > 0) xOffset = 0;
+                    if (yOffset > 0) yOffset = 0;
+                    if (xOffset < -(rows*TILE_SIZE - WIDTH)) xOffset = -(rows*TILE_SIZE - WIDTH);
+                    if (yOffset < -((cols)*TILE_SIZE - HEIGHT)) yOffset = -((cols)*TILE_SIZE - HEIGHT);
 
-                    break;
-                }
-            }
-        }
-        else
-        {
-            //Moving the player at the edges
-            Movement frameMovement = new Movement(0, 0, 0, 0, false);
+                    
 
-
-            // Reset all items first
-            for (Items item : items)
-            {
-                item.activated = false;
-            }
-
-            //Update Ghosts only when NOT rewinding
-            for (Ghost ghost : ghosts) {
-                ghost.update();
-            }
-
-            // Player votes true
-            if (interactHeld)
-            {
-                for (Items item : items)
-                {
-                    if (item.isTouchingPlayer(player))
+                    if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
                     {
-                        item.activated = true;
-                        frameMovement.interacted = true;
-                        frameMovement.interactedItemId = item.id;
+                        player.playerXOffset += CAMERA_SPEED;
+                        frameMovement.playerX -= CAMERA_SPEED;
                     }
+                    if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
+                    {
+                        player.playerYOffset += CAMERA_SPEED;
+                        frameMovement.playerY -= CAMERA_SPEED;
+                    }
+                    if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+                    {
+                        player.playerXOffset -= CAMERA_SPEED;
+                        frameMovement.playerX += CAMERA_SPEED;
+                    }
+                    if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+                    {
+                        player.playerYOffset -= CAMERA_SPEED;
+                        frameMovement.playerY += CAMERA_SPEED;
+                    }
+                    if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+                    {
+                        if (player.playerXOffset > 0) { player.playerXOffset -= CAMERA_SPEED; frameMovement.playerX += CAMERA_SPEED; }
+                        else if (player.playerXOffset == 0) { xOffset -= CAMERA_SPEED; frameMovement.cameraX += CAMERA_SPEED; }
+                    }
+                    if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+                    {
+                        if (player.playerYOffset > 0) { player.playerYOffset -= CAMERA_SPEED; frameMovement.playerY += CAMERA_SPEED; }
+                        else if (player.playerYOffset == 0) { yOffset -= CAMERA_SPEED; frameMovement.cameraY += CAMERA_SPEED; }
+                    }
+                    if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
+                    {
+                        if (player.playerXOffset < 0) { player.playerXOffset += CAMERA_SPEED; frameMovement.playerX -= CAMERA_SPEED; }
+                        else if (player.playerXOffset == 0) { xOffset += CAMERA_SPEED; frameMovement.cameraX -= CAMERA_SPEED; }
+                    }
+                    if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
+                    {
+                        if (player.playerYOffset < 0) { player.playerYOffset += CAMERA_SPEED; frameMovement.playerY -= CAMERA_SPEED; }
+                        else if (player.playerYOffset == 0) { yOffset += CAMERA_SPEED; frameMovement.cameraY -= CAMERA_SPEED; }
+                    }
+
+                    for (Door door : doors)
+                    {
+                        if (!door.isOpen && player.getBounds(WIDTH, HEIGHT).intersects(new Rectangle(door.x + xOffset, door.y + yOffset, door.width, door.height)))
+                        {
+                            pushOut(door, frameMovement);
+                        }
+                    }
+
+                    
+
+                    //Boundaries
+                    if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2;
+                    if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
+                    if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
+                    if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
+
+                    
+
+                    
+                    
+                    // Add the frame
+                    movementHistory.get(rewindCount).add(frameMovement);
+
+
+                    currentTime = System.nanoTime();
+                    elapsedTime = (RESET_TIME - (currentTime - startTime))/ (double) SECONDS_TO_NANO;
+
+                    if (!rewinding && (currentTime - startTime) >= RESET_TIME)
+                    {
+                        rewinding = true;
+                        rewindIndex = movementHistory.get(rewindCount).size();
+                    }
+
+                    System.out.println(xOffset);
+                    //System.out.println(yOffset);
+                    System.out.println(player.playerXOffset);
+                    //System.out.println(player.playerYOffset);
                 }
+                break;  
             }
-
-            for (Door door : doors)
+            case MENU:
             {
-                door.update();
+                break;
             }
-            
-             //Moving the Background
-            if (xOffset > 0) xOffset = 0;
-            if (yOffset > 0) yOffset = 0;
-            if (xOffset < -(rows*TILE_SIZE - WIDTH)) xOffset = -(rows*TILE_SIZE - WIDTH);
-            if (yOffset < -((cols)*TILE_SIZE - HEIGHT)) yOffset = -((cols)*TILE_SIZE - HEIGHT);
-
-            
-
-            if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
-            {
-                player.playerXOffset += CAMERA_SPEED;
-                frameMovement.playerX -= CAMERA_SPEED;
-            }
-            if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
-            {
-                player.playerYOffset += CAMERA_SPEED;
-                frameMovement.playerY -= CAMERA_SPEED;
-            }
-            if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
-            {
-                player.playerXOffset -= CAMERA_SPEED;
-                frameMovement.playerX += CAMERA_SPEED;
-            }
-            if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
-            {
-                player.playerYOffset -= CAMERA_SPEED;
-                frameMovement.playerY += CAMERA_SPEED;
-            }
-            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
-            {
-                if (player.playerXOffset > 0) { player.playerXOffset -= CAMERA_SPEED; frameMovement.playerX += CAMERA_SPEED; }
-                else if (player.playerXOffset == 0) { xOffset -= CAMERA_SPEED; frameMovement.cameraX += CAMERA_SPEED; }
-            }
-            if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
-            {
-                if (player.playerYOffset > 0) { player.playerYOffset -= CAMERA_SPEED; frameMovement.playerY += CAMERA_SPEED; }
-                else if (player.playerYOffset == 0) { yOffset -= CAMERA_SPEED; frameMovement.cameraY += CAMERA_SPEED; }
-            }
-            if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
-            {
-                if (player.playerXOffset < 0) { player.playerXOffset += CAMERA_SPEED; frameMovement.playerX -= CAMERA_SPEED; }
-                else if (player.playerXOffset == 0) { xOffset += CAMERA_SPEED; frameMovement.cameraX -= CAMERA_SPEED; }
-            }
-            if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
-            {
-                if (player.playerYOffset < 0) { player.playerYOffset += CAMERA_SPEED; frameMovement.playerY -= CAMERA_SPEED; }
-                else if (player.playerYOffset == 0) { yOffset += CAMERA_SPEED; frameMovement.cameraY -= CAMERA_SPEED; }
-            }
-
-            for (Door door : doors)
-            {
-                if (!door.isOpen && player.getBounds(WIDTH, HEIGHT).intersects(new Rectangle(door.x + xOffset, door.y + yOffset, door.width, door.height)))
-                {
-                    pushOut(door, frameMovement);
-                }
-            }
-
-            
-
-            //Boundaries
-            if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2;
-            if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
-            if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
-            if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
-
-            
-
-            
-            
-            // Add the frame
-            movementHistory.get(rewindCount).add(frameMovement);
-
-
-            currentTime = System.currentTimeMillis();
-
-            if (!rewinding && (currentTime - startTime) >= RESET_TIME)
-            {
-                rewinding = true;
-                rewindIndex = movementHistory.get(rewindCount).size();
-            }
-
-            System.out.println(xOffset);
-            System.out.println(yOffset);
-            System.out.println(player.playerXOffset);
-            System.out.println(player.playerYOffset);
         }
-
-
-
     }
 
     public static void draw(Graphics2D g2d) {
+        switch (state)
+        {
+            case MENU:
+            {
+                g2d.setColor(Color.BLACK);
+                g2d.fillRect(0,0,WIDTH,HEIGHT);
 
-        //Tiles
-        for (int i = 0; i < rows; i++) {
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Serif", Font.BOLD, 32));
+                g2d.drawString("PRESS ENTER TO START", WIDTH/2 - 150, HEIGHT/2 + 20);
+                break;
+            }
+            case PLAYING:
+            {
+                //Tiles
+                for (int i = 0; i < rows; i++) {
 
-            for (int j = 0; j < cols; j++) {
+                    for (int j = 0; j < cols; j++) {
 
-                Tile tile = map[i][j];
+                        Tile tile = map[i][j];
 
-                if (tile != null) {
+                        if (tile != null) {
 
-                    int x = tile.x + xOffset;
-                    int y = tile.y + yOffset;
+                            int x = tile.x + xOffset;
+                            int y = tile.y + yOffset;
 
-                    if (x + TILE_SIZE > 0 && x < WIDTH && y + TILE_SIZE > 0 && y < HEIGHT)
-                    {
-                        tile.draw(g2d, xOffset, yOffset);
+                            if (x + TILE_SIZE > 0 && x < WIDTH && y + TILE_SIZE > 0 && y < HEIGHT)
+                            {
+                                tile.draw(g2d, xOffset, yOffset);
+                            }
+                        }
                     }
                 }
+
+                //Objects        
+                for (Items item : items)
+                {
+                    item.draw(g2d, xOffset, yOffset);
+                }
+
+                for (Door door : doors)
+                {
+                    door.draw(g2d, xOffset, yOffset);
+
+                }
+
+
+                //Text
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Serif", Font.BOLD, 32));
+                g2d.drawString("Time: " + String.format("%.1f", elapsedTime), 30, 50);
+
+                //Ghosts
+                g2d.setColor(Color.CYAN);
+                for (Ghost ghost : ghosts) {
+                    ghost.draw(g2d, WIDTH, HEIGHT, xOffset, yOffset);
+                }
+
+                //Player
+                player.draw(g2d, WIDTH, HEIGHT);
+                break;
             }
         }
-
-        //Objects        
-        for (Items item : items)
-        {
-            item.draw(g2d, xOffset, yOffset);
-        }
-
-        for (Door door : doors)
-        {
-            door.draw(g2d, xOffset, yOffset);
-
-        }
-
-        
-
-
-        //Text
-        g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Serif", Font.BOLD, 32));
-        g2d.drawString("Time: " + (double)(((double)currentTime - startTime)/1000), 30, 50);
-
-        //Ghosts
-        g2d.setColor(Color.CYAN);
-        for (Ghost ghost : ghosts) {
-            ghost.draw(g2d, WIDTH, HEIGHT, xOffset, yOffset);
-        }
-
-        //Player
-        player.draw(g2d, WIDTH, HEIGHT);
-
     }
 
     public void mouseDragged(MouseEvent e) {
@@ -394,7 +424,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public void mousePressed(MouseEvent e) {
-
+      
     }
 
     public void mouseReleased(MouseEvent e) {
@@ -427,6 +457,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = true;
 
             if (e.getKeyCode() == KeyEvent.VK_E) interactHeld = true;
+        }
+
+        if (state == MENU && e.getKeyCode() == KeyEvent.VK_ENTER)
+        {
+            startTime = System.nanoTime();
+            state = PLAYING;
         }
     }
 

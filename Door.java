@@ -4,7 +4,6 @@ import java.awt.*;
 
 public class Door {
     static final int FRAMES_PER_SECOND = 30;
-    static final int BUFFER = 5;
     
     int x;
     int y;
@@ -34,7 +33,7 @@ public class Door {
         this.isOpen = isOpen;
         this.startPosition = (isOpen ? "Open" : "Closed");
         this.type = (width >= height ? "horizontal" : "vertical");
-        this.timerMax = FRAMES_PER_SECOND * timerMax + BUFFER;
+        this.timerMax = FRAMES_PER_SECOND * timerMax;
     }
 
     public void update()
