@@ -12,6 +12,10 @@ public class Ghost {
     int ghostIndex;
     int i = 0;
     boolean finished = false;
+    boolean isDead;
+
+    static final Color DEAD_COLOR = Color.DARK_GRAY;
+    static final Color ALIVE_COLOR = Color.CYAN;
 
     Ghost (int ghostIndex, int size)
     {
@@ -50,15 +54,21 @@ public class Ghost {
         }
         else
         {
-            
-            finished = true;
+            actions.add(new Movement(0, 0, 0, 0, false));
         }
         //System.out.println("ghostIndex: " + ghostIndex + " rewindCount: " + Culminating.rewindCount + " actions: " + actions.size());
     }
 
     public void draw(Graphics2D g2d, int WIDTH, int HEIGHT, int currentCameraX, int currentCameraY)
     {
-        g2d.setColor(Color.CYAN);
+        if (!isDead)
+        {   
+            g2d.setColor(ALIVE_COLOR);
+        }
+        else
+        {
+            g2d.setColor(DEAD_COLOR);
+        }
         int drawX = WIDTH / 2 - size / 2 - ghostX + (currentCameraX - ghostCameraX);
         int drawY = HEIGHT / 2 - size / 2 - ghostY + (currentCameraY - ghostCameraY);
         g2d.fillRect(drawX, drawY, size, size);
@@ -73,9 +83,5 @@ public class Ghost {
         int drawX = WIDTH / 2 - size / 2 - ghostX + (currentCameraX - ghostCameraX);
         int drawY = HEIGHT / 2 - size / 2 - ghostY + (currentCameraY - ghostCameraY);
         return new Rectangle(drawX, drawY, size, size);
-    }
-    public boolean isClicked(int mouseX, int mouseY)
-    {
-        return getBounds(Culminating.WIDTH, Culminating.HEIGHT, Culminating.xOffset, Culminating.yOffset).contains(mouseX, mouseY);
     }
 }

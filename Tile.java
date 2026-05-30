@@ -35,24 +35,31 @@ public class Tile {
         int drawX = x + xOffset;
         int drawY = y + yOffset;
 
-        if (type.equals("_")) {
-            g2d.setColor(Color.GREEN);
+        if (type.equals("8")) {
+            g2d.setColor(new Color(0,56,4));
         }
-        else if (type.equals("1")) {
-            g2d.setColor(Color.BLUE);
+        else if (type.equals("_")) {
+            g2d.setColor(new Color(16,88,0));
         }
-        else if (type.equals("8")) {
-            g2d.setColor(Color.GRAY);
+        else if (type.equals("L")) {
+            g2d.setColor(new Color(255, 69, 0));
         }
         else if (type.equals("-")) {
             g2d.setColor(new Color(150, 75, 0));
         }
-        
+        else {
+            g2d.setColor(Color.WHITE);
+        }
 
         g2d.fillRect(drawX, drawY, size, size);
 
-        g2d.setColor(Color.WHITE);
-        g2d.drawRect(drawX, drawY, size, size);
+        //g2d.setColor(Color.WHITE);
+        //g2d.drawRect(drawX, drawY, size, size);
+    }
+
+    public boolean isLava()
+    {
+        return type.equals("L");
     }
 
     public Rectangle getBounds(int xOffset, int yOffset) {

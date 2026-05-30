@@ -6,8 +6,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
+import javax.imageio.*;
 
 public class Culminating extends Canvas implements KeyListener, MouseListener, MouseMotionListener {
+    static BufferedImage img;
+
     static final int NO_TIMER_DOOR = 0;
     static final int FRAMES_PER_SECOND = 30;
 
@@ -28,9 +31,14 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int TILE_SIZE = 40;
     static final int PLAYER_SIZE = 40;
 
+    static final int STARTING_XOFFSET = 0;
+    static final int STARTING_YOFFSET = 0;
+    static final int STARTING_PLAYERXOFFSET = TILE_SIZE * 7;
+    static final int STARTING_PLAYERYOFFSET = TILE_SIZE * 1;
+
     static final int CAMERA_SPEED = 5;
 
-    static final long RESET_TIME = 7 * SECONDS_TO_NANO;
+    static final long RESET_TIME = 5 * SECONDS_TO_NANO;
 
     static Tile[][] map = new Tile[rows][cols];
 
@@ -52,6 +60,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int rewindIndex;
     static int rewindCount = 0;
 
+    static int maxHealth = 3;
+    static int health = maxHealth;
+
     static ArrayList<Ghost> ghosts = new ArrayList<>();
 
     static ArrayList<ArrayList<Movement>> movementHistory = new ArrayList<>();
@@ -60,12 +71,18 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static ArrayList<Door> doors = new ArrayList<>();
 
+    static ArrayList<Enemy> enemies = new ArrayList<>();
+
     static Ghost possessedGhost = null;
 
     static boolean rewinding = false;
     static final int REWIND_SPEED = 4;
 
-    static {movementHistory.add(new java.util.ArrayList<>());}
+    static {
+        player.playerXOffset = STARTING_PLAYERXOFFSET;
+        player.playerYOffset = STARTING_PLAYERYOFFSET;
+        movementHistory.add(new java.util.ArrayList<>());
+    }
 
     static boolean interactHeld = false;
 
@@ -89,7 +106,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         BufferStrategy bs = game.getBufferStrategy();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileScroller/TileGrid.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
             String line = br.readLine();
             int j = 0;
 
@@ -112,15 +129,45 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             System.out.println("SOMETHING WENT WRONG WITH THE FILE!!!!!!");
         }
 
-        items.add(new Items(Color.YELLOW, 20 * TILE_SIZE, 7 * TILE_SIZE, "A"));
-        items.add(new Items(Color.YELLOW, 15 * TILE_SIZE, 7 * TILE_SIZE, "B"));
-        items.add(new Items(Color.YELLOW, 27 * TILE_SIZE, 10 * TILE_SIZE, "T"));
+        try {
+            img = ImageIO.read(new File("assets/floor_tile.png"));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        doors.add(new Door(31 * TILE_SIZE, 10 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", false, NO_TIMER_DOOR));
-        doors.add(new Door(10 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "A", false, NO_TIMER_DOOR));
-        doors.add(new Door(18 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", false, NO_TIMER_DOOR));
-        doors.add(new Door(28 * TILE_SIZE, 9 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "T", false, NO_TIMER_DOOR));
+        items.add(new Items(Color.YELLOW, 8 * TILE_SIZE, 7 * TILE_SIZE, "A")); // Room A -> unlocks A->B
+        items.add(new Items(Color.YELLOW, 25 * TILE_SIZE, 6 * TILE_SIZE, "B")); // Room B -> unlocks B->C
+        items.add(new Items(Color.YELLOW, 22 * TILE_SIZE, 8 * TILE_SIZE, "D")); // Room B -> unlocks B->E
+        items.add(new Items(Color.YELLOW, 43 * TILE_SIZE, 8 * TILE_SIZE, "C")); // Room C -> unlocks A->D
+        items.add(new Items(Color.YELLOW, 40 * TILE_SIZE, 5 * TILE_SIZE, "E")); // Room C -> unlocks C->E
+        items.add(new Items(Color.YELLOW, 47 * TILE_SIZE, 5 * TILE_SIZE, "F")); // Room C -> unlocks C->F
+        items.add(new Items(Color.YELLOW, 8 * TILE_SIZE, 24 * TILE_SIZE, "G")); // Room D -> unlocks D->E
+        items.add(new Items(Color.YELLOW, 30 * TILE_SIZE, 20 * TILE_SIZE, "H")); // Room E -> unlocks E->F
+        items.add(new Items(Color.YELLOW, 35 * TILE_SIZE, 30 * TILE_SIZE, "I")); // Room E -> unlocks E->H
+        items.add(new Items(Color.YELLOW, 62 * TILE_SIZE, 12 * TILE_SIZE, "J")); // Room F -> unlocks F->J
+        items.add(new Items(Color.YELLOW, 62 * TILE_SIZE, 25 * TILE_SIZE, "K")); // Room F -> unlocks F->I
+        items.add(new Items(Color.YELLOW, 10 * TILE_SIZE, 46 * TILE_SIZE, "L")); // Room G -> unlocks G->H
+        items.add(new Items(Color.YELLOW, 40 * TILE_SIZE, 45 * TILE_SIZE, "M")); // Room H -> unlocks H->I
+        items.add(new Items(Color.YELLOW, 70 * TILE_SIZE, 55 * TILE_SIZE, "N")); // Room I -> unlocks I->K
 
+        doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE, "A", false, NO_TIMER_DOOR)); // A->B
+        doors.add(new Door(34 * TILE_SIZE, 4 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", false, NO_TIMER_DOOR)); // B->C
+        doors.add(new Door(7 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "C", false, NO_TIMER_DOOR)); // A->D
+        doors.add(new Door(24 * TILE_SIZE, 12 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "D", false, NO_TIMER_DOOR)); // B->E
+        doors.add(new Door(42 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "E", false, NO_TIMER_DOOR)); // C->E
+        doors.add(new Door(52 * TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "F", false, NO_TIMER_DOOR)); // C->F
+        doors.add(new Door(16 * TILE_SIZE, 22 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "G", false, NO_TIMER_DOOR)); // D->E
+        doors.add(new Door(52 * TILE_SIZE, 19 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "H", false, NO_TIMER_DOOR)); // E->F
+        doors.add(new Door(39 * TILE_SIZE, 37 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "I", false, NO_TIMER_DOOR)); // E->H
+        doors.add(new Door(70 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "J", false, NO_TIMER_DOOR)); // F->J
+        doors.add(new Door(64 * TILE_SIZE, 32 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "K", false, NO_TIMER_DOOR)); // F->I
+        doors.add(new Door(22 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "L", false, NO_TIMER_DOOR)); // G->H
+        doors.add(new Door(60 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "M", false, NO_TIMER_DOOR)); // H->I
+        doors.add(new Door(74 * TILE_SIZE, 67 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "N", false, NO_TIMER_DOOR)); // I->K
+
+        enemies.add(new Enemy(10, 5, 20, 5, 2));
+        enemies.add(new Enemy(10, 6, 20, 6, 4));
 
         while (true) {
             // 1. Logic (Thinking)
@@ -189,17 +236,22 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                             for (Ghost ghost : ghosts)
                             {
                                 ghost.i = 0;
-                                ghost.ghostX = 0;
-                                ghost.ghostY = 0;
+                                ghost.ghostX = STARTING_PLAYERXOFFSET;
+                                ghost.ghostY = STARTING_PLAYERYOFFSET;
                                 ghost.ghostCameraX = 0;
                                 ghost.ghostCameraY = 0;
                                 ghost.finished = false;
+                                ghost.isDead = false;
                             }
 
                             //Reset items
                             for (Items item : items)
                             {
                                 item.activated = false;
+                            }
+                            for (Enemy enemy : enemies)
+                                {
+                                enemy.reset();
                             }
 
                             for (Door door : doors)
@@ -226,8 +278,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     }
 
                     //Update Ghosts only when NOT rewinding
-                    for (Ghost ghost : ghosts) {
+                    for (Ghost ghost : ghosts)
+                    {
                         ghost.update();
+                    }
+                    for (Enemy enemy : enemies)
+                    {
+                        enemy.update();
                     }
 
                     // Player votes true
@@ -321,6 +378,60 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     // Add the frame
                     movementHistory.get(rewindCount).add(frameMovement);
 
+                    Rectangle playerBounds = player.getBounds(WIDTH, HEIGHT);
+                    for (int i = 0; i < rows; i++)
+                    {
+                        for (int j = 0; j < cols; j++)
+                        {
+                            Tile tile = map[i][j];
+
+                            if (tile != null && tile.isLava())
+                            {
+                                Rectangle tileBounds = tile.getBounds(xOffset, yOffset);
+                                if (playerBounds.intersects(tileBounds))
+                                {
+                                    rewinding = true;
+                                    rewindIndex = movementHistory.get(rewindCount).size();
+                                }
+                            }
+                        }
+                    }
+
+                    for (Enemy enemy : enemies)
+                    {
+                        if (enemy.getBounds().intersects(playerBounds))
+                        {
+                            rewinding = true;
+                            rewindIndex = movementHistory.get(rewindCount).size();
+                        }
+                    }
+
+                    for (Ghost ghost : ghosts) {
+                        // Lava check
+                        for (int i = 0; i < rows; i++)
+                        {
+                            for (int j = 0; j < cols; j++)
+                            {
+                                Tile tile = map[i][j];
+
+                                if (tile != null && tile.isLava())
+                                {
+                                    if (ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset).intersects(tile.getBounds(xOffset, yOffset))) {
+                                        ghost.isDead = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Enemy check
+                        for (Enemy enemy : enemies)
+                        {
+                            if (enemy.getBounds().intersects(ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset))) {
+                                ghost.isDead = true;
+                            }
+                        }
+                    }
+
 
                     currentTime = System.nanoTime();
                     elapsedTime = (RESET_TIME - (currentTime - startTime))/ (double) SECONDS_TO_NANO;
@@ -398,6 +509,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 g2d.setFont(new Font("Serif", Font.BOLD, 32));
                 g2d.drawString("Time: " + String.format("%.1f", elapsedTime), 30, 50);
 
+                for (Enemy enemy : enemies)
+                {
+                    enemy.draw(g2d, xOffset, yOffset);
+                }
+
                 //Ghosts
                 g2d.setColor(Color.CYAN);
                 for (Ghost ghost : ghosts) {
@@ -406,6 +522,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                 //Player
                 player.draw(g2d, WIDTH, HEIGHT);
+
                 break;
             }
         }
@@ -558,4 +675,3 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
     }
 }
-
