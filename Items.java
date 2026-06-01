@@ -51,7 +51,7 @@ public class Items {
     {
         Rectangle playerBounds = player.getBounds(Culminating.WIDTH, Culminating.HEIGHT);
 
-        Rectangle itemBounds = new Rectangle(x + Culminating.xOffset, y + Culminating.yOffset, width, height);
+        Rectangle itemBounds = getBounds(Culminating.xOffset, Culminating.yOffset);
 
         return playerBounds.intersects(itemBounds);
     }
@@ -60,8 +60,13 @@ public class Items {
     {
         Rectangle ghostBounds = ghost.getBounds(Culminating.WIDTH, Culminating.HEIGHT, Culminating.xOffset, Culminating.yOffset);
 
-        Rectangle itemBounds = new Rectangle(x + Culminating.xOffset, y + Culminating.yOffset, width, height);
+        Rectangle itemBounds = getBounds(Culminating.xOffset, Culminating.yOffset);
         
         return ghostBounds.intersects(itemBounds);
+    }
+
+    public Rectangle getBounds(int xOffset, int yOffset)
+    {
+        return new Rectangle(x + xOffset, y + yOffset, width, height);
     }
 }

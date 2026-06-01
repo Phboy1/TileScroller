@@ -24,7 +24,7 @@ public class Enemy {
     int direction = TOWARDS_END;
 
 
-    Enemy(int startX, int startY, int endX, int endY, int speed)
+    Enemy(int startX, int startY, int endX, int endY, int speed, String type)
     {
         this.speed = speed;
  
@@ -34,6 +34,7 @@ public class Enemy {
         this.startY = this.y;
         this.endX = endX * Culminating.TILE_SIZE;
         this.endY = endY * Culminating.TILE_SIZE;
+        this.type = type;
     }
 
     public void reset()
@@ -46,47 +47,90 @@ public class Enemy {
 
     public void update()
     {
-        int moveX = 0;
-        int moveY = 0;
-
-        if (startX == endX)
+        if (type.equals("patrolling"))
         {
-            direction = (startY > endY ? -1 : 1);
-            if (switched)
+            int moveX = 0;
+            int moveY = 0;
+
+            if (startX == endX)
             {
-                moveY = direction * speed * TOWARDS_START;
+                direction = (startY > endY ? -1 : 1);
+                if (switched)
+                {
+                    moveY = direction * speed * TOWARDS_START;
+                }
+                else
+                {
+                    moveY = direction * speed * TOWARDS_END;
+                }
             }
-            else
+            
+            if (startY == endY)
             {
-                moveY = direction * speed * TOWARDS_END;
+                direction = (startX > endX ? -1 : 1);
+                if (switched)
+                {
+                    moveX = direction * speed * TOWARDS_START;
+                }
+                else
+                {
+                    moveX = direction * speed * TOWARDS_END;
+                }
+                
+            }
+
+            if (canMove(x, y, moveX, moveY))
+            {
+                x += moveX;
+                y += moveY;
+            }
+
+
+            if ((x >= endX && y >= endY) || (x <= startX && y <= startY) || !canMove(x, y, moveX, moveY))
+            {
+                switched = !switched;
+            }
+        }
+        else if (type.equals("following"))
+        {
+            int moveX = 0;
+            int moveY = 0;
+
+            double angle = Math.atan2(Culminating.playerWorldY - y, Culminating.playerWorldX - x);
+
+            moveX = (int) (Math.cos(angle) * speed);
+            moveY = (int) (Math.sin(angle) * speed);
+
+            if (canMove(x, y, moveX, moveY))
+            {
+                x += moveX;
+                y += moveY;
+            }
+            else if (Culminating.playerWorldY < y && canMove(x, y, 0, -speed))
+            {
+                y -= speed;
+            }
+            else if (Culminating.playerWorldY > y && canMove(x, y, 0, speed))
+            {
+                y += speed;
+            }
+            else if (Culminating.playerWorldX > x && canMove(x, y, speed, 0))
+            {
+                x += speed;
+            }
+            else if (Culminating.playerWorldX < x && canMove(x, y, -speed, 0))
+            {
+                x -= speed;
+            }
+        }
+        for (Items item : Culminating.items)
+        {
+            if (getBounds().intersects(item.getBounds(Culminating.xOffset, Culminating.yOffset)))
+            {
+                item.activated = true;
             }
         }
         
-        if (startY == endY)
-        {
-            direction = (startX > endX ? -1 : 1);
-            if (switched)
-            {
-                moveX = direction * speed * TOWARDS_START;
-            }
-            else
-            {
-                moveX = direction * speed * TOWARDS_END;
-            }
-            
-        }
-
-        if (canMove(x, y, moveX, moveY))
-        {
-            x += moveX;
-            y += moveY;
-        }
-
-
-        if ((x >= endX && y >= endY) || (x <= startX && y <= startY) || !canMove(x, y, moveX, moveY))
-        {
-            switched = !switched;
-        }
     }
 
     public Rectangle getBounds()
@@ -98,6 +142,8 @@ public class Enemy {
     {
         int futureX = x + moveX;
         int futureY = y + moveY;
+
+        
 
         Rectangle futureEnemy = new Rectangle(futureX, futureY, size, size);
 
@@ -169,6 +215,5 @@ public class Enemy {
                 y += intersection.height;
             }
         }
-
     }
 }

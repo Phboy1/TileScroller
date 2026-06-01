@@ -38,7 +38,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int CAMERA_SPEED = 5;
 
-    static final long RESET_TIME = 5 * SECONDS_TO_NANO;
+    static final long RESET_TIME = 10 * SECONDS_TO_NANO;
 
     static Tile[][] map = new Tile[rows][cols];
 
@@ -46,6 +46,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static int xOffset = 0;
     static int yOffset = 0;
+
+    static int playerWorldX = WIDTH / 2 - PLAYER_SIZE / 2 - xOffset - player.playerXOffset;
+    static int playerWorldY = HEIGHT / 2 - PLAYER_SIZE / 2 - yOffset - player.playerYOffset;
 
     static CollisionChecker CollisionChecker;
 
@@ -129,12 +132,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             System.out.println("SOMETHING WENT WRONG WITH THE FILE!!!!!!");
         }
 
-        try {
-            img = ImageIO.read(new File("assets/floor_tile.png"));
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        
 
         items.add(new Items(Color.YELLOW, 8 * TILE_SIZE, 7 * TILE_SIZE, "A")); // Room A -> unlocks A->B
         items.add(new Items(Color.YELLOW, 25 * TILE_SIZE, 6 * TILE_SIZE, "B")); // Room B -> unlocks B->C
@@ -150,6 +148,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         items.add(new Items(Color.YELLOW, 10 * TILE_SIZE, 46 * TILE_SIZE, "L")); // Room G -> unlocks G->H
         items.add(new Items(Color.YELLOW, 40 * TILE_SIZE, 45 * TILE_SIZE, "M")); // Room H -> unlocks H->I
         items.add(new Items(Color.YELLOW, 70 * TILE_SIZE, 55 * TILE_SIZE, "N")); // Room I -> unlocks I->K
+        items.add(new Items(Color.YELLOW, 3 * TILE_SIZE, 3 * TILE_SIZE, "t")); // Room I -> unlocks I->K
 
         doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE, "A", false, NO_TIMER_DOOR)); // A->B
         doors.add(new Door(34 * TILE_SIZE, 4 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", false, NO_TIMER_DOOR)); // B->C
@@ -165,9 +164,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         doors.add(new Door(22 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "L", false, NO_TIMER_DOOR)); // G->H
         doors.add(new Door(60 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "M", false, NO_TIMER_DOOR)); // H->I
         doors.add(new Door(74 * TILE_SIZE, 67 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "N", false, NO_TIMER_DOOR)); // I->K
+        doors.add(new Door(5 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE, "t", false, NO_TIMER_DOOR)); // I->K
 
-        enemies.add(new Enemy(10, 5, 20, 5, 2));
-        enemies.add(new Enemy(10, 6, 20, 6, 4));
+        enemies.add(new Enemy(10, 5, 20, 5, 2, "patrolling"));
+        enemies.add(new Enemy(10, 6, 20, 6, 4, "patrolling"));
+        enemies.add(new Enemy(5, 5, 0, 0, 2, "following"));
 
         while (true) {
             // 1. Logic (Thinking)
@@ -269,6 +270,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 {
                     //Moving the player at the edges
                     Movement frameMovement = new Movement(0, 0, 0, 0, false);
+                    playerWorldX = WIDTH / 2 - PLAYER_SIZE / 2 - xOffset - player.playerXOffset;
+                    playerWorldY = HEIGHT / 2 - PLAYER_SIZE / 2 - yOffset - player.playerYOffset;
 
 
                     // Reset all items first
@@ -418,6 +421,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                                 {
                                     if (ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset).intersects(tile.getBounds(xOffset, yOffset))) {
                                         ghost.isDead = true;
+                                        ghost.finished = true;
                                     }
                                 }
                             }
@@ -428,6 +432,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                         {
                             if (enemy.getBounds().intersects(ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset))) {
                                 ghost.isDead = true;
+                                ghost.finished = true;
                             }
                         }
                     }
@@ -442,9 +447,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                         rewindIndex = movementHistory.get(rewindCount).size();
                     }
 
-                    System.out.println(xOffset);
+                    //System.out.println(xOffset);
                     //System.out.println(yOffset);
-                    System.out.println(player.playerXOffset);
+                    //System.out.println(player.playerXOffset);
                     //System.out.println(player.playerYOffset);
                 }
                 break;  
