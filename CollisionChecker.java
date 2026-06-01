@@ -7,8 +7,10 @@ public class CollisionChecker {
     public boolean canMove(Player player, int moveX, int moveY)
     {
 
-    int hitboxOffset = player.hitboxOffset;
-    int hitboxSize = Player.HITBOX_SIZE;
+    int hitboxXOffset = player.hitboxXOffset;
+    int hitboxYOffset = player.hitboxYOffset;
+    int hitboxSizeX = Player.HITBOX_SIZE_X;
+    int hitboxSizeY = Player.HITBOX_SIZE_Y;
 
     int buffer = Culminating.CAMERA_SPEED * 2;
     int futureX = Culminating.WIDTH / 2 - player.size / 2 - player.playerXOffset - moveX;
@@ -19,7 +21,7 @@ public class CollisionChecker {
     if (moveY > 0) futureY += buffer;
     if (moveY < 0) futureY -= buffer;
 
-    Rectangle futureBounds = new Rectangle(futureX + hitboxOffset, futureY + hitboxOffset, hitboxSize, hitboxSize);
+    Rectangle futureBounds = new Rectangle(futureX + hitboxXOffset, futureY + hitboxYOffset, hitboxSizeX, hitboxSizeY);
 
     for (int i = 0; i < Culminating.rows; i++)
     {
