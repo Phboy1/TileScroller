@@ -3,15 +3,17 @@ package TileScroller;
 import java.awt.*;
 
 public class Door {
-    static final int FRAMES_PER_SECOND = 30;
+    static final long SECONDS_TO_NANO = 1000000000L;
     
     int x;
     int y;
     int width;
     int height;
 
-    int timer = 0;        
-    int timerMax = 0;
+    long startTime = 0;  
+    long currentTime = 0;     
+    double elaspedTime = 0; 
+    long timerMax = 0;
 
     String id;
 
@@ -33,7 +35,7 @@ public class Door {
         this.isOpen = isOpen;
         this.startPosition = (isOpen ? "Open" : "Closed");
         this.type = (width >= height ? "horizontal" : "vertical");
-        this.timerMax = FRAMES_PER_SECOND * timerMax;
+        this.timerMax = SECONDS_TO_NANO * timerMax;
     }
 
     public void update()
@@ -42,6 +44,7 @@ public class Door {
         {
             if (id.equals(item.id) && item.activated)
             {
+                startTime = System.nanoTime();
                 isOpen = (startPosition.equals("Open") ? false : true);
                 break;
             }
@@ -51,14 +54,15 @@ public class Door {
             }
         }
 
-        if (isOpen && timerMax > 0)
-        {
-            timer++;
+        currentTime = System.nanoTime();
 
-            if (timer > timerMax)
-            {
-                isOpen = false;
-            }
+        if (timerMax > (currentTime - startTime) && timerMax != 0)
+        {
+            isOpen = true;
+        }
+        else if (timerMax < (currentTime - startTime) && timerMax != 0)
+        {
+            isOpen = false;
         }
     }
 
