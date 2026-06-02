@@ -1,4 +1,4 @@
-package TileScroller.TileScroller;
+package TileScroller;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -38,7 +38,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int CAMERA_SPEED = 5;
 
-    static final long RESET_TIME = 3 * SECONDS_TO_NANO;
+    static final long RESET_TIME = 30 * SECONDS_TO_NANO;
 
     static Tile[][] map = new Tile[rows][cols];
 
@@ -110,7 +110,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         BufferStrategy bs = game.getBufferStrategy();
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileScroller/TileGrid.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
             String line = br.readLine();
             int j = 0;
 
@@ -209,11 +209,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 if (rewinding)
                 {
                     if (playerDying) return;
-                    try {
-                    player.sprite = ImageIO.read(new File("TileScroller/assets/playerIdleDown.png"));
-                    } catch (Exception e) {
-                        System.out.println("IDLE IS WRONG");
-                    }
+                    goingLeft = goingRight = goingUp = goingDown = false;
                     for (int i = 0; i < REWIND_SPEED; i++)
                     {
                         //Rewind Index: Frame that the rewind is on. REWIND_SPEED: Amount of frames that it rewinds by every time.
@@ -256,20 +252,25 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                                 ghost.isDead = false;
                             }
 
+                            //Reset Player
+                            player.directionX = Player.STANDARD_ATTACK_OFFSET;
+                            player.directionY = player.directionDown;
+
                             //Reset items
                             for (Items item : items)
                             {
                                 item.activated = false;
                             }
                             for (Enemy enemy : enemies)
-                                {
+                            {
                                 enemy.reset();
                             }
-
                             for (Door door : doors)
                             {
                                 door.startTime = door.currentTime-FRAMES_PER_SECOND/2;
                             }
+                            player.reset();
+
                             
                             rewinding = false;
 
@@ -601,7 +602,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public void keyPressed(KeyEvent e) {
-        if (!rewinding && !interactHeld)
+        if (!rewinding && !interactHeld && !playerDying)
         {
             if (e.getKeyCode() == KeyEvent.VK_S) goingDown = true;
             if (e.getKeyCode() == KeyEvent.VK_W) goingUp = true;
@@ -614,6 +615,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = true;
 
             if (e.getKeyCode() == KeyEvent.VK_E) interactHeld = true;
+
+            if (e.getKeyCode() == KeyEvent.VK_SPACE && !player.attacking) 
+            {
+                player.attacking = true;
+            }
         }
 
         if (state == MENU && e.getKeyCode() == KeyEvent.VK_ENTER)
@@ -634,9 +640,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (e.getKeyCode() == KeyEvent.VK_LEFT) goingLeft = false;
         if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = false;
 
-        if (e.getKeyCode() == KeyEvent.VK_E) { 
+        if (e.getKeyCode() == KeyEvent.VK_E)
+        { 
             interactHeld = false; 
         }
+        
         
     }
 

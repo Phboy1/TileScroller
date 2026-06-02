@@ -1,4 +1,4 @@
-package TileScroller.TileScroller;
+package TileScroller;
 
 import java.awt.*;
 import java.io.File;
@@ -8,12 +8,22 @@ import javax.imageio.ImageIO;
 public class Player {
     static Image sprite;
 
+
     int frameAmount = 6;
     int frame = 0;
     long frameLength = 75000000L;
     long lastFrame = 0;
     boolean wasMoving;
     String lastDirection;
+
+    static int attackX = 40;
+    static int attackY = 40;
+    static final int STANDARD_ATTACK_OFFSET = attackX/2;
+
+    int directionDown = STANDARD_ATTACK_OFFSET - attackY;
+    int directionUp = STANDARD_ATTACK_OFFSET + attackY;
+    int directionLeft = STANDARD_ATTACK_OFFSET + attackX;
+    int directionRight = STANDARD_ATTACK_OFFSET - attackX;
 
     boolean dying = false;
     int deathFrame = 0;
@@ -22,11 +32,25 @@ public class Player {
     long lastDeathFrame = 0;
     Image[] deathSprites = new Image[deathFrameAmount];
 
+    boolean attacking = false;
+    int attackFrame = 0;
+    int attackFrameAmount = 4;
+    long lastAttackFrame = 0;
+    long attackFrameLength = 75000000L;
+    long attackDelay = 400000000L;
+
+    Image[] attackLeft = new Image[attackFrameAmount];
+    Image[] attackRight = new Image[attackFrameAmount];
+    Image[] attackUp = new Image[attackFrameAmount];
+    Image[] attackDown = new Image[attackFrameAmount];
+
     Image[] walkLeft = new Image[frameAmount];
     Image[] walkRight = new Image[frameAmount];
     Image[] walkUp = new Image[frameAmount];
     Image[] walkDown = new Image[frameAmount];
 
+    int directionX = STANDARD_ATTACK_OFFSET;
+    int directionY = directionDown;
 
     int playerXOffset;
     int playerYOffset;
@@ -54,10 +78,12 @@ public class Player {
 
         try
         {
+            //Death
             for (int i = 1; i <= deathFrameAmount; i++)
             {
                 deathSprites[i-1] = ImageIO.read(new File("TileScroller/assets/playerDeath" + i + ".png"));
             } 
+            //Walk
             for (int i = 1; i <= frameAmount; i++)
             {
                 walkLeft[i-1] = ImageIO.read(new File("TileScroller/assets/playerWalkLeft" + i + ".png"));
@@ -73,6 +99,23 @@ public class Player {
             for (int i = 1; i <= frameAmount; i++)
             {
                 walkDown[i-1] = ImageIO.read(new File("TileScroller/assets/playerWalkDown" + i + ".png"));
+            }
+            //Attack
+            for (int i = 1; i <= attackFrameAmount; i++)
+            {
+                attackLeft[i-1] = ImageIO.read(new File("TileScroller/assets/playerAttackLeft" + i + ".png"));
+            } 
+            for (int i = 1; i <= attackFrameAmount; i++)
+            {
+                attackRight[i-1] = ImageIO.read(new File("TileScroller/assets/playerAttackRight" + i + ".png"));
+            } 
+            for (int i = 1; i <= attackFrameAmount; i++)
+            {
+                attackUp[i-1] = ImageIO.read(new File("TileScroller/assets/playerAttackUp" + i + ".png"));
+            } 
+            for (int i = 1; i <= attackFrameAmount; i++)
+            {
+                attackDown[i-1] = ImageIO.read(new File("TileScroller/assets/playerAttackDown" + i + ".png"));
             } 
         } 
         catch(Exception e)
@@ -105,13 +148,65 @@ public class Player {
                 {
                     sprite = deathSprites[deathFrame];
                 }
+                else
+                {
+                    sprite = ImageIO.read(new File("TileScroller/assets/playerIdleDown.png"));
+                }
             }
             else if (!Culminating.rewinding)
             {
                 deathFrame = 0;
                 boolean moving = Culminating.goingDown || Culminating.goingUp || Culminating.goingLeft || Culminating.goingRight;
 
-                if (moving)
+                if (Culminating.goingDown) 
+                {
+                    directionX = STANDARD_ATTACK_OFFSET;
+                    directionY = directionDown;
+                }
+                if (Culminating.goingUp)
+                {
+                    directionX = STANDARD_ATTACK_OFFSET;
+                    directionY = directionUp;
+                }
+                if (Culminating.goingLeft) 
+                {
+                    directionX = directionLeft;
+                    directionY = STANDARD_ATTACK_OFFSET;
+
+                }
+                if (Culminating.goingRight) 
+                {
+                    directionX = directionRight;
+                    directionY = STANDARD_ATTACK_OFFSET;
+                }
+
+                
+                
+                if (attacking)
+                {
+                    long currentTime = System.nanoTime();
+
+                    if (currentTime - lastAttackFrame > attackFrameLength)
+                    {
+                        attackFrame++;
+                        lastAttackFrame = currentTime;
+
+                        if (attackFrame >= attackFrameAmount)
+                        {
+                            attackFrame = 0;
+                            attacking = false;
+                        }
+                        System.out.println(attackFrame);
+                    }
+
+                    if (lastDirection == null) lastDirection = "Down";
+
+                    if (lastDirection.equals("Down")) sprite = attackDown[attackFrame];
+                    if (lastDirection.equals("Up")) sprite = attackUp[attackFrame];
+                    if (lastDirection.equals("Right")) sprite = attackRight[attackFrame];
+                    if (lastDirection.equals("Left")) sprite = attackLeft[attackFrame];
+                }
+                else if (moving)
                 {
                     long currentTime = System.nanoTime();
                     if (currentTime - lastFrame > frameLength)
@@ -132,6 +227,9 @@ public class Player {
                     sprite = ImageIO.read(new File("TileScroller/assets/playerIdle" + lastDirection + ".png"));
                     wasMoving = false;
                 }
+                
+
+                g2d.setColor(Color.RED);                
             }
 
 
@@ -146,12 +244,36 @@ public class Player {
         }
         g2d.setColor(new Color(255, 0, 0));
         g2d.drawImage(sprite, WIDTH / 2 - size / 2 - playerXOffset, HEIGHT / 2 - size / 2 - playerYOffset, size, size, null);
+        g2d.fillRect(WIDTH / 2 - directionX - playerXOffset, HEIGHT / 2 - directionY - playerYOffset, attackX, attackY);
 
         //DEBUG
-
         //int x = WIDTH / 2 - size / 2 - playerXOffset;
         //int y = HEIGHT / 2 - size / 2 - playerYOffset;
         //g2d.fillRect(x+ hitboxXOffset, y + hitboxYOffset, HITBOX_SIZE_X, HITBOX_SIZE_Y);
+    }
+
+    public void reset() 
+    {
+        attacking = false;
+        attackFrame = 0;
+        lastAttackFrame = 0;
+
+        dying = false;
+        deathFrame = 0;
+        lastDeathFrame = 0;
+
+        wasMoving = false;
+        frame = 0;
+        lastFrame = 0;
+
+        lastDirection = "Down";
+        try 
+        {
+            sprite = ImageIO.read(new File("TileScroller/assets/playerIdleDown.png"));
+        } catch (Exception e) {
+            System.out.println("IDLE WRONG");
+        }
+
     }
 
     public Rectangle getBounds(int WIDTH, int HEIGHT)

@@ -1,4 +1,4 @@
-package TileScroller.TileScroller;
+package TileScroller;
 
 import java.awt.*;
 

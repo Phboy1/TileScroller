@@ -1,10 +1,12 @@
-package TileScroller.TileScroller;
+package TileScroller;
 
 import java.awt.*;
 
 public class Enemy {
     static final int TOWARDS_END = 1;
     static final int TOWARDS_START = -1;
+    static final int HITBOX_OFFSET_X = 2;
+    static final int HITBOX_OFFSET_Y = 2;
     
     String type;
     
@@ -135,7 +137,7 @@ public class Enemy {
 
     public Rectangle getBounds()
     {
-        return new Rectangle(x + Culminating.xOffset, y + Culminating.yOffset, size, size);
+        return new Rectangle(x + Culminating.xOffset + HITBOX_OFFSET_X, y + Culminating.yOffset + HITBOX_OFFSET_Y, size - 2* HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
     }
 
     public boolean canMove(int x, int y, int moveX, int moveY)
@@ -143,16 +145,13 @@ public class Enemy {
         int futureX = x + moveX;
         int futureY = y + moveY;
 
-        
-
-        Rectangle futureEnemy = new Rectangle(futureX, futureY, size, size);
+        Rectangle futureEnemy = new Rectangle(futureX + HITBOX_OFFSET_X, futureY + HITBOX_OFFSET_Y, size - 2*HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
 
         for (int row = 0; row < Culminating.rows; row++)
         {
             for (int col = 0; col < Culminating.cols; col++)
             {
                 Tile tile = Culminating.map[row][col];
-
                 if (tile.solid && futureEnemy.intersects(tile.x, tile.y, tile.size, tile.size))
                 {
                     return false;
@@ -167,10 +166,31 @@ public class Enemy {
                 {
                     pushOut(door);
                     return false;
-                }   
+                }
             }
         }
         return true;
+    }
+
+    public void pushOut(Door door)
+    {
+        Rectangle enemy = new Rectangle(x + HITBOX_OFFSET_X, y + HITBOX_OFFSET_Y, size - 2*HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
+        Rectangle doorBounds = new Rectangle(door.x, door.y, door.width, door.height);
+
+        if (!enemy.intersects(doorBounds)) return;
+
+        Rectangle intersection = enemy.intersection(doorBounds);
+
+        if (door.type.equals("vertical"))
+        {
+            if (enemy.x < doorBounds.x) x -= intersection.width;
+            else x += intersection.width;
+        }
+        else if (door.type.equals("horizontal"))
+        {
+            if (enemy.y < doorBounds.y) y -= intersection.height;
+            else y += intersection.height;
+        }
     }
 
     public void draw(Graphics2D g2d, int xOffset, int yOffset)
@@ -179,41 +199,5 @@ public class Enemy {
         g2d.fillRect(x + xOffset, y + yOffset, size, size);
         g2d.setColor(Color.BLACK);
         g2d.drawRect(x + xOffset, y + yOffset, size, size);
-    }
-
-    public void pushOut(Door door)
-    {
-        Rectangle enemy = getBounds();
-        Rectangle doorBounds = new Rectangle(door.x, door.y, door.width, door.height);
-
-        if (!enemy.intersects(doorBounds))
-        {
-            return;
-        }
-
-        Rectangle intersection = enemy.intersection(doorBounds);
-
-        if (door.type.equals("vertical"))
-        {
-            if (enemy.x < doorBounds.x)
-            {
-                x -= intersection.width;
-            }
-            else
-            {
-                x += intersection.width;
-            }
-        }
-        else if (door.type.equals("horizontal"))
-        {
-            if (enemy.y < doorBounds.y)
-            {
-                y -= intersection.height;
-            }
-            else
-            {
-                y += intersection.height;
-            }
-        }
     }
 }
