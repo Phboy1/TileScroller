@@ -1,4 +1,4 @@
-package TileScroller.TileScroller;
+package TileScroller;
 
 public class Movement {
     int playerX;

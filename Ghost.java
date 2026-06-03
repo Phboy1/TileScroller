@@ -129,7 +129,6 @@ public class Ghost {
 
                 if (actions.get(i).playerX != 0 || actions.get(i).playerY != 0 || actions.get(i).cameraX != 0 || actions.get(i).cameraY != 0) moving = true;
 
-                
                 try 
                 {
                     if (moving)
@@ -199,11 +198,12 @@ public class Ghost {
         int drawY = HEIGHT / 2 - size / 2 - ghostY + (currentCameraY - ghostCameraY);
         //g2d.fillRect(drawX, drawY, size, size);
         g2d.drawImage(sprite, drawX, drawY, size, size, null);
+        g2d.drawRect(drawX, drawY, size, size);
 
 
         g2d.setColor(Color.WHITE);
         g2d.setFont(new Font("Serif", Font.BOLD, 30));
-        g2d.drawString(String.valueOf(ghostIndex), drawX + 10, drawY + 10);
+        g2d.drawString(String.valueOf(ghostIndex), drawX + 30, drawY + 30);
     }
 
     public Rectangle getBounds(int WIDTH, int HEIGHT, int currentCameraX, int currentCameraY)

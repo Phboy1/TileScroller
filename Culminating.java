@@ -169,7 +169,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         enemies.add(new Enemy(10, 5, 20, 5, 2, "patrolling"));
         enemies.add(new Enemy(10, 6, 20, 6, 4, "patrolling"));
-        enemies.add(new Enemy(5, 5, 0, 0, 2, "following"));
+        enemies.add(new Enemy(5, 5, 0, 0, 1, "following"));
         enemies.add(new Enemy(20, 5, 0, 0, 2, "following"));
 
         System.out.println("EHLLO WORLD");
@@ -422,7 +422,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                     for (Enemy enemy : enemies)
                     {
-                        if (enemy.getBounds().intersects(playerBounds))
+                        if (enemy.getBounds().intersects(playerBounds) && !enemy.dead)
                         {
                             if (!playerDying)
                             {
@@ -458,7 +458,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                         // Enemy check
                         for (Enemy enemy : enemies)
                         {
-                            if (enemy.getBounds().intersects(ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset))) {
+                            if (enemy.getBounds().intersects(ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset)) && !enemy.dead) {
                                 ghost.isDead = true;
                                 //ghost.finished = true;
                             }
@@ -602,7 +602,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public void keyPressed(KeyEvent e) {
-        if (!rewinding && !interactHeld && !playerDying)
+        if (!rewinding && !interactHeld && !playerDying && !player.attacking)
         {
             if (e.getKeyCode() == KeyEvent.VK_S) goingDown = true;
             if (e.getKeyCode() == KeyEvent.VK_W) goingUp = true;
@@ -619,6 +619,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (e.getKeyCode() == KeyEvent.VK_SPACE && !player.attacking) 
             {
                 player.attacking = true;
+
+                goingUp = false;
+                goingDown = false;
+                goingLeft = false;
+                goingRight = false;
             }
         }
 

@@ -1,19 +1,47 @@
 package TileScroller;
 
 import java.awt.*;
+import java.io.File;
+
+import javax.imageio.ImageIO;
 
 public class Enemy {
+    Image sprite;
+
+    int frameAmount = 6;
+    int frame = 0;
+    long frameLength = 25000000L;
+    long lastFrame = 0;
+    boolean wasMoving;
+    String lastDirection;
+
+    
+    int deathFrameAmount = 4;
+    int deathFrame = 0;
+    long deathFrameLength = 150000000L;
+    long deathLastFrame = 0;
+
     static final int TOWARDS_END = 1;
     static final int TOWARDS_START = -1;
-    static final int HITBOX_OFFSET_X = 2;
-    static final int HITBOX_OFFSET_Y = 2;
+    static final int HITBOX_OFFSET_X = 25;
+    static final int HITBOX_OFFSET_Y = 15;
+    
+    Image[] walkLeft = new Image[frameAmount];
+    Image[] walkRight = new Image[frameAmount];
+    Image[] walkUp = new Image[frameAmount];
+    Image[] walkDown = new Image[frameAmount];
+
+    Image[] death = new Image[deathFrameAmount];
+
+    
+    boolean dead = false;
     
     String type;
     
     int x;
     int y;
 
-    int size = Culminating.TILE_SIZE;
+    int size = 80;
     
     int startX;
     int startY;
@@ -37,6 +65,33 @@ public class Enemy {
         this.endX = endX * Culminating.TILE_SIZE;
         this.endY = endY * Culminating.TILE_SIZE;
         this.type = type;
+        this.frameLength *= speed;
+        try 
+        {
+            sprite = ImageIO.read(new File("TileScroller/assets/enemy001.png"));
+            for (int i = 1; i <= frameAmount; i++)
+            {
+                walkLeft[i-1] = ImageIO.read(new File("TileScroller/assets/enemyWalkLeft" + i + ".png"));
+            } 
+            for (int i = 1; i <= frameAmount; i++)
+            {
+                walkRight[i-1] = ImageIO.read(new File("TileScroller/assets/enemyWalkRight" + i + ".png"));
+            } 
+            for (int i = 1; i <= frameAmount; i++)
+            {
+                walkUp[i-1] = ImageIO.read(new File("TileScroller/assets/enemyWalkUp" + i + ".png"));
+            } 
+            for (int i = 1; i <= frameAmount; i++)
+            {
+                walkDown[i-1] = ImageIO.read(new File("TileScroller/assets/enemyWalkDown" + i + ".png"));
+            }
+            for (int i = 1; i <= deathFrameAmount; i++)
+            {
+                death[i-1] = ImageIO.read(new File("TileScroller/assets/enemyDeath" + i + ".png"));
+            }
+        } catch(Exception e) {
+            System.out.println("IDLE IS WRONG");
+        }
     }
 
     public void reset()
@@ -45,10 +100,39 @@ public class Enemy {
         y = startY;
         direction = TOWARDS_END;
         switched  = false;
+        dead = false;
+        frame = 0;
+        lastFrame = 0;
     }
 
     public void update()
     {
+        
+        if (dead) 
+        {
+            long currentTime = System.nanoTime();
+
+            if (currentTime - deathLastFrame > deathFrameLength)
+            {
+                deathFrame++;
+                deathLastFrame = currentTime;
+
+                if (deathFrame >= deathFrameAmount)
+                {
+                    deathFrame = deathFrameAmount - 1;
+                }
+            }
+
+            sprite = death[deathFrame % deathFrameAmount];
+            return;
+        }
+        
+        
+
+        int oldX = x;
+        int oldY = y;
+
+
         if (type.equals("patrolling"))
         {
             int moveX = 0;
@@ -92,6 +176,43 @@ public class Enemy {
             {
                 switched = !switched;
             }
+
+            boolean moving = (x != oldX || y != oldY);
+
+            if (moving)
+            {
+                if (Math.abs(x - oldX) > Math.abs(y - oldY))
+                {
+                    lastDirection = (x > oldX) ? "Right" : "Left";
+                }
+                else
+                {
+                    lastDirection = (y > oldY) ? "Down" : "Up";
+                }
+
+                long currentTime = System.nanoTime();
+
+                if (currentTime - lastFrame > frameLength)
+                {
+                    frame = (frame + 1) % frameAmount;
+                    lastFrame = currentTime;
+                }
+
+                wasMoving = true;
+                
+                
+                if (lastDirection == null) lastDirection = "Down";
+                if (lastDirection.equals("Down")) sprite = walkDown[frame];
+                if (lastDirection.equals("Up")) sprite = walkUp[frame];
+                if (lastDirection.equals("Left")) sprite = walkLeft[frame];
+                if (lastDirection.equals("Right")) sprite = walkRight[frame];
+                
+            }
+            else
+            {
+                frame = 0;
+                wasMoving = false;
+            }
         }
         else if (type.equals("following"))
         {
@@ -100,39 +221,82 @@ public class Enemy {
 
             double angle = Math.atan2(Culminating.playerWorldY - y, Culminating.playerWorldX - x);
 
-            moveX = (int) (Math.cos(angle) * speed);
-            moveY = (int) (Math.sin(angle) * speed);
+            moveX = (int) Math.round((Math.cos(angle) * speed));
+            moveY = (int) Math.round((Math.sin(angle) * speed));
 
             if (canMove(x, y, moveX, moveY))
             {
                 x += moveX;
                 y += moveY;
             }
-            else if (Culminating.playerWorldY < y && canMove(x, y, 0, -speed))
+
+            if (Math.abs(moveX) > Math.abs(moveY))
+            {
+                if (moveX > 0)
+                {
+                    lastDirection = "Right";
+                }
+                else if (moveX < 0)
+                {
+                    lastDirection = "Left";
+                }
+            }
+            else if (Math.abs(moveX) < Math.abs(moveY))
+            {
+                if (moveY > 0)
+                {
+                    lastDirection = "Down";
+                }
+                else if (moveY < 0)
+                {
+                    lastDirection = "Up";
+                }
+            }
+
+            if (Culminating.playerWorldY < y && canMove(x, y, 0, -speed))
             {
                 y -= speed;
             }
-            else if (Culminating.playerWorldY > y && canMove(x, y, 0, speed))
+            if (Culminating.playerWorldY > y && canMove(x, y, 0, speed))
             {
                 y += speed;
             }
-            else if (Culminating.playerWorldX > x && canMove(x, y, speed, 0))
+            if (Culminating.playerWorldX > x && canMove(x, y, speed, 0))
             {
                 x += speed;
             }
-            else if (Culminating.playerWorldX < x && canMove(x, y, -speed, 0))
+            if (Culminating.playerWorldX < x && canMove(x, y, -speed, 0))
             {
                 x -= speed;
             }
-        }
-        for (Items item : Culminating.items)
-        {
-            if (getBounds().intersects(item.getBounds(Culminating.xOffset, Culminating.yOffset)))
+
+
+
+            long currentTime = System.nanoTime();
+
+            if (currentTime - lastFrame > frameLength)
             {
-                item.activated = true;
+                frame = (frame + 1) % frameAmount;
+                lastFrame = currentTime;
+            }
+            wasMoving = true;
+            
+            if (lastDirection == null) lastDirection = "Down";
+
+            if (lastDirection.equals("Down")) sprite = walkDown[frame];
+            if (lastDirection.equals("Up")) sprite = walkUp[frame];
+            if (lastDirection.equals("Left")) sprite = walkLeft[frame];
+            if (lastDirection.equals("Right")) sprite = walkRight[frame];
+            
+        
+            for (Items item : Culminating.items)
+            {
+                if (getBounds().intersects(item.getBounds(Culminating.xOffset, Culminating.yOffset)))
+                {
+                    item.activated = true;
+                }
             }
         }
-        
     }
 
     public Rectangle getBounds()
@@ -195,9 +359,9 @@ public class Enemy {
 
     public void draw(Graphics2D g2d, int xOffset, int yOffset)
     {
-        g2d.setColor(new Color(180, 0, 255));
-        g2d.fillRect(x + xOffset, y + yOffset, size, size);
-        g2d.setColor(Color.BLACK);
-        g2d.drawRect(x + xOffset, y + yOffset, size, size);
+        g2d.setColor(new Color(180, 0, 255, 200));
+        //g2d.fillRect(x + xOffset, y + yOffset, size, size);
+        g2d.drawImage(sprite, x + xOffset, y + yOffset, size, size, null);
+        //g2d.fillRect(x + xOffset + HITBOX_OFFSET_X, y + yOffset + HITBOX_OFFSET_Y, size - 2 * HITBOX_OFFSET_X, size - 2 * HITBOX_OFFSET_Y);
     }
 }
