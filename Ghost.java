@@ -16,6 +16,10 @@ public class Ghost {
     boolean wasMoving;
     String lastDirection;
 
+    int attackFrameAmount = 4;
+    long attackFrameLength = 150000000L;
+    long attackLastFrame = 0;
+
     long currentTime;
 
     int deathFrame = 0;
@@ -28,6 +32,20 @@ public class Ghost {
     Image[] walkRight = new Image[frameAmount];
     Image[] walkUp = new Image[frameAmount];
     Image[] walkDown = new Image[frameAmount];
+    
+    Image[] attackLeft = new Image[attackFrameAmount];
+    Image[] attackRight = new Image[attackFrameAmount];
+    Image[] attackUp = new Image[attackFrameAmount];
+    Image[] attackDown = new Image[attackFrameAmount];
+    
+    static int attackX = 40;
+    static int attackY = 40;
+    static final int STANDARD_ATTACK_OFFSET = attackX/2;
+
+    int directionDown = STANDARD_ATTACK_OFFSET - attackY;
+    int directionUp = STANDARD_ATTACK_OFFSET + attackY;
+    int directionLeft = STANDARD_ATTACK_OFFSET + attackX;
+    int directionRight = STANDARD_ATTACK_OFFSET - attackX;
 
     int ghostX;
     int ghostY;
@@ -39,11 +57,19 @@ public class Ghost {
     boolean finished = false;
     boolean isDead = false;
 
+    boolean isAttacking = false;
+    boolean attackLocked = false;
+    int attackFrame = 0;
+    long lastAttackFrame = 0;
+
     static final int HITBOX_SIZE_X = 20;
     static final int HITBOX_SIZE_Y = 30;
 
     int hitboxXOffset;
     int hitboxYOffset;
+    
+    int directionX = STANDARD_ATTACK_OFFSET;
+    int directionY = directionDown;
 
     static final Color DEAD_COLOR = Color.DARK_GRAY;
     static final Color ALIVE_COLOR = Color.CYAN;
@@ -83,6 +109,22 @@ public class Ghost {
             {
                 walkDown[i-1] = ImageIO.read(new File("TileScroller/assets/ghostWalkDown" + i + ".png"));
             } 
+            for (int i = 1; i <= attackFrameAmount; i++)
+            {
+                attackLeft[i-1] = ImageIO.read(new File("TileScroller/assets/ghostAttackLeft" + i + ".png"));
+            } 
+            for (int i = 1; i <= attackFrameAmount; i++)
+            {
+                attackRight[i-1] = ImageIO.read(new File("TileScroller/assets/ghostAttackRight" + i + ".png"));
+            } 
+            for (int i = 1; i <= attackFrameAmount; i++)
+            {
+                attackUp[i-1] = ImageIO.read(new File("TileScroller/assets/ghostAttackUp" + i + ".png"));
+            } 
+            for (int i = 1; i <= attackFrameAmount; i++)
+            {
+                attackDown[i-1] = ImageIO.read(new File("TileScroller/assets/ghostAttackDown" + i + ".png"));
+            } 
         } 
         catch(Exception e)
         {
@@ -102,6 +144,8 @@ public class Ghost {
             ghostY -= actions.get(i).playerY;
             ghostCameraX -= actions.get(i).cameraX;
             ghostCameraY -= actions.get(i).cameraY;
+            boolean attacking = actions.get(i).attacking;
+        
 
             if (isDead)
             {
@@ -121,7 +165,7 @@ public class Ghost {
                 }
 
                 sprite = deathSprites[deathFrame];
-            }       
+            }      
             else if (!Culminating.rewinding)
             {
                 deathFrame = 0;
@@ -129,9 +173,86 @@ public class Ghost {
 
                 if (actions.get(i).playerX != 0 || actions.get(i).playerY != 0 || actions.get(i).cameraX != 0 || actions.get(i).cameraY != 0) moving = true;
 
+                if (lastDirection == null) lastDirection = "Down";
+
+                if (lastDirection.equals("Down")) 
+                {
+                    directionX = STANDARD_ATTACK_OFFSET;
+                    directionY = directionDown;
+                }
+                if (lastDirection.equals("Up"))
+                {
+                    directionX = STANDARD_ATTACK_OFFSET;
+                    directionY = directionUp;
+                }
+                if (lastDirection.equals("Left")) 
+                {
+                    directionX = directionLeft;
+                    directionY = STANDARD_ATTACK_OFFSET;
+                }
+                if (lastDirection.equals("Right")) 
+                {
+                    directionX = directionRight;
+                    directionY = STANDARD_ATTACK_OFFSET;
+                }
+
                 try 
                 {
-                    if (moving)
+                    if (!isDead && attacking && !attackLocked)
+                    {
+                        isAttacking = true;
+                        attackLocked = true;
+                        attackFrame = 0;
+                        lastAttackFrame = System.nanoTime();
+
+                    }
+                    if (isAttacking)
+                    {
+                        currentTime = System.nanoTime();
+
+
+                        if (currentTime - lastAttackFrame > attackFrameLength)
+                        {
+                            Rectangle attackArea = new Rectangle(Culminating.WIDTH / 2 - directionX - ghostX + (Culminating.xOffset - ghostCameraX), Culminating.HEIGHT / 2 - directionY - ghostY + (Culminating.yOffset - ghostCameraY), attackX, attackY);
+
+                            for (Enemy enemy : Culminating.enemies)
+                            {
+                                if (attackArea.intersects(enemy.getBounds()))
+                                {
+                                    enemy.dead = true;
+                                }
+                            }
+
+                            attackFrame++;
+                            lastAttackFrame = currentTime;
+
+                            if (attackFrame >= attackFrameAmount)
+                            {
+                                attackFrame = 0;
+                                attackLocked = false;
+                                isAttacking = false;
+                            }
+                        }
+                        if (lastDirection == null) lastDirection = "Down";
+
+                        if (lastDirection.equals("Up"))
+                        {
+                            sprite = attackUp[attackFrame];
+                        }
+                        if (lastDirection.equals("Down"))
+                        {
+                            sprite = attackDown[attackFrame];
+                        }
+                        if (lastDirection.equals("Left"))
+                        {
+                            sprite = attackLeft[attackFrame];
+                        }
+                        if (lastDirection.equals("Right"))
+                        {
+                            sprite = attackRight[attackFrame];                            
+                        }
+                    }
+                    else if (moving)
                     {
                         currentTime = System.nanoTime();
 
@@ -179,13 +300,19 @@ public class Ghost {
         }
         else
         {
-            actions.add(new Movement(0, 0, 0, 0, false));
+            actions.add(new Movement(0, 0, 0, 0, false, false, null));
         }
         //System.out.println("ghostIndex: " + ghostIndex + " rewindCount: " + Culminating.rewindCount + " actions: " + actions.size());
     }
 
     public void draw(Graphics2D g2d, int WIDTH, int HEIGHT, int currentCameraX, int currentCameraY)
     {
+        if (isAttacking)
+        {
+            g2d.setColor(new Color(255, 0, 0));
+            //g2d.fillRect(WIDTH / 2 - directionX - ghostX + (currentCameraX - ghostCameraX), HEIGHT / 2 - directionY - ghostY + (currentCameraY - ghostCameraY), attackX, attackY);
+        }
+
         if (!isDead)
         {   
             g2d.setColor(ALIVE_COLOR);
@@ -194,11 +321,13 @@ public class Ghost {
         {
             g2d.setColor(DEAD_COLOR);
         }
+
         int drawX = WIDTH / 2 - size / 2 - ghostX + (currentCameraX - ghostCameraX);
         int drawY = HEIGHT / 2 - size / 2 - ghostY + (currentCameraY - ghostCameraY);
         //g2d.fillRect(drawX, drawY, size, size);
         g2d.drawImage(sprite, drawX, drawY, size, size, null);
-        g2d.drawRect(drawX, drawY, size, size);
+        //g2d.drawRect(drawX, drawY, size, size);
+
 
 
         g2d.setColor(Color.WHITE);

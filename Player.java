@@ -185,7 +185,6 @@ public class Player {
                 {
                     directionX = directionLeft;
                     directionY = STANDARD_ATTACK_OFFSET;
-
                 }
                 if (Culminating.goingRight) 
                 {
@@ -201,7 +200,7 @@ public class Player {
                     
                     attack();     
                     g2d.setColor(new Color(255, 0, 0));
-                    g2d.fillRect(WIDTH / 2 - directionX - playerXOffset, HEIGHT / 2 - directionY - playerYOffset, attackX, attackY);
+                    //g2d.fillRect(WIDTH / 2 - directionX - playerXOffset, HEIGHT / 2 - directionY - playerYOffset, attackX, attackY);
 
                     if (currentTime - lastAttackFrame > attackFrameLength)
                     {
@@ -276,9 +275,10 @@ public class Player {
         Rectangle attackArea = new Rectangle(Culminating.WIDTH / 2 - directionX - playerXOffset, Culminating.HEIGHT / 2 - directionY - playerYOffset, attackX, attackY);
         for (Enemy enemy : Culminating.enemies)
         {
-            if (attackArea.intersects(enemy.getBounds()))
+            if (attackArea.intersects(enemy.getBounds()) && !enemy.dead)
             {
                 enemy.dead = true;
+                Culminating.coins += (int) (Math.random()*4) + 1;
             }
         }
         

@@ -6,7 +6,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
-import javax.imageio.*;
 
 public class Culminating extends Canvas implements KeyListener, MouseListener, MouseMotionListener {
     static BufferedImage img;
@@ -35,6 +34,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int STARTING_YOFFSET = 0;
     static final int STARTING_PLAYERXOFFSET = TILE_SIZE * 7;
     static final int STARTING_PLAYERYOFFSET = TILE_SIZE * 1;
+
+    static int coins = 0;
 
     static final int CAMERA_SPEED = 5;
 
@@ -221,6 +222,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                             player.playerYOffset += movement.playerY;
                             xOffset += movement.cameraX;
                             yOffset += movement.cameraY;
+                            player.lastDirection = movement.facing;
+                            player.attacking = movement.attacking;
                             if (movement.interacted)
                             {
                                 for (Items item : items)
@@ -268,6 +271,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                             for (Door door : doors)
                             {
                                 door.startTime = door.currentTime-FRAMES_PER_SECOND/2;
+                                door.isOpen = (door.startPosition.equals("Closed") ? false : true);
+                                
+                                door.startTime = 0;  
+                                door.currentTime = 0;     
+                                door.elaspedTime = 0; 
                             }
                             player.reset();
 
@@ -281,7 +289,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 else
                 {
                     //Moving the player at the edges
-                    Movement frameMovement = new Movement(0, 0, 0, 0, false);
+                    Movement frameMovement = new Movement(0, 0, 0, 0, false, false, null);
                     playerWorldX = WIDTH / 2 - PLAYER_SIZE / 2 - xOffset - player.playerXOffset;
                     playerWorldY = HEIGHT / 2 - PLAYER_SIZE / 2 - yOffset - player.playerYOffset;
 
@@ -387,7 +395,15 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
 
                     
+                    if (player.attacking)
+                    {
+                        frameMovement.attacking = true;
+                    }
 
+                    if (goingUp) frameMovement.facing = "Up";
+                    if (goingDown) frameMovement.facing = "Down";
+                    if (goingLeft) frameMovement.facing = "Left";
+                    if (goingRight) frameMovement.facing = "Right";
                     
                     
                     // Add the frame
@@ -548,7 +564,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 //Text
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("Serif", Font.BOLD, 32));
-                g2d.drawString("Time: " + String.format("%.1f", elapsedTime), 30, 50);
+                g2d.drawString("Time: " + String.format("%.1f", Math.abs(elapsedTime)), 30, 50);
+                g2d.drawString("Coins: " + String.valueOf(coins), 30, 100);
 
                 for (Enemy enemy : enemies)
                 {
