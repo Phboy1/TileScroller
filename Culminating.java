@@ -1,6 +1,7 @@
 package TileScroller;
 
 import java.awt.*;
+import java.awt.RenderingHints.Key;
 import java.awt.image.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -10,8 +11,12 @@ import java.util.*;
 public class Culminating extends Canvas implements KeyListener, MouseListener, MouseMotionListener {
     static BufferedImage img;
 
+
     static final int NO_TIMER_DOOR = 0;
     static final int FRAMES_PER_SECOND = 30;
+
+    static final int MAX_COIN_DROP = 4;
+    static final int MIN_COIN_DROP = 1;
 
     static int state = 0;
 
@@ -58,6 +63,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static boolean goingLeft = false;
     static boolean goingRight = false;
 
+    static int mouseX;
+    static int mouseY;
+
     static long startTime;
     static long currentTime;
     static double elapsedTime;
@@ -68,6 +76,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int health = maxHealth;
     static boolean playerDying = false;
 
+    static boolean shopOpen = false;
+
     static ArrayList<Ghost> ghosts = new ArrayList<>();
 
     static ArrayList<ArrayList<Movement>> movementHistory = new ArrayList<>();
@@ -77,6 +87,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static ArrayList<Door> doors = new ArrayList<>();
 
     static ArrayList<Enemy> enemies = new ArrayList<>();
+
+    static Shop shop = new Shop();
 
     static Ghost possessedGhost = null;
 
@@ -209,6 +221,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             {
                 if (rewinding)
                 {
+                    shopOpen = false;
                     if (playerDying) return;
                     goingLeft = goingRight = goingUp = goingDown = false;
                     for (int i = 0; i < REWIND_SPEED; i++)
@@ -514,6 +527,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public static void draw(Graphics2D g2d) {
+
         switch (state)
         {
             case MENU:
@@ -522,8 +536,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 g2d.fillRect(0,0,WIDTH,HEIGHT);
 
                 g2d.setColor(Color.WHITE);
-                g2d.setFont(new Font("Serif", Font.BOLD, 32));
-                g2d.drawString("PRESS ENTER TO START", WIDTH/2 - 150, HEIGHT/2 + 20);
+                g2d.setFont(new Font("Bahnschrift", Font.BOLD, 50));
+                FontMetrics bahnschrift = g2d.getFontMetrics();
+                int titleLength = bahnschrift.stringWidth("PRESS ENTER TO START");
+                g2d.drawString("PRESS ENTER TO START", WIDTH/2 - titleLength/2, HEIGHT/2 + 20);
                 break;
             }
             case PLAYING:
@@ -560,13 +576,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                 }
 
-
-                //Text
-                g2d.setColor(Color.WHITE);
-                g2d.setFont(new Font("Serif", Font.BOLD, 32));
-                g2d.drawString("Time: " + String.format("%.1f", Math.abs(elapsedTime)), 30, 50);
-                g2d.drawString("Coins: " + String.valueOf(coins), 30, 100);
-
                 for (Enemy enemy : enemies)
                 {
                     enemy.draw(g2d, xOffset, yOffset);
@@ -581,25 +590,38 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 //Player
                 player.draw(g2d, WIDTH, HEIGHT);
 
+                //Text
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
+                g2d.drawString("Time: " + String.format("%.1f", Math.abs(elapsedTime)), 30, 50);
+                g2d.drawString("Coins: " + String.valueOf(coins), 30, 100);
+
+                if (shopOpen)
+                {
+                    shop.update(g2d, 450, 500);
+                }
+
                 break;
             }
         }
     }
 
     public void mouseDragged(MouseEvent e) {
-
+        mouseX = e.getX();
+        mouseY = e.getY();
     }
 
     public void mouseMoved(MouseEvent e) {
-
+        mouseX = e.getX();
+        mouseY = e.getY();
     }
 
     public void mouseClicked(MouseEvent e) {
-
     }
 
     public void mousePressed(MouseEvent e) {
-      
+        mouseX = e.getX();
+        mouseY = e.getY();
     }
 
     public void mouseReleased(MouseEvent e) {
@@ -621,26 +643,31 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     public void keyPressed(KeyEvent e) {
         if (!rewinding && !interactHeld && !playerDying && !player.attacking)
         {
-            if (e.getKeyCode() == KeyEvent.VK_S) goingDown = true;
-            if (e.getKeyCode() == KeyEvent.VK_W) goingUp = true;
-            if (e.getKeyCode() == KeyEvent.VK_A) goingLeft = true;
-            if (e.getKeyCode() == KeyEvent.VK_D) goingRight = true;
+            if (e.getKeyCode() == KeyEvent.VK_Q) shopOpen = !shopOpen;
 
-            if (e.getKeyCode() == KeyEvent.VK_DOWN) goingDown = true;
-            if (e.getKeyCode() == KeyEvent.VK_UP) goingUp = true;
-            if (e.getKeyCode() == KeyEvent.VK_LEFT) goingLeft = true;
-            if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = true;
-
-            if (e.getKeyCode() == KeyEvent.VK_E) interactHeld = true;
-
-            if (e.getKeyCode() == KeyEvent.VK_SPACE && !player.attacking) 
+            if (!shopOpen)
             {
-                player.attacking = true;
+                if (e.getKeyCode() == KeyEvent.VK_S) goingDown = true;
+                if (e.getKeyCode() == KeyEvent.VK_W) goingUp = true;
+                if (e.getKeyCode() == KeyEvent.VK_A) goingLeft = true;
+                if (e.getKeyCode() == KeyEvent.VK_D) goingRight = true;
 
-                goingUp = false;
-                goingDown = false;
-                goingLeft = false;
-                goingRight = false;
+                if (e.getKeyCode() == KeyEvent.VK_DOWN) goingDown = true;
+                if (e.getKeyCode() == KeyEvent.VK_UP) goingUp = true;
+                if (e.getKeyCode() == KeyEvent.VK_LEFT) goingLeft = true;
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = true;
+
+                if (e.getKeyCode() == KeyEvent.VK_E) interactHeld = true;
+
+                if (e.getKeyCode() == KeyEvent.VK_SPACE && !player.attacking) 
+                {
+                    player.attacking = true;
+
+                    goingUp = false;
+                    goingDown = false;
+                    goingLeft = false;
+                    goingRight = false;
+                }
             }
         }
 

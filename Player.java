@@ -22,8 +22,8 @@ public class Player {
     boolean wasMoving;
     String lastDirection;
 
-    static int attackX = 40;
-    static int attackY = 40;
+    static int attackX = 30;
+    static int attackY = 30;
     static final int STANDARD_ATTACK_OFFSET = attackX/2;
 
     int directionDown = STANDARD_ATTACK_OFFSET - attackY;
@@ -278,7 +278,7 @@ public class Player {
             if (attackArea.intersects(enemy.getBounds()) && !enemy.dead)
             {
                 enemy.dead = true;
-                Culminating.coins += (int) (Math.random()*4) + 1;
+                Culminating.coins += (int) (Math.random() * Culminating.MAX_COIN_DROP) + Culminating.MIN_COIN_DROP;
             }
         }
         

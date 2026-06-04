@@ -38,8 +38,8 @@ public class Ghost {
     Image[] attackUp = new Image[attackFrameAmount];
     Image[] attackDown = new Image[attackFrameAmount];
     
-    static int attackX = 40;
-    static int attackY = 40;
+    static int attackX = 30;
+    static int attackY = 30;
     static final int STANDARD_ATTACK_OFFSET = attackX/2;
 
     int directionDown = STANDARD_ATTACK_OFFSET - attackY;
@@ -217,9 +217,10 @@ public class Ghost {
 
                             for (Enemy enemy : Culminating.enemies)
                             {
-                                if (attackArea.intersects(enemy.getBounds()))
+                                if (attackArea.intersects(enemy.getBounds()) && !enemy.dead)
                                 {
                                     enemy.dead = true;
+                                    Culminating.coins += (int) (Math.random() * Culminating.MAX_COIN_DROP) + Culminating.MIN_COIN_DROP;
                                 }
                             }
 
