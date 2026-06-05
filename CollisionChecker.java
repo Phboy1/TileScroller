@@ -12,7 +12,7 @@ public class CollisionChecker {
     int hitboxSizeX = Player.HITBOX_SIZE_X;
     int hitboxSizeY = Player.HITBOX_SIZE_Y;
 
-    int buffer = Culminating.CAMERA_SPEED * 2;
+    int buffer = 10;
     int futureX = Culminating.WIDTH / 2 - player.size / 2 - player.playerXOffset - moveX;
     int futureY = Culminating.HEIGHT / 2 - player.size / 2 - player.playerYOffset - moveY;
 

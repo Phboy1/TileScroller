@@ -10,6 +10,10 @@ public class Shop {
     static final int SHOP_TITLE_BUTTON_BUFFER = 115;
     static final int CORNER_CUBE_SIZE = 15;
 
+    static String[] shopItems = {"Borrowed Time", "Midas Touch", "Luck", "Avin Chiu"};
+    static String[] shopDescriptions = {"Grants +1 second", "Enemies drop more gold", "Cheaper shop prices", "Ghosts replay faster"};
+    static int[] shopPrices = {5, 1, 40, 67};
+
     public void update(Graphics2D g2d, int shopWidth, int shopHeight)
     {
 
@@ -52,8 +56,7 @@ public class Shop {
         FontMetrics dashedFont = g2d.getFontMetrics();
         g2d.drawString(dashedLine, Culminating.WIDTH / 2 - dashedFont.stringWidth(dashedLine) / 2, shopY + 95);
 
-        String[] shopItems = {"+1 Second", "Speed", "Luck", "Avin Chiu"};
-        String[] shopPrices = {"30g", "50g", "40g", "67g"};
+        
 
         for (int i = 0; i < shopItems.length; i++)
         {
@@ -63,6 +66,7 @@ public class Shop {
             int buttonX = shopX + (shopWidth-buttonWidth)/2;
             int buttonHeight = BUTTON_HEIGHT;
             Rectangle button = new Rectangle(buttonX, buttonY, buttonWidth, BUTTON_HEIGHT);
+            int textY = buttonY;
 
             if (button.contains(Culminating.mouseX, Culminating.mouseY)) 
             {
@@ -71,41 +75,100 @@ public class Shop {
 
 
             buttonX = isHovered ? buttonX - 3 : buttonX;
-            buttonY = isHovered ? buttonY - 3 : buttonY;
+            buttonY = isHovered ? buttonY - 1 : buttonY;
             buttonWidth = isHovered ? buttonWidth + 6 : buttonWidth;
-            buttonHeight = isHovered ? BUTTON_HEIGHT + 6 : BUTTON_HEIGHT;
+            buttonHeight = isHovered ? BUTTON_HEIGHT + 2 : BUTTON_HEIGHT;
 
-            g2d.setColor(new Color(36, 29, 18));
+            if (Culminating.coins >= shopPrices[i])
+            {
+                g2d.setColor(new Color(95, 72, 28));
+            }
+            else
+            {
+                g2d.setColor(new Color(36, 29, 18));
+            }
+
             g2d.fillRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 20, 20);
-            g2d.setColor(new Color(90, 69, 48));
+
+            if (Culminating.coins >= shopPrices[i])
+            {
+                g2d.setColor(new Color(160, 130, 50)); 
+            }
+            else
+            {
+                g2d.setColor(new Color(90, 69, 48));
+            }
             g2d.drawRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 6, 6);
             g2d.drawRoundRect(buttonX + 2, buttonY + 2, buttonWidth - 4, buttonHeight - 4, 6, 6);
 
             g2d.setColor(new Color(107, 140, 62));
             g2d.fillRect(buttonX, buttonY + 1, 4, buttonHeight - 2);
 
+            //Descriptions
+            g2d.setFont(new Font("Serif", Font.ITALIC, 10));
+            g2d.setColor(new Color(140, 120, 70));
+            if (isHovered)
+            {
+                g2d.drawString(shopDescriptions[i], buttonX + 16, buttonY + 38);
+            }
+            else 
+            {
+                g2d.drawString(shopDescriptions[i], buttonX + 16, buttonY + 37);
+            }
+
             g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
             g2d.setColor(new Color(200, 176, 104));
-            if (isHovered) g2d.drawString(shopItems[i], buttonX + 16, buttonY + 28);
-            else g2d.drawString(shopItems[i], buttonX + 16, buttonY + 26);
+            if (isHovered)
+            {
+                g2d.drawString(shopItems[i], buttonX + 16, buttonY + 25);
+            }
+            else 
+            {
+                g2d.drawString(shopItems[i], buttonX + 16, buttonY + 24);
+            }
 
 
             g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
             FontMetrics priceFont = g2d.getFontMetrics();
-            int priceWidth = priceFont.stringWidth(shopPrices[i]) + 16;
+            int priceWidth = priceFont.stringWidth(String.valueOf(shopPrices[i]) + "g") + 16;
             int priceX = buttonX + buttonWidth - priceWidth - 10;
             int priceY = buttonY + (buttonHeight - 26) / 2;
-            g2d.setColor(new Color(30, 24, 16));
+            if (Culminating.coins >= shopPrices[i])
+            {
+                g2d.setColor(new Color(50, 38, 12));
+            }
+            else
+            {
+                g2d.setColor(new Color(30, 24, 16));
+            }
             g2d.fillRoundRect(priceX, priceY, priceWidth, 26, 4, 4);
             g2d.setColor(new Color(107, 90, 62));
             g2d.drawRoundRect(priceX, priceY, priceWidth, 26, 4, 4);
 
             // Price text
             g2d.setColor(new Color(212, 168, 67));
-            g2d.drawString(shopPrices[i], priceX + 8, priceY + 18);
+            g2d.drawString(String.valueOf(shopPrices[i])+ "g", priceX + 8, priceY + 18);
+
+            if (Culminating.clicked && button.contains(Culminating.mouseX, Culminating.mouseY) && Culminating.coins >= shopPrices[i] && Culminating.shopOpen)
+            {
+                Culminating.coins -= shopPrices[i];
+                shopPrices[i] = (int) Math.round((shopPrices[i] * 1.5));
+
+                if (shopItems[i].equals("+1 Second"))
+                {
+                    Culminating.secondTime++;
+                    Culminating.resetTime = Culminating.secondTime * Culminating.SECONDS_TO_NANO;
+                }
+                if (shopItems[i].equals("Speed"))
+                {
+                    Culminating.cameraSpeed += 1;
+                }
+
+                Culminating.clicked = false;
+            }
             
 
-            if (isHovered) buttonY += 3;
+            if (isHovered) buttonY += 1;
 
             if (i == shopItems.length - 1)
             {
