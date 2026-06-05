@@ -10,9 +10,12 @@ public class Shop {
     static final int SHOP_TITLE_BUTTON_BUFFER = 115;
     static final int CORNER_CUBE_SIZE = 15;
 
-    static String[] shopItems = {"Borrowed Time", "Midas Touch", "Luck", "Avin Chiu"};
-    static String[] shopDescriptions = {"Grants +1 second", "Enemies drop more gold", "Cheaper shop prices", "Ghosts replay faster"};
-    static int[] shopPrices = {5, 1, 40, 67};
+    static boolean addGhost = false;
+    static int addGhostAmount = 0;
+
+    static String[] shopItems = {"Borrowed Time", "Midas Touch", "Release the Undead", "Hard Bargain"};
+    static String[] shopDescriptions = {"+1 Second of Time in the Jungle", "Enemies drop more gold", "+1 Ghost", "Cheaper shop prices"};
+    static int[] shopPrices = {8, 14, 1, 45};
 
     public void update(Graphics2D g2d, int shopWidth, int shopHeight)
     {
@@ -66,7 +69,6 @@ public class Shop {
             int buttonX = shopX + (shopWidth-buttonWidth)/2;
             int buttonHeight = BUTTON_HEIGHT;
             Rectangle button = new Rectangle(buttonX, buttonY, buttonWidth, BUTTON_HEIGHT);
-            int textY = buttonY;
 
             if (button.contains(Culminating.mouseX, Culminating.mouseY)) 
             {
@@ -154,14 +156,46 @@ public class Shop {
                 Culminating.coins -= shopPrices[i];
                 shopPrices[i] = (int) Math.round((shopPrices[i] * 1.5));
 
-                if (shopItems[i].equals("+1 Second"))
+                if (shopItems[i].equals("Borrowed Time"))
                 {
-                    Culminating.secondTime++;
+                    Culminating.secondTime += 3;
                     Culminating.resetTime = Culminating.secondTime * Culminating.SECONDS_TO_NANO;
+                    Culminating.plusOneBrightness = 255;
+                    Culminating.increasedTime = true;
                 }
-                if (shopItems[i].equals("Speed"))
+                if (shopItems[i].equals("Midas Touch"))
                 {
-                    Culminating.cameraSpeed += 1;
+                    if (Culminating.maxCoinDrop > Culminating.minCoinDrop - 1)
+                    {
+                        int choice = (int) (Math.random()*2);
+
+                        if (choice == 0) Culminating.maxCoinDrop++;
+                        else if (choice == 1) Culminating.minCoinDrop++;
+                    }
+                    else
+                    {
+                        Culminating.maxCoinDrop++;
+                    }
+
+                    System.out.println(Culminating.maxCoinDrop);
+                    System.out.println(Culminating.minCoinDrop);
+                }
+                if (shopItems[i].equals("Release the Undead"))
+                {
+                    addGhost = true;
+                    addGhostAmount++;
+                    Culminating.plusGhostBrightness = 255;
+                    Culminating.increasedGhost = true;
+                }
+                if (shopItems[i].equals("Hard Bargain"))
+                {
+                    for (int j = 0; j < shopPrices.length; j++)
+                    {
+                        if (!shopItems[j].equals("Hard Bargain"))
+                        {
+                            shopPrices[j] = (int) Math.floor(shopPrices[j] * 0.9);
+                        }
+                    }
                 }
 
                 Culminating.clicked = false;

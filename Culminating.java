@@ -1,7 +1,6 @@
 package TileScroller;
 
 import java.awt.*;
-import java.awt.RenderingHints.Key;
 import java.awt.image.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -14,8 +13,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int NO_TIMER_DOOR = 0;
     static final int FRAMES_PER_SECOND = 30;
 
-    static final int MAX_COIN_DROP = 4;
-    static final int MIN_COIN_DROP = 1;
+    static int maxCoinDrop = 4;
+    static int minCoinDrop = 1;
+
+    static int maxGhostAmount = 5;
 
     static int state = 0;
 
@@ -43,7 +44,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static boolean clicked = false;
 
-    static int cameraSpeed = 5;
+    static final int CAMERA_SPEED = 5;
 
     static long secondTime = 10L;
 
@@ -51,7 +52,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static Tile[][] map = new Tile[rows][cols];
 
-    static Player player = new Player(PLAYER_SIZE, cameraSpeed);
+    static Player player = new Player(PLAYER_SIZE, CAMERA_SPEED);
 
     static int xOffset = 0;
     static int yOffset = 0;
@@ -93,7 +94,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static Shop shop = new Shop();
 
-    static Ghost possessedGhost = null;
+    static boolean increasedTime = false;
+    static int plusOneBrightness = 0;
+    
+    static boolean increasedGhost = false;
+    static int plusGhostBrightness = 0;
 
     static boolean rewinding = false;
     static final int REWIND_SPEED = 4;
@@ -295,7 +300,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                             }
                             player.reset();
 
-                            
+                            if (Shop.addGhost)
+                            {
+                                maxGhostAmount += Shop.addGhostAmount;
+                                Shop.addGhostAmount = 0;
+                                Shop.addGhost = false;
+                            }
+
                             rewinding = false;
 
                             break;
@@ -317,10 +328,16 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     }
 
                     //Update Ghosts only when NOT rewinding
-                    for (Ghost ghost : ghosts)
+
+                    int ghostStart = 0;
+
+                    if (ghosts.size() - maxGhostAmount > 0)  ghostStart = ghosts.size() - maxGhostAmount;
+
+                    for (int i = ghostStart; i < ghosts.size(); i++)
                     {
-                        ghost.update();
+                        ghosts.get(i).update();
                     }
+
                     for (Enemy enemy : enemies)
                     {
                         enemy.update();
@@ -353,76 +370,76 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                     
 
-                    if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -cameraSpeed, 0)) 
+                    if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
                     {
-                        player.playerXOffset += cameraSpeed;
-                        frameMovement.playerX -= cameraSpeed;
+                        player.playerXOffset += CAMERA_SPEED;
+                        frameMovement.playerX -= CAMERA_SPEED;
                     }
-                    if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -cameraSpeed))
+                    if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
                     {
-                        player.playerYOffset += cameraSpeed;
-                        frameMovement.playerY -= cameraSpeed;
+                        player.playerYOffset += CAMERA_SPEED;
+                        frameMovement.playerY -= CAMERA_SPEED;
                     }
-                    if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, cameraSpeed, 0))
+                    if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
                     {
-                        player.playerXOffset -= cameraSpeed;
-                        frameMovement.playerX += cameraSpeed;
+                        player.playerXOffset -= CAMERA_SPEED;
+                        frameMovement.playerX += CAMERA_SPEED;
                     }
-                    if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, cameraSpeed))
+                    if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
                     {
-                        player.playerYOffset -= cameraSpeed;
-                        frameMovement.playerY += cameraSpeed;
+                        player.playerYOffset -= CAMERA_SPEED;
+                        frameMovement.playerY += CAMERA_SPEED;
                     }
-                    if (goingRight && CollisionChecker.canMove(player, cameraSpeed, 0))
+                    if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
                     {
                         if (player.playerXOffset > 0) 
                         {
-                            player.playerXOffset -= cameraSpeed; 
-                            frameMovement.playerX += cameraSpeed;
+                            player.playerXOffset -= CAMERA_SPEED; 
+                            frameMovement.playerX += CAMERA_SPEED;
                         }
                         else if (player.playerXOffset == 0)
                         {
-                            xOffset -= cameraSpeed; 
-                            frameMovement.cameraX += cameraSpeed; 
+                            xOffset -= CAMERA_SPEED; 
+                            frameMovement.cameraX += CAMERA_SPEED; 
                         }
                     }
-                    if (goingDown && CollisionChecker.canMove(player, 0, cameraSpeed))
+                    if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
                     {
                         if (player.playerYOffset > 0)
                         { 
-                            player.playerYOffset -= cameraSpeed; 
-                            frameMovement.playerY += cameraSpeed; 
+                            player.playerYOffset -= CAMERA_SPEED; 
+                            frameMovement.playerY += CAMERA_SPEED; 
                         }
                         else if (player.playerYOffset == 0)
                         { 
-                            yOffset -= cameraSpeed; 
-                            frameMovement.cameraY += cameraSpeed; 
+                            yOffset -= CAMERA_SPEED; 
+                            frameMovement.cameraY += CAMERA_SPEED; 
                         }
                     }
-                    if (goingLeft && CollisionChecker.canMove(player, -cameraSpeed, 0))
+                    if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
                     {
                         if (player.playerXOffset < 0)
                         { 
-                            player.playerXOffset += cameraSpeed; 
-                            frameMovement.playerX -= cameraSpeed; 
+                            player.playerXOffset += CAMERA_SPEED; 
+                            frameMovement.playerX -= CAMERA_SPEED; 
                         }
                         else if (player.playerXOffset == 0)
                         { 
-                            xOffset += cameraSpeed; 
-                            frameMovement.cameraX -= cameraSpeed; 
+                            xOffset += CAMERA_SPEED; 
+                            frameMovement.cameraX -= CAMERA_SPEED; 
                         }
                     }
-                    if (goingUp && CollisionChecker.canMove(player, 0, -cameraSpeed))
+                    if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
                     {
                         if (player.playerYOffset < 0)
                         { 
-                            player.playerYOffset += cameraSpeed; 
-                            frameMovement.playerY -= cameraSpeed; 
+                            player.playerYOffset += CAMERA_SPEED; 
+                            frameMovement.playerY -= CAMERA_SPEED; 
                         }
                         else if (player.playerYOffset == 0) 
                         { 
-                            yOffset += cameraSpeed; 
-                            frameMovement.cameraY -= cameraSpeed; 
+                            yOffset += CAMERA_SPEED; 
+                            frameMovement.cameraY -= CAMERA_SPEED; 
                         }
                     }
 
@@ -500,6 +517,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                             rewindIndex = movementHistory.get(rewindCount).size();
                         }
                     }
+
+                    
 
                     for (Ghost ghost : ghosts) {
                         // Lava check
@@ -618,8 +637,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                 //Ghosts
                 g2d.setColor(Color.CYAN);
-                for (Ghost ghost : ghosts) {
-                    ghost.draw(g2d, WIDTH, HEIGHT, xOffset, yOffset);
+                int ghostDrawStart = 0;
+
+                if (ghosts.size() - maxGhostAmount < 0) ghostDrawStart = 0;
+                else ghostDrawStart = ghosts.size() - maxGhostAmount;
+                for (int i = ghostDrawStart; i < ghosts.size(); i++) 
+                {
+                    ghosts.get(i).draw(g2d, WIDTH, HEIGHT, xOffset, yOffset);
                 }
 
                 //Player
@@ -628,12 +652,48 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 //Text
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
+
+                FontMetrics fontMetric = g2d.getFontMetrics();
+                int timeWidth = fontMetric.stringWidth("Time: " + String.format("%.0f", Math.abs(elapsedTime)));
+
+                int ghostWidth = fontMetric.stringWidth("Max Ghosts: " + (maxGhostAmount + Shop.addGhostAmount));
+
                 g2d.drawString("Time: " + String.format("%.1f", Math.abs(elapsedTime)), 30, 50);
+
+                g2d.drawString("Max Ghosts: " + (maxGhostAmount + Shop.addGhostAmount), 30, 150);
+                if (increasedTime)
+                {
+                    plusOneBrightness -= 5;
+                    if (plusOneBrightness <= 0)
+                    {
+                        plusOneBrightness = 0;
+                        increasedTime = false;
+                    }
+
+                    g2d.setColor(new Color(255,255,255, plusOneBrightness));
+                    g2d.drawString("+3", 65 + timeWidth, 50);
+                }
+
+                if (increasedGhost)
+                {
+                    plusGhostBrightness -= 5;
+                    if (plusGhostBrightness <= 0)
+                    {
+                        plusGhostBrightness = 0;
+                        increasedGhost = false;
+                    }
+
+                    g2d.setColor(new Color(255,255,255, plusGhostBrightness));
+                    g2d.drawString("+1", 40 + ghostWidth, 150);
+                }
+                
+                g2d.setColor(new Color(255,255,255));
+
                 g2d.drawString("Coins: " + String.valueOf(coins), 30, 100);
 
                 if (shopOpen)
                 {
-                    shop.update(g2d, 450, 500);
+                    shop.update(g2d, 450, 425);
                 }
 
                 System.out.println(clicked);

@@ -23,8 +23,8 @@ public class Enemy {
 
     static final int TOWARDS_END = 1;
     static final int TOWARDS_START = -1;
-    static final int HITBOX_OFFSET_X = 25;
-    static final int HITBOX_OFFSET_Y = 15;
+    static final int HITBOX_OFFSET_X = 30;
+    static final int HITBOX_OFFSET_Y = 20;
     
     Image[] walkLeft = new Image[frameAmount];
     Image[] walkRight = new Image[frameAmount];
@@ -360,8 +360,8 @@ public class Enemy {
     public void draw(Graphics2D g2d, int xOffset, int yOffset)
     {
         g2d.setColor(new Color(180, 0, 255, 200));
-        //g2d.fillRect(x + xOffset, y + yOffset, size, size);
         g2d.drawImage(sprite, x + xOffset, y + yOffset, size, size, null);
+        //DEBUG HITBOXES
         //g2d.fillRect(x + xOffset + HITBOX_OFFSET_X, y + yOffset + HITBOX_OFFSET_Y, size - 2 * HITBOX_OFFSET_X, size - 2 * HITBOX_OFFSET_Y);
     }
 }

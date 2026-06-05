@@ -200,6 +200,8 @@ public class Player {
                     
                     attack();     
                     g2d.setColor(new Color(255, 0, 0));
+
+                    //DEBUG ATTACK HITBOX
                     //g2d.fillRect(WIDTH / 2 - directionX - playerXOffset, HEIGHT / 2 - directionY - playerYOffset, attackX, attackY);
 
                     if (currentTime - lastAttackFrame > attackFrameLength)
@@ -267,6 +269,8 @@ public class Player {
         //DEBUG
         //int x = WIDTH / 2 - size / 2 - playerXOffset;
         //int y = HEIGHT / 2 - size / 2 - playerYOffset;
+
+        //DEBUG PLAYER HITBOX
         //g2d.fillRect(x + hitboxXOffset, y + hitboxYOffset, HITBOX_SIZE_X, HITBOX_SIZE_Y);
     }
 
@@ -278,7 +282,7 @@ public class Player {
             if (attackArea.intersects(enemy.getBounds()) && !enemy.dead)
             {
                 enemy.dead = true;
-                Culminating.coins += (int) (Math.random() * Culminating.MAX_COIN_DROP) + Culminating.MIN_COIN_DROP;
+                Culminating.coins += (int) (Math.random() * Culminating.maxCoinDrop) + Culminating.minCoinDrop;
             }
         }
         
