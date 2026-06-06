@@ -220,7 +220,7 @@ public class Ghost {
                                 if (attackArea.intersects(enemy.getBounds()) && !enemy.dead)
                                 {
                                     enemy.dead = true;
-                                    Culminating.coins += (int) (Math.random() * Culminating.MAX_COIN_DROP) + Culminating.MIN_COIN_DROP;
+                                    Culminating.coins += (int) (Math.random() * Culminating.maxCoinDrop) + Culminating.minCoinDrop;
                                 }
                             }
 

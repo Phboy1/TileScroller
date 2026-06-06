@@ -16,7 +16,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int maxCoinDrop = 4;
     static int minCoinDrop = 1;
 
-    static int maxGhostAmount = 5;
+    static int maxGhostAmount = 100;
 
     static int state = 0;
 
@@ -46,7 +46,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int CAMERA_SPEED = 5;
 
-    static long secondTime = 10L;
+    static long secondTime = 1000L;
 
     static long resetTime = secondTime * SECONDS_TO_NANO;
 
@@ -156,42 +156,17 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         
 
-        items.add(new Items(Color.YELLOW, 8 * TILE_SIZE, 7 * TILE_SIZE, "A")); // Room A -> unlocks A->B
-        items.add(new Items(Color.YELLOW, 25 * TILE_SIZE, 6 * TILE_SIZE, "B")); // Room B -> unlocks B->C
-        items.add(new Items(Color.YELLOW, 22 * TILE_SIZE, 8 * TILE_SIZE, "D")); // Room B -> unlocks B->E
-        items.add(new Items(Color.YELLOW, 43 * TILE_SIZE, 8 * TILE_SIZE, "C")); // Room C -> unlocks A->D
-        items.add(new Items(Color.YELLOW, 40 * TILE_SIZE, 5 * TILE_SIZE, "E")); // Room C -> unlocks C->E
-        items.add(new Items(Color.YELLOW, 47 * TILE_SIZE, 5 * TILE_SIZE, "F")); // Room C -> unlocks C->F
-        items.add(new Items(Color.YELLOW, 8 * TILE_SIZE, 24 * TILE_SIZE, "G")); // Room D -> unlocks D->E
-        items.add(new Items(Color.YELLOW, 30 * TILE_SIZE, 20 * TILE_SIZE, "H")); // Room E -> unlocks E->F
-        items.add(new Items(Color.YELLOW, 35 * TILE_SIZE, 30 * TILE_SIZE, "I")); // Room E -> unlocks E->H
-        items.add(new Items(Color.YELLOW, 62 * TILE_SIZE, 12 * TILE_SIZE, "J")); // Room F -> unlocks F->J
-        items.add(new Items(Color.YELLOW, 62 * TILE_SIZE, 25 * TILE_SIZE, "K")); // Room F -> unlocks F->I
-        items.add(new Items(Color.YELLOW, 10 * TILE_SIZE, 46 * TILE_SIZE, "L")); // Room G -> unlocks G->H
-        items.add(new Items(Color.YELLOW, 40 * TILE_SIZE, 45 * TILE_SIZE, "M")); // Room H -> unlocks H->I
-        items.add(new Items(Color.YELLOW, 70 * TILE_SIZE, 55 * TILE_SIZE, "N")); // Room I -> unlocks I->K
-        items.add(new Items(Color.YELLOW, 3 * TILE_SIZE, 3 * TILE_SIZE, "t")); // Room I -> unlocks I->K
+        enemies.add(new Enemy(40, 48, 0, 0, 1, "following"));
+        enemies.add(new Enemy(21, 4, 30, 4, 1, "patrolling"));
+        enemies.add(new Enemy(30, 9, 21, 9, 1, "patrolling"));
 
-        doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE, "A", false, 4)); // A->B
-        doors.add(new Door(34 * TILE_SIZE, 4 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "B", false, NO_TIMER_DOOR)); // B->C
-        doors.add(new Door(7 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "C", false, NO_TIMER_DOOR)); // A->D
-        doors.add(new Door(24 * TILE_SIZE, 12 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "D", false, NO_TIMER_DOOR)); // B->E
-        doors.add(new Door(42 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "E", false, NO_TIMER_DOOR)); // C->E
-        doors.add(new Door(52 * TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "F", false, NO_TIMER_DOOR)); // C->F
-        doors.add(new Door(16 * TILE_SIZE, 22 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "G", false, NO_TIMER_DOOR)); // D->E
-        doors.add(new Door(52 * TILE_SIZE, 19 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "H", false, NO_TIMER_DOOR)); // E->F
-        doors.add(new Door(39 * TILE_SIZE, 37 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "I", false, NO_TIMER_DOOR)); // E->H
-        doors.add(new Door(70 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "J", false, NO_TIMER_DOOR)); // F->J
-        doors.add(new Door(64 * TILE_SIZE, 32 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "K", false, NO_TIMER_DOOR)); // F->I
-        doors.add(new Door(22 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "L", false, NO_TIMER_DOOR)); // G->H
-        doors.add(new Door(60 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "M", false, NO_TIMER_DOOR)); // H->I
-        doors.add(new Door(74 * TILE_SIZE, 67 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, "N", false, NO_TIMER_DOOR)); // I->K
-        doors.add(new Door(5 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE, "t", false, NO_TIMER_DOOR)); // I->K
+        items.add(new Items(Color.blue, 11 * TILE_SIZE, 7 * TILE_SIZE, "1-2"));
+        items.add(new Items(Color.blue, 21 * TILE_SIZE, 7 * TILE_SIZE, "1-4"));
 
-        enemies.add(new Enemy(10, 5, 20, 5, 2, "patrolling"));
-        enemies.add(new Enemy(10, 6, 20, 6, 4, "patrolling"));
-        enemies.add(new Enemy(5, 5, 0, 0, 1, "following"));
-        enemies.add(new Enemy(20, 5, 0, 0, 2, "following"));
+        doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE,"1-2", false, 100)); // NO_TIMER_DOOR
+        doors.add(new Door(7 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE,"1-4", false, 3));
+
+
 
         System.out.println("EHLLO WORLD");
         
@@ -319,6 +294,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     Movement frameMovement = new Movement(0, 0, 0, 0, false, false, null);
                     playerWorldX = WIDTH / 2 - PLAYER_SIZE / 2 - xOffset - player.playerXOffset;
                     playerWorldY = HEIGHT / 2 - PLAYER_SIZE / 2 - yOffset - player.playerYOffset;
+
+                    System.out.println(playerWorldX/TILE_SIZE);
+                    System.out.println(playerWorldY/TILE_SIZE);
+
 
 
                     // Reset all items first

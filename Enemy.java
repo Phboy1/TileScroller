@@ -10,7 +10,7 @@ public class Enemy {
 
     int frameAmount = 6;
     int frame = 0;
-    long frameLength = 25000000L;
+    long frameLength = 55000000L;
     long lastFrame = 0;
     boolean wasMoving;
     String lastDirection;
@@ -65,7 +65,7 @@ public class Enemy {
         this.endX = endX * Culminating.TILE_SIZE;
         this.endY = endY * Culminating.TILE_SIZE;
         this.type = type;
-        this.frameLength *= speed;
+        this.frameLength = (long)(frameLength / speed);
         try 
         {
             sprite = ImageIO.read(new File("TileScroller/assets/enemy001.png"));
@@ -150,8 +150,7 @@ public class Enemy {
                     moveY = direction * speed * TOWARDS_END;
                 }
             }
-            
-            if (startY == endY)
+            else if (startY == endY)
             {
                 direction = (startX > endX ? -1 : 1);
                 if (switched)
@@ -172,11 +171,21 @@ public class Enemy {
             }
 
 
-            if ((x >= endX && y >= endY) || (x <= startX && y <= startY) || !canMove(x, y, moveX, moveY))
+            if (startX < endX || startY < endY)
             {
-                switched = !switched;
+                if ((x >= endX && y >= endY) || (x <= startX && y <= startY) || !canMove(x, y, moveX, moveY))
+                {
+                    switched = !switched;
+                }
             }
-
+            else if (startX > endX || startY > endY)
+            {
+                if ((x >= startX && y >= startY) || (x <= endX && y <= endY) || !canMove(x, y, moveX, moveY))
+                {
+                    switched = !switched;
+                }
+            }
+            
             boolean moving = (x != oldX || y != oldY);
 
             if (moving)

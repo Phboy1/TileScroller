@@ -22,8 +22,8 @@ public class Door {
 
     String type;
 
-    final Color CLOSED_DOOR = new Color(255, 0, 0);
-    final Color OPEN_DOOR = new Color(255, 0, 0, 150);
+    final Color CLOSED_DOOR = new Color(92, 88, 82);
+    final Color OPEN_DOOR   = new Color(85, 82, 78, 140);
 
     Door (int x, int y, int width, int height, String id, boolean isOpen, int timerMax)
     {
