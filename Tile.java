@@ -47,6 +47,9 @@ public class Tile {
         else if (type.equals("-")) {
             g2d.setColor(new Color(150, 75, 0));
         }
+        else if (type.equals("E")) {
+            g2d.setColor(new Color(255, 215, 0)); 
+        }
         else {
             g2d.setColor(Color.WHITE);
         }
@@ -60,6 +63,11 @@ public class Tile {
     public boolean isLava()
     {
         return type.equals("L");
+    }
+
+    public boolean isEndZone()
+    {
+        return type.equals("E");
     }
 
     public Rectangle getBounds(int xOffset, int yOffset) {

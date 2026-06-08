@@ -303,6 +303,7 @@ public class Enemy {
                 if (getBounds().intersects(item.getBounds(Culminating.xOffset, Culminating.yOffset)))
                 {
                     item.activated = true;
+                    Culminating.player.playInteractSound();
                 }
             }
         }

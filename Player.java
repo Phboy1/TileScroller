@@ -2,11 +2,17 @@ package TileScroller;
 
 import java.awt.*;
 import java.io.File;
+import javax.sound.sampled.*;
 
 import javax.imageio.ImageIO;
 
 public class Player {
     static Image sprite;
+    Clip walkClip;
+    Clip interactClip;
+
+    boolean walkSoundPlaying = false;
+
 
     static final int UP = 0;
     static final int RIGHT = 1;
@@ -130,11 +136,38 @@ public class Player {
             {
                 attackDown[i-1] = ImageIO.read(new File("TileScroller/assets/playerAttackDown" + i + ".png"));
             } 
+            
         } 
         catch(Exception e)
         {
             System.out.println("LOADING PLAYER TOO HARD");
         }
+
+        try 
+        {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/walk.wav"));
+
+            walkClip = AudioSystem.getClip();
+            walkClip.open(audioInputStream);
+            
+
+            
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/button.wav"));
+
+            interactClip = AudioSystem.getClip();
+            interactClip.open(audioInputStream);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("CLICK SOUND FAILED");
+        }
+        
     }
 
     public void draw(Graphics2D g2d, int WIDTH, int HEIGHT) 
@@ -170,6 +203,7 @@ public class Player {
             {
                 deathFrame = 0;
                 boolean moving = Culminating.goingDown || Culminating.goingUp || Culminating.goingLeft || Culminating.goingRight;
+                updateWalkSound(moving);
 
                 if (Culminating.goingDown) 
                 {
@@ -252,6 +286,10 @@ public class Player {
 
                 g2d.setColor(Color.RED);                
             }
+            else
+            {
+                updateWalkSound(false); 
+            }
 
 
             
@@ -318,5 +356,37 @@ public class Player {
         int y = HEIGHT / 2 - size / 2 - playerYOffset;
 
         return new Rectangle(x + hitboxXOffset , y + hitboxYOffset, HITBOX_SIZE_X, HITBOX_SIZE_Y);
+    }
+
+    public void updateWalkSound(boolean moving)
+    {
+   
+        if (walkClip == null) return;
+
+        if (moving)
+        {
+            if (!walkSoundPlaying)
+            {
+                walkClip.loop(Clip.LOOP_CONTINUOUSLY);
+                walkSoundPlaying = true;
+            }
+        }
+        else
+        {
+            if (walkSoundPlaying)
+            {
+                walkClip.stop();
+                walkClip.setFramePosition(0);
+                walkSoundPlaying = false;
+            }
+        }
+    }
+
+    public void playInteractSound()
+    {
+        if (interactClip == null) return;
+
+        interactClip.setFramePosition(0); // rewind
+        interactClip.start();             // play once
     }
 }

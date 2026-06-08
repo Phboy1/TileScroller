@@ -74,6 +74,8 @@ public class Ghost {
     static final Color DEAD_COLOR = Color.DARK_GRAY;
     static final Color ALIVE_COLOR = Color.CYAN;
 
+    boolean walkSoundPlaying = false;
+
     Ghost (int ghostIndex, int size)
     {
         this.ghostIndex = ghostIndex;
@@ -270,7 +272,8 @@ public class Ghost {
 
                         wasMoving = true;
                         lastDirection = ((actions.get(i).cameraY > 0 || actions.get(i).playerY > 0) ? "Down" : ((actions.get(i).cameraY < 0 || actions.get(i).playerY < 0) ? "Up" : ((actions.get(i).cameraX > 0 || actions.get(i).playerX > 0) ? "Right" : "Left")));
-                        }
+                    
+                    }
                     else if (wasMoving)
                     {
                         sprite = ImageIO.read(new File("TileScroller/assets/ghostIdle" + lastDirection + ".png"));
@@ -284,15 +287,22 @@ public class Ghost {
             
 
 
+            boolean prevInteracted = false;
+            
+            if (i > 0) prevInteracted = actions.get(i - 1).interacted;
+
+            if (actions.get(i).interacted && !prevInteracted)
+            {
+                Culminating.playSound("TileScroller/assets/button.wav");
+            }
+
             if (actions.get(i).interacted)
             {
-                System.out.println("GHOST INTERACTING: " + actions.get(i).interactedItemId);
                 for (Items item : Culminating.items)
                 {
                     if (item.id.equals(actions.get(i).interactedItemId))
                     {
-                        //System.out.println("SETTING " + item.id + " TO TRUE");
-                        item.activated = true;          
+                        item.activated = true;
                     }
                 }
             }

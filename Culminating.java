@@ -6,6 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
+import javax.sound.sampled.*;
 
 public class Culminating extends Canvas implements KeyListener, MouseListener, MouseMotionListener {
     static BufferedImage img;
@@ -16,14 +17,15 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int maxCoinDrop = 4;
     static int minCoinDrop = 1;
 
-    static int maxGhostAmount = 100;
+    static int maxGhostAmount = 15;
 
     static int state = 0;
 
     static final int MENU = 0;
     static final int PLAYING = 1;
+    static final int WIN = 2;
 
-    static final int WIDTH = 1280;
+    static final int WIDTH = 1280 ; //Toolkit.getDefaultToolkit().getScreenSize().width 
     static final int HEIGHT = 720;
     static final int FRAME_DELAY = 16;
 
@@ -46,7 +48,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int CAMERA_SPEED = 5;
 
-    static long secondTime = 1000L;
+    static long secondTime = 10L;
 
     static long resetTime = secondTime * SECONDS_TO_NANO;
 
@@ -75,10 +77,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static double elapsedTime;
     static int rewindIndex;
     static int rewindCount = 0;
+    static int finalRewinds = 0;
 
-    static int maxHealth = 3;
-    static int health = maxHealth;
     static boolean playerDying = false;
+
+    static Clip rewindClip;
+    static boolean rewindSoundPlaying = false;
 
     static boolean shopOpen = false;
 
@@ -101,7 +105,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int plusGhostBrightness = 0;
 
     static boolean rewinding = false;
-    static final int REWIND_SPEED = 4;
+    static final int REWIND_SPEED = 10;
 
     static {
         player.playerXOffset = STARTING_PLAYERXOFFSET;
@@ -130,47 +134,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         game.createBufferStrategy(3);
         BufferStrategy bs = game.getBufferStrategy();
 
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
-            String line = br.readLine();
-            int j = 0;
-
-            while (line != null)
-            {
-                int i = 0;
-                String character[] = line.split(",");
-                while (i < character.length)
-                {
-                    map[j][i] = new Tile(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, character[i]);
-                    i++;
-                }
-                line = br.readLine();
-                j++;
-            }
-
-            br.close();
-
-        } catch (Exception e) {
-            System.out.println("SOMETHING WENT WRONG WITH THE FILE!!!!!!");
-        }
-
+        loadMap();
+        spawnEnemies();
+        spawnItems();
+        spawnDoors();
+        loadRewindAudio();
         
-
-        enemies.add(new Enemy(40, 48, 0, 0, 1, "following"));
-        enemies.add(new Enemy(21, 4, 30, 4, 1, "patrolling"));
-        enemies.add(new Enemy(30, 9, 21, 9, 1, "patrolling"));
-
-        items.add(new Items(Color.blue, 11 * TILE_SIZE, 7 * TILE_SIZE, "1-2"));
-        items.add(new Items(Color.blue, 21 * TILE_SIZE, 7 * TILE_SIZE, "1-4"));
-
-        doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE,"1-2", false, 100)); // NO_TIMER_DOOR
-        doors.add(new Door(7 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE,"1-4", false, 3));
-
-
-
-        System.out.println("EHLLO WORLD");
-        
-
         while (true) {
             // 1. Logic (Thinking)
             update();
@@ -206,6 +175,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 {
                     shopOpen = false;
                     if (playerDying) return;
+
+                    if (!rewindSoundPlaying && rewindClip != null)
+                    {
+                        rewindClip.setFramePosition(0);
+                        rewindClip.loop(Clip.LOOP_CONTINUOUSLY);
+                        rewindSoundPlaying = true;
+                    }
                     goingLeft = goingRight = goingUp = goingDown = false;
                     for (int i = 0; i < REWIND_SPEED; i++)
                     {
@@ -226,6 +202,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                                 {
                                     if (item.isTouchingPlayer(player))
                                     {
+                                        Culminating.player.playInteractSound();
                                         item.activated = true;
                                     }
                                 }
@@ -290,6 +267,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 }
                 else
                 {
+                    if (rewindSoundPlaying && rewindClip != null)
+                    {
+                        rewindClip.stop();
+                        rewindSoundPlaying = false;
+                    }
                     //Moving the player at the edges
                     Movement frameMovement = new Movement(0, 0, 0, 0, false, false, null);
                     playerWorldX = WIDTH / 2 - PLAYER_SIZE / 2 - xOffset - player.playerXOffset;
@@ -325,6 +307,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     // Player votes true
                     if (interactHeld)
                     {
+
                         for (Items item : items)
                         {
                             if (item.isTouchingPlayer(player))
@@ -475,6 +458,18 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                                     }
                                     rewinding = true;
                                     rewindIndex = movementHistory.get(rewindCount).size();
+                                }
+                            }
+                            if (tile != null && tile.isEndZone())
+                            {
+                                Rectangle tileBounds = tile.getBounds(xOffset, yOffset);
+
+                                if (playerBounds.intersects(tileBounds))
+                                {
+                                    state = WIN;
+                                    finalRewinds = rewindCount;
+                                    goingUp = goingDown = goingLeft = goingRight = false;
+                                    return;
                                 }
                             }
                         }
@@ -679,6 +674,58 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                 break;
             }
+            case WIN:
+            {
+                g2d.setColor(Color.BLACK);
+                g2d.fillRect(0,0,WIDTH,HEIGHT);
+
+                g2d.setColor(Color.YELLOW);
+                g2d.setFont(new Font("Bahnschrift", Font.BOLD, 60));
+
+                String text = "YOU WIN";
+                FontMetrics fm = g2d.getFontMetrics();
+                int w = fm.stringWidth(text);
+
+                g2d.drawString(text, WIDTH/2 - w/2, HEIGHT/2 - 60);
+
+                g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
+                g2d.setColor(Color.WHITE);
+
+                String stats = "Rewinds used: " + finalRewinds;
+                int sw = g2d.getFontMetrics().stringWidth(stats);
+
+                g2d.drawString(stats, WIDTH/2 - sw/2, HEIGHT/2);
+
+                Rectangle playAgainButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
+
+                if (playAgainButton.contains(mouseX, mouseY))
+                {
+                    g2d.setColor(Color.GRAY);
+                    if (clicked)
+                    {
+                        resetGame();
+                    }
+
+                }
+                else
+                {
+                    g2d.setColor(Color.DARK_GRAY);
+
+                }
+                g2d.fill(playAgainButton);
+
+                g2d.setColor(Color.WHITE);
+                g2d.draw(playAgainButton);
+
+                String btn = "PLAY AGAIN";
+                int bw = g2d.getFontMetrics().stringWidth(btn);
+
+                g2d.drawString(btn, playAgainButton.x + playAgainButton.width/2 - bw/2, playAgainButton.y + 40);
+
+
+
+                break;
+            }
         }
     }
 
@@ -735,7 +782,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 if (e.getKeyCode() == KeyEvent.VK_LEFT) goingLeft = true;
                 if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = true;
 
-                if (e.getKeyCode() == KeyEvent.VK_E) interactHeld = true;
+                if (e.getKeyCode() == KeyEvent.VK_E)
+                {
+                    interactHeld = true;
+                }
 
                 if (e.getKeyCode() == KeyEvent.VK_SPACE && !player.attacking) 
                 {
@@ -769,12 +819,215 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         if (e.getKeyCode() == KeyEvent.VK_E)
         { 
+            Culminating.playSound("TileScroller/assets/button.wav");
+
             interactHeld = false; 
         }
         
         
     }
 
+    public static void loadMap()
+    {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
+            String line = br.readLine();
+            int j = 0;
+
+            while (line != null)
+            {
+                int i = 0;
+                String character[] = line.split(",");
+                while (i < character.length)
+                {
+                    map[j][i] = new Tile(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, character[i]);
+                    i++;
+                }
+                line = br.readLine();
+                j++;
+            }
+
+            br.close();
+
+        } catch (Exception e) {
+            System.out.println("SOMETHING WENT WRONG WITH THE FILE!!!!!!");
+        }
+    }
+
+    public static void spawnEnemies()
+    {
+        enemies.add(new Enemy(40, 48, 0, 0, 1, "following"));
+        enemies.add(new Enemy(21, 4, 30, 4, 1, "patrolling"));
+        enemies.add(new Enemy(30, 9, 21, 9, 1, "patrolling"));
+        enemies.add(new Enemy(46, 6, 0, 0, 1, "following"));
+        enemies.add(new Enemy(67, 10, 0, 0, 1, "following"));
+        enemies.add(new Enemy(75, 7, 0, 0, 2, "following"));
+        enemies.add(new Enemy(93, 27, 0, 0, 2, "following"));
+        enemies.add(new Enemy(93, 28, 0, 0, 2, "following"));
+        enemies.add(new Enemy(93, 33, 80, 33, 2, "patrolling"));
+        enemies.add(new Enemy(94, 34, 80, 34, 2, "patrolling"));
+        enemies.add(new Enemy(4, 17, 0, 0, 1, "following"));
+
+        enemies.add(new Enemy(65, 89, 65, 92, 4, "patrolling"));
+        enemies.add(new Enemy(67, 92, 67, 89, 4, "patrolling"));
+
+        enemies.add(new Enemy(69, 89, 69, 92, 4, "patrolling"));
+        enemies.add(new Enemy(71, 92, 71, 89, 4, "patrolling"));
+
+        enemies.add(new Enemy(73, 89, 73, 92, 4, "patrolling"));
+        enemies.add(new Enemy(75, 92, 75, 89, 4, "patrolling"));
+
+        enemies.add(new Enemy(77, 89, 77, 92, 4, "patrolling"));
+        enemies.add(new Enemy(79, 92, 79, 89, 4, "patrolling"));
+
+        enemies.add(new Enemy(81, 89, 81, 92, 4, "patrolling"));
+        enemies.add(new Enemy(83, 92, 83, 89, 4, "patrolling"));
+
+        enemies.add(new Enemy(85, 89, 85, 92, 4, "patrolling"));
+
+        enemies.add(new Enemy(45, 20, 55, 20, 3, "patrolling"));
+        enemies.add(new Enemy(60, 18, 70, 18, 2, "patrolling"));
+
+        enemies.add(new Enemy(35, 30, 50, 30, 3, "patrolling"));
+        enemies.add(new Enemy(55, 28, 55, 38, 2, "patrolling"));
+
+        enemies.add(new Enemy(45, 42, 60, 42, 2, "patrolling"));
+        enemies.add(new Enemy(72, 40, 72, 50, 2, "patrolling"));
+        enemies.add(new Enemy(83, 84, 0, 0, 5, "following"));
+    }
+
+    public static void spawnItems()
+    {
+        items.add(new Items(Color.blue, 10 * TILE_SIZE, 7 * TILE_SIZE, "1-2"));
+        items.add(new Items(Color.blue, 21 * TILE_SIZE, 7 * TILE_SIZE, "1-6"));
+
+        items.add(new Items(Color.blue, 29 * TILE_SIZE, 7 * TILE_SIZE, "ROOM 2 DOORS"));
+
+        items.add(new Items(Color.blue, 25 * TILE_SIZE, 16 * TILE_SIZE, "ROOM 2 DOORS"));
+
+
+        items.add(new Items(Color.blue, 14 * TILE_SIZE, 16 * TILE_SIZE, "ROOM 7 GATE"));
+
+        items.add(new Items(Color.blue, 68 * TILE_SIZE, 11 * TILE_SIZE, "5-6"));
+        items.add(new Items(Color.blue, 48 * TILE_SIZE, 6 * TILE_SIZE, "3-4"));
+
+        items.add(new Items(Color.blue, 48 * TILE_SIZE, 20 * TILE_SIZE, "4-7"));
+        items.add(new Items(Color.blue, 58 * TILE_SIZE, 15 * TILE_SIZE, "4-7"));
+
+
+        items.add(new Items(Color.blue, 78 * TILE_SIZE, 20 * TILE_SIZE, "5-10"));
+
+        items.add(new Items(Color.blue, 41 * TILE_SIZE, 48 * TILE_SIZE, "9-10"));
+        items.add(new Items(Color.blue, 67 * TILE_SIZE, 46 * TILE_SIZE, "9-10"));
+
+        items.add(new Items(Color.blue, 29 * TILE_SIZE, 27 * TILE_SIZE, "7-9"));
+        items.add(new Items(Color.blue, 39 * TILE_SIZE, 50 * TILE_SIZE, "8-9"));
+        items.add(new Items(Color.blue, 21 * TILE_SIZE, 50 * TILE_SIZE, "8-9"));
+
+
+        items.add(new Items(Color.blue, 3 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 5 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 7 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 9 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 11 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 13 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 15 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 17 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 19 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+
+        items.add(new Items(Color.blue, 3 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 5 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 7 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 9 * TILE_SIZE, 50 * TILE_SIZE, "SECRET"));
+        items.add(new Items(Color.blue, 11 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 13 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 15 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 17 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 19 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+
+        items.add(new Items(Color.blue, 3 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 5 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 7 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 9 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 11 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 13 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 15 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 17 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 19 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+
+        items.add(new Items(Color.blue, 12 * TILE_SIZE, 63 * TILE_SIZE, "FINAL DOOR"));
+
+
+        items.add(new Items(Color.blue, 51 * TILE_SIZE, 71 * TILE_SIZE, "MAZE CUT"));
+
+        items.add(new Items(Color.blue, 70 * TILE_SIZE, 66 * TILE_SIZE, "10-11"));
+
+        items.add(new Items(Color.blue, 17 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET ENTRANCE"));
+
+        items.add(new Items(Color.blue, 23 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 1"));
+        items.add(new Items(Color.blue, 27 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 2"));
+        items.add(new Items(Color.blue, 31 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 3"));
+        items.add(new Items(Color.blue, 35 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 4"));
+        items.add(new Items(Color.blue, 39 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 5"));
+        items.add(new Items(Color.blue, 43 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 6"));
+        items.add(new Items(Color.blue, 47 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 7"));
+        items.add(new Items(Color.blue, 51 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 8"));
+        items.add(new Items(Color.blue, 55 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 9"));
+    }
+
+    public static void spawnDoors()
+    {
+        doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE,"1-2", false, NO_TIMER_DOOR)); // NO_TIMER_DOOR
+        doors.add(new Door(7 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE,"1-6", false, 3));
+
+        doors.add(new Door(24 * TILE_SIZE, 13 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE,"ROOM 2 DOORS", false, NO_TIMER_DOOR));
+
+        doors.add(new Door(34 * TILE_SIZE, 4 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "ROOM 2 DOORS", true, NO_TIMER_DOOR));
+
+        doors.add(new Door(28 * TILE_SIZE, 24 * TILE_SIZE,3 *TILE_SIZE, TILE_SIZE, "ROOM 7 GATE", false, 10));
+
+        doors.add(new Door(52 * TILE_SIZE, 7 * TILE_SIZE,TILE_SIZE, 3 * TILE_SIZE, "3-4", false, NO_TIMER_DOOR));
+        doors.add(new Door(52 * TILE_SIZE, 19 * TILE_SIZE,TILE_SIZE, 3 * TILE_SIZE, "4-7", false, 5));
+
+        doors.add(new Door(42 * TILE_SIZE, 84 * TILE_SIZE,TILE_SIZE, TILE_SIZE, "MAZE CUT", false, NO_TIMER_DOOR));
+
+
+        doors.add(new Door(72 * TILE_SIZE, 13 * TILE_SIZE,TILE_SIZE, 3 * TILE_SIZE, "5-6", false, NO_TIMER_DOOR));
+        doors.add(new Door(78 * TILE_SIZE, 21 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "5-10", false, 8));
+        doors.add(new Door(60 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "9-10", false, 7));
+        doors.add(new Door(39 * TILE_SIZE, 37 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "7-9", false, NO_TIMER_DOOR));
+        doors.add(new Door(22 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "8-9", false, 9));
+        doors.add(new Door(11 * TILE_SIZE, 56 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "SECRET", false, 5));
+        doors.add(new Door(70 * TILE_SIZE, 67 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "10-11", false, 8));
+        doors.add(new Door(18 * TILE_SIZE, 90 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "GAUNTLET ENTRANCE", false, 3));
+
+        doors.add(new Door(23 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 1", false, 2));
+        doors.add(new Door(27 * TILE_SIZE, 89 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 2", false, 2));
+        doors.add(new Door(31 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 3", false, 2));
+        doors.add(new Door(35 * TILE_SIZE, 89 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 4", false, 2));
+        doors.add(new Door(39 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 5", false, 2));
+        doors.add(new Door(43 * TILE_SIZE, 89 * TILE_SIZE,2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 6", false, 2));
+        doors.add(new Door(47 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 7", false, 2));
+        doors.add(new Door(51 * TILE_SIZE, 89 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 8", false, 2));
+        doors.add(new Door(55 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 9", false, 2));
+
+        doors.add(new Door(87 * TILE_SIZE, 87 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "FINAL DOOR", false, 200));
+    }
+
+    public static void loadRewindAudio()
+    {
+        try 
+        {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/rewind.wav"));
+            rewindClip = AudioSystem.getClip();
+            rewindClip.open(audioInputStream);
+        } 
+        catch (Exception e)
+        {
+            System.out.println("REWIND SOUND WRONG");
+        }
+    }
+    
     public static void pushOut(Door door, Movement frameMovement)
     {
         Rectangle playerBounds = player.getBounds(WIDTH, HEIGHT);
@@ -847,6 +1100,47 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     frameMovement.cameraY += intersection.height;
                 }
             }
+        }
+    }
+    public static void resetGame()
+    {
+        state = PLAYING;
+
+        rewindCount = 0;
+        finalRewinds = 0;
+        rewinding = false;
+        playerDying = false;
+
+        coins = 0;
+
+        xOffset = 0;
+        yOffset = 0;
+
+        player.playerXOffset = STARTING_PLAYERXOFFSET;
+        player.playerYOffset = STARTING_PLAYERYOFFSET;
+
+        player.lastDirection = "Down";
+
+        ghosts.clear();
+        movementHistory.clear();
+        movementHistory.add(new ArrayList<>());
+
+        for (Items item : items) item.activated = false;
+
+        for (Enemy enemy : enemies) enemy.reset();
+
+        startTime = System.nanoTime();
+    }
+
+    public static void playSound(String path)
+    {
+        try {
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(path));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
