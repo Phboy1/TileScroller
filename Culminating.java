@@ -27,7 +27,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int PLAYING = 1;
     static final int WIN = 2;
 
-    static final int WIDTH = 1280 ; 
+    static final int WIDTH = 1280; 
     static final int HEIGHT = 720;
     static final int FRAME_DELAY = 16;
 
@@ -390,7 +390,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     public static void spawnItems()
     {
         items.add(new Items(Color.blue, 10 * TILE_SIZE, 7 * TILE_SIZE, "1-2"));
-        items.add(new Items(Color.blue, 21 * TILE_SIZE, 7 * TILE_SIZE, "1-6"));
+        items.add(new Items(Color.red, 21 * TILE_SIZE, 7 * TILE_SIZE, "1-6"));
 
         items.add(new Items(Color.blue, 29 * TILE_SIZE, 7 * TILE_SIZE, "ROOM 2 DOORS"));
 
@@ -416,35 +416,35 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         items.add(new Items(Color.blue, 21 * TILE_SIZE, 50 * TILE_SIZE, "8-9"));
 
 
-        items.add(new Items(Color.blue, 3 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 5 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 7 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 9 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 11 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 13 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 15 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 17 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 19 * TILE_SIZE, 48 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 3 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 1"));
+        items.add(new Items(Color.blue, 5 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 2"));
+        items.add(new Items(Color.blue, 7 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 3"));
+        items.add(new Items(Color.blue, 9 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 4"));
+        items.add(new Items(Color.blue, 11 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 5"));
+        items.add(new Items(Color.blue, 13 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 6"));
+        items.add(new Items(Color.blue, 15 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 7"));
+        items.add(new Items(Color.blue, 17 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 8"));
+        items.add(new Items(Color.blue, 19 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 9"));
 
-        items.add(new Items(Color.blue, 3 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 5 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 7 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 3 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 10"));
+        items.add(new Items(Color.blue, 5 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 11"));
+        items.add(new Items(Color.blue, 7 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 12"));
         items.add(new Items(Color.blue, 9 * TILE_SIZE, 50 * TILE_SIZE, "SECRET"));
-        items.add(new Items(Color.blue, 11 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 13 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 15 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 17 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 19 * TILE_SIZE, 50 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 11 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 13"));
+        items.add(new Items(Color.blue, 13 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 14"));
+        items.add(new Items(Color.blue, 15 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 15"));
+        items.add(new Items(Color.blue, 17 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 16"));
+        items.add(new Items(Color.blue, 19 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 17"));
 
-        items.add(new Items(Color.blue, 3 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 5 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 7 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 9 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 11 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 13 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 15 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 17 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
-        items.add(new Items(Color.blue, 19 * TILE_SIZE, 52 * TILE_SIZE, "FAKE"));
+        items.add(new Items(Color.blue, 3 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 18"));
+        items.add(new Items(Color.blue, 5 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 19"));
+        items.add(new Items(Color.blue, 7 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 20"));
+        items.add(new Items(Color.blue, 9 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 21"));
+        items.add(new Items(Color.blue, 11 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 22"));
+        items.add(new Items(Color.blue, 13 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 23"));
+        items.add(new Items(Color.blue, 15 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 24"));
+        items.add(new Items(Color.blue, 17 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 25"));
+        items.add(new Items(Color.blue, 19 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 26"));
 
         items.add(new Items(Color.blue, 12 * TILE_SIZE, 63 * TILE_SIZE, "FINAL DOOR"));
 
