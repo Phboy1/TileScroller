@@ -82,9 +82,17 @@ public class Ghost {
         this.size = size;
         this.hitboxXOffset = (size - HITBOX_SIZE_X) / 2;
         this.hitboxYOffset = (size - HITBOX_SIZE_Y) / 2 + (size - HITBOX_SIZE_Y) / 12;
-        try{
+        
+        loadAssets();
+    }
+
+    public void loadAssets()
+    {
+        try
+        {
             sprite = ImageIO.read(new File("TileScroller/assets/ghostIdleDown.png"));
-        } catch(Exception e)
+        } 
+        catch(Exception e)
         {
             System.out.println("WRONG");
         }
@@ -147,26 +155,10 @@ public class Ghost {
             ghostCameraX -= actions.get(i).cameraX;
             ghostCameraY -= actions.get(i).cameraY;
             boolean attacking = actions.get(i).attacking;
-        
 
             if (isDead)
             {
-                currentTime = System.nanoTime();
-
-                if (currentTime - lastDeathFrame > deathFrameLength)
-                {
-                    deathFrame++;
-
-                    if (deathFrame >= deathFrameAmount)
-                    {
-                        finished = true;
-                        deathFrame = deathFrameAmount - 1;
-                    }
-
-                    lastDeathFrame = currentTime;
-                }
-
-                sprite = deathSprites[deathFrame];
+                ghostDead();
             }      
             else if (!Culminating.rewinding)
             {
@@ -177,26 +169,7 @@ public class Ghost {
 
                 if (lastDirection == null) lastDirection = "Down";
 
-                if (lastDirection.equals("Down")) 
-                {
-                    directionX = STANDARD_ATTACK_OFFSET;
-                    directionY = directionDown;
-                }
-                if (lastDirection.equals("Up"))
-                {
-                    directionX = STANDARD_ATTACK_OFFSET;
-                    directionY = directionUp;
-                }
-                if (lastDirection.equals("Left")) 
-                {
-                    directionX = directionLeft;
-                    directionY = STANDARD_ATTACK_OFFSET;
-                }
-                if (lastDirection.equals("Right")) 
-                {
-                    directionX = directionRight;
-                    directionY = STANDARD_ATTACK_OFFSET;
-                }
+                hitboxDirection();
 
                 try 
                 {
@@ -206,72 +179,14 @@ public class Ghost {
                         attackLocked = true;
                         attackFrame = 0;
                         lastAttackFrame = System.nanoTime();
-
                     }
                     if (isAttacking)
                     {
-                        currentTime = System.nanoTime();
-
-
-                        if (currentTime - lastAttackFrame > attackFrameLength)
-                        {
-                            Rectangle attackArea = new Rectangle(Culminating.WIDTH / 2 - directionX - ghostX + (Culminating.xOffset - ghostCameraX), Culminating.HEIGHT / 2 - directionY - ghostY + (Culminating.yOffset - ghostCameraY), attackX, attackY);
-
-                            for (Enemy enemy : Culminating.enemies)
-                            {
-                                if (attackArea.intersects(enemy.getBounds()) && !enemy.dead)
-                                {
-                                    enemy.dead = true;
-                                    Culminating.coins += (int) (Math.random() * Culminating.maxCoinDrop) + Culminating.minCoinDrop;
-                                }
-                            }
-
-                            attackFrame++;
-                            lastAttackFrame = currentTime;
-
-                            if (attackFrame >= attackFrameAmount)
-                            {
-                                attackFrame = 0;
-                                attackLocked = false;
-                                isAttacking = false;
-                            }
-                        }
-                        if (lastDirection == null) lastDirection = "Down";
-
-                        if (lastDirection.equals("Up"))
-                        {
-                            sprite = attackUp[attackFrame];
-                        }
-                        if (lastDirection.equals("Down"))
-                        {
-                            sprite = attackDown[attackFrame];
-                        }
-                        if (lastDirection.equals("Left"))
-                        {
-                            sprite = attackLeft[attackFrame];
-                        }
-                        if (lastDirection.equals("Right"))
-                        {
-                            sprite = attackRight[attackFrame];                            
-                        }
+                        attacking();
                     }
                     else if (moving)
                     {
-                        currentTime = System.nanoTime();
-
-                        if (currentTime - lastFrame > frameLength)
-                        {
-                            frame = (frame + 1) % frameAmount;
-                            lastFrame = currentTime;
-                        }
-
-                        if (actions.get(i).cameraY > 0 || actions.get(i).playerY > 0) sprite = walkDown[frame];
-                        if (actions.get(i).cameraY < 0 || actions.get(i).playerY < 0) sprite = walkUp[frame];
-                        if (actions.get(i).cameraX > 0 || actions.get(i).playerX > 0) sprite = walkRight[frame];
-                        if (actions.get(i).cameraX < 0 || actions.get(i).playerX < 0) sprite = walkLeft[frame];
-
-                        wasMoving = true;
-                        lastDirection = ((actions.get(i).cameraY > 0 || actions.get(i).playerY > 0) ? "Down" : ((actions.get(i).cameraY < 0 || actions.get(i).playerY < 0) ? "Up" : ((actions.get(i).cameraX > 0 || actions.get(i).playerX > 0) ? "Right" : "Left")));
+                        movingAnimation(actions);
                     
                     }
                     else if (wasMoving)
@@ -281,39 +196,13 @@ public class Ghost {
                 } catch (Exception e) {
                     System.out.println("GHOST TOO HARD");
                 }
-            }
-            
-
-            
-
-
-            boolean prevInteracted = false;
-            
-            if (i > 0) prevInteracted = actions.get(i - 1).interacted;
-
-            if (actions.get(i).interacted && !prevInteracted)
-            {
-                Culminating.playSound("TileScroller/assets/button.wav");
-            }
-
-            if (actions.get(i).interacted)
-            {
-                for (Items item : Culminating.items)
-                {
-                    if (item.id.equals(actions.get(i).interactedItemId))
-                    {
-                        item.activated = true;
-                    }
-                }
-            }
-
-            i++;
+            }    
+            ghostInteraction(actions);
         }
         else
         {
             actions.add(new Movement(0, 0, 0, 0, false, false, null));
         }
-        //System.out.println("ghostIndex: " + ghostIndex + " rewindCount: " + Culminating.rewindCount + " actions: " + actions.size());
     }
 
     public void draw(Graphics2D g2d, int WIDTH, int HEIGHT, int currentCameraX, int currentCameraY)
@@ -321,7 +210,7 @@ public class Ghost {
         if (isAttacking)
         {
             g2d.setColor(new Color(255, 0, 0));
-            //g2d.fillRect(WIDTH / 2 - directionX - ghostX + (currentCameraX - ghostCameraX), HEIGHT / 2 - directionY - ghostY + (currentCameraY - ghostCameraY), attackX, attackY);
+            if (Culminating.debugging) g2d.fillRect(WIDTH / 2 - directionX - ghostX + (currentCameraX - ghostCameraX), HEIGHT / 2 - directionY - ghostY + (currentCameraY - ghostCameraY), attackX, attackY);
         }
 
         if (!isDead)
@@ -335,15 +224,12 @@ public class Ghost {
 
         int drawX = WIDTH / 2 - size / 2 - ghostX + (currentCameraX - ghostCameraX);
         int drawY = HEIGHT / 2 - size / 2 - ghostY + (currentCameraY - ghostCameraY);
-        //g2d.fillRect(drawX, drawY, size, size);
         g2d.drawImage(sprite, drawX, drawY, size, size, null);
-        //g2d.drawRect(drawX, drawY, size, size);
-
-
+        if (Culminating.debugging) g2d.drawRect(drawX, drawY, size, size);
 
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Serif", Font.BOLD, 30));
-        g2d.drawString(String.valueOf(ghostIndex), drawX + 30, drawY + 30);
+        g2d.setFont(new Font("Bahnscrift", Font.BOLD, 30));
+        g2d.drawString(String.valueOf(ghostIndex + 1), drawX + 32, drawY + 25);
     }
 
     public Rectangle getBounds(int WIDTH, int HEIGHT, int currentCameraX, int currentCameraY)
@@ -351,5 +237,141 @@ public class Ghost {
         int drawX = WIDTH / 2 - size / 2 - ghostX + (currentCameraX - ghostCameraX) + hitboxXOffset;
         int drawY = HEIGHT / 2 - size / 2 - ghostY + (currentCameraY - ghostCameraY) + hitboxYOffset;
         return new Rectangle(drawX, drawY, HITBOX_SIZE_X, HITBOX_SIZE_Y);
+    }
+
+    public void ghostDead()
+    {
+        currentTime = System.nanoTime();
+
+        if (currentTime - lastDeathFrame > deathFrameLength)
+        {
+            deathFrame++;
+
+            if (deathFrame >= deathFrameAmount)
+            {
+                finished = true;
+                deathFrame = deathFrameAmount - 1;
+            }
+
+            lastDeathFrame = currentTime;
+        }
+
+        sprite = deathSprites[deathFrame];
+    }
+
+    public void hitboxDirection()
+    {
+        if (lastDirection.equals("Down")) 
+        {
+            directionX = STANDARD_ATTACK_OFFSET;
+            directionY = directionDown;
+        }
+        if (lastDirection.equals("Up"))
+        {
+            directionX = STANDARD_ATTACK_OFFSET;
+            directionY = directionUp;
+        }
+        if (lastDirection.equals("Left")) 
+        {
+            directionX = directionLeft;
+            directionY = STANDARD_ATTACK_OFFSET;
+        }
+        if (lastDirection.equals("Right")) 
+        {
+            directionX = directionRight;
+            directionY = STANDARD_ATTACK_OFFSET;
+        }
+    }
+
+    public void attacking()
+    {
+        currentTime = System.nanoTime();
+
+        if (currentTime - lastAttackFrame > attackFrameLength)
+        {
+            Rectangle attackArea = new Rectangle(Culminating.WIDTH / 2 - directionX - ghostX + (Culminating.xOffset - ghostCameraX), Culminating.HEIGHT / 2 - directionY - ghostY + (Culminating.yOffset - ghostCameraY), attackX, attackY);
+
+            for (Enemy enemy : Culminating.enemies)
+            {
+                if (attackArea.intersects(enemy.getBounds()) && !enemy.dead)
+                {
+                    enemy.dead = true;
+                    Culminating.playDeathSound();
+                    Culminating.coins += (int) (Math.random() * Culminating.maxCoinDrop) + Culminating.minCoinDrop;
+                }
+            }
+
+            attackFrame++;
+            lastAttackFrame = currentTime;
+
+            if (attackFrame >= attackFrameAmount)
+            {
+                attackFrame = 0;
+                attackLocked = false;
+                isAttacking = false;
+            }
+        }
+        if (lastDirection == null) lastDirection = "Down";
+
+        if (lastDirection.equals("Up"))
+        {
+            sprite = attackUp[attackFrame];
+        }
+        if (lastDirection.equals("Down"))
+        {
+            sprite = attackDown[attackFrame];
+        }
+        if (lastDirection.equals("Left"))
+        {
+            sprite = attackLeft[attackFrame];
+        }
+        if (lastDirection.equals("Right"))
+        {
+            sprite = attackRight[attackFrame];                            
+        }
+    }
+
+    public void movingAnimation(ArrayList<Movement> actions)
+    {
+        currentTime = System.nanoTime();
+
+        if (currentTime - lastFrame > frameLength)
+        {
+            frame = (frame + 1) % frameAmount;
+            lastFrame = currentTime;
+        }
+
+        if (actions.get(i).cameraY > 0 || actions.get(i).playerY > 0) sprite = walkDown[frame];
+        if (actions.get(i).cameraY < 0 || actions.get(i).playerY < 0) sprite = walkUp[frame];
+        if (actions.get(i).cameraX > 0 || actions.get(i).playerX > 0) sprite = walkRight[frame];
+        if (actions.get(i).cameraX < 0 || actions.get(i).playerX < 0) sprite = walkLeft[frame];
+
+        wasMoving = true;
+        lastDirection = ((actions.get(i).cameraY > 0 || actions.get(i).playerY > 0) ? "Down" : ((actions.get(i).cameraY < 0 || actions.get(i).playerY < 0) ? "Up" : ((actions.get(i).cameraX > 0 || actions.get(i).playerX > 0) ? "Right" : "Left")));
+    }
+
+    public void ghostInteraction(ArrayList<Movement> actions)
+    {
+        boolean prevInteracted = false;
+            
+        if (i > 0) prevInteracted = actions.get(i - 1).interacted;
+
+        if (actions.get(i).interacted && !prevInteracted)
+        {
+            Culminating.playSound("TileScroller/assets/button.wav");
+        }
+
+        if (actions.get(i).interacted)
+        {
+            for (Items item : Culminating.items)
+            {
+                if (item.id.equals(actions.get(i).interactedItemId))
+                {
+                    item.activated = true;
+                }
+            }
+        }
+
+        i++;
     }
 }

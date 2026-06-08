@@ -17,6 +17,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int maxCoinDrop = 4;
     static int minCoinDrop = 1;
 
+    static boolean debugging = false;
+
     static int maxGhostAmount = 15;
 
     static int state = 0;
@@ -25,7 +27,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int PLAYING = 1;
     static final int WIN = 2;
 
-    static final int WIDTH = 1280 ; //Toolkit.getDefaultToolkit().getScreenSize().width 
+    static final int WIDTH = 1280 ; 
     static final int HEIGHT = 720;
     static final int FRAME_DELAY = 16;
 
@@ -42,11 +44,17 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int STARTING_PLAYERXOFFSET = TILE_SIZE * 7;
     static final int STARTING_PLAYERYOFFSET = TILE_SIZE * 1;
 
+    static final int CAMERA_SPEED = 5;
+
+    static final int REWIND_SPEED = 10;
+
+    static final int SHOP_WIDTH = 450;
+    static final int SHOP_HEIGHT = 425;
+
+
     static int coins = 0;
 
     static boolean clicked = false;
-
-    static final int CAMERA_SPEED = 5;
 
     static long secondTime = 10L;
 
@@ -84,6 +92,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static Clip rewindClip;
     static boolean rewindSoundPlaying = false;
 
+    static Clip backgroundAudioClip;
+
+    static Clip deathClip;
+
     static boolean shopOpen = false;
 
     static ArrayList<Ghost> ghosts = new ArrayList<>();
@@ -105,7 +117,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int plusGhostBrightness = 0;
 
     static boolean rewinding = false;
-    static final int REWIND_SPEED = 10;
 
     static {
         player.playerXOffset = STARTING_PLAYERXOFFSET;
@@ -114,8 +125,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     static boolean interactHeld = false;
-
-
     public static void main(String[] args) {
         JFrame frame = new JFrame("👾");
         Culminating game = new Culminating();
@@ -138,7 +147,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         spawnEnemies();
         spawnItems();
         spawnDoors();
-        loadRewindAudio();
+        loadAudio();
         
         while (true) {
             // 1. Logic (Thinking)
@@ -173,377 +182,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             {
                 if (rewinding)
                 {
-                    shopOpen = false;
-                    if (playerDying) return;
-
-                    if (!rewindSoundPlaying && rewindClip != null)
-                    {
-                        rewindClip.setFramePosition(0);
-                        rewindClip.loop(Clip.LOOP_CONTINUOUSLY);
-                        rewindSoundPlaying = true;
-                    }
-                    goingLeft = goingRight = goingUp = goingDown = false;
-                    for (int i = 0; i < REWIND_SPEED; i++)
-                    {
-                        //Rewind Index: Frame that the rewind is on. REWIND_SPEED: Amount of frames that it rewinds by every time.
-                        if (rewindIndex > 0)
-                        {
-                            rewindIndex--;
-                            Movement movement = movementHistory.get(rewindCount).get(rewindIndex);
-                            player.playerXOffset += movement.playerX;
-                            player.playerYOffset += movement.playerY;
-                            xOffset += movement.cameraX;
-                            yOffset += movement.cameraY;
-                            player.lastDirection = movement.facing;
-                            player.attacking = movement.attacking;
-                            if (movement.interacted)
-                            {
-                                for (Items item : items)
-                                {
-                                    if (item.isTouchingPlayer(player))
-                                    {
-                                        Culminating.player.playInteractSound();
-                                        item.activated = true;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //Reset time, add new ghost, amount of ghosts gets increased, add a new list for the new ghost.
-                            startTime = System.nanoTime();
-                            ghosts.add(new Ghost(rewindCount, PLAYER_SIZE)); 
-                            rewindCount++;
-                            movementHistory.add(new java.util.ArrayList<>()); 
-                            
-                            //Resetting all ghosts
-                            for (Ghost ghost : ghosts)
-                            {
-                                ghost.i = 0;
-                                ghost.ghostX = STARTING_PLAYERXOFFSET;
-                                ghost.ghostY = STARTING_PLAYERYOFFSET;
-                                ghost.ghostCameraX = 0;
-                                ghost.ghostCameraY = 0;
-                                ghost.finished = false;
-                                ghost.isDead = false;
-                            }
-
-                            //Reset Player
-                            player.directionX = Player.STANDARD_ATTACK_OFFSET;
-                            player.directionY = player.directionDown;
-
-                            //Reset items
-                            for (Items item : items)
-                            {
-                                item.activated = false;
-                            }
-                            for (Enemy enemy : enemies)
-                            {
-                                enemy.reset();
-                            }
-                            for (Door door : doors)
-                            {
-                                door.startTime = door.currentTime-FRAMES_PER_SECOND/2;
-                                door.isOpen = (door.startPosition.equals("Closed") ? false : true);
-                                
-                                door.startTime = 0;  
-                                door.currentTime = 0;     
-                                door.elaspedTime = 0; 
-                            }
-                            player.reset();
-
-                            if (Shop.addGhost)
-                            {
-                                maxGhostAmount += Shop.addGhostAmount;
-                                Shop.addGhostAmount = 0;
-                                Shop.addGhost = false;
-                            }
-
-                            rewinding = false;
-
-                            break;
-                        }
-                    }
+                    rewinding();
                 }
                 else
                 {
-                    if (rewindSoundPlaying && rewindClip != null)
-                    {
-                        rewindClip.stop();
-                        rewindSoundPlaying = false;
-                    }
-                    //Moving the player at the edges
-                    Movement frameMovement = new Movement(0, 0, 0, 0, false, false, null);
-                    playerWorldX = WIDTH / 2 - PLAYER_SIZE / 2 - xOffset - player.playerXOffset;
-                    playerWorldY = HEIGHT / 2 - PLAYER_SIZE / 2 - yOffset - player.playerYOffset;
-
-                    System.out.println(playerWorldX/TILE_SIZE);
-                    System.out.println(playerWorldY/TILE_SIZE);
-
-
-
-                    // Reset all items first
-                    for (Items item : items)
-                    {
-                        item.activated = false;
-                    }
-
-                    //Update Ghosts only when NOT rewinding
-
-                    int ghostStart = 0;
-
-                    if (ghosts.size() - maxGhostAmount > 0)  ghostStart = ghosts.size() - maxGhostAmount;
-
-                    for (int i = ghostStart; i < ghosts.size(); i++)
-                    {
-                        ghosts.get(i).update();
-                    }
-
-                    for (Enemy enemy : enemies)
-                    {
-                        enemy.update();
-                    }
-
-                    // Player votes true
-                    if (interactHeld)
-                    {
-
-                        for (Items item : items)
-                        {
-                            if (item.isTouchingPlayer(player))
-                            {
-                                item.activated = true;
-                                frameMovement.interacted = true;
-                                frameMovement.interactedItemId = item.id;
-                            }
-                        }
-                    }
-
-                    for (Door door : doors)
-                    {
-                        door.update();
-                    }
-                    
-                    //Moving the Background
-                    if (xOffset > 0) xOffset = 0;
-                    if (yOffset > 0) yOffset = 0;
-                    if (xOffset < -(rows*TILE_SIZE - WIDTH)) xOffset = -(rows*TILE_SIZE - WIDTH);
-                    if (yOffset < -((cols)*TILE_SIZE - HEIGHT)) yOffset = -((cols)*TILE_SIZE - HEIGHT);
-
-                    
-
-                    if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
-                    {
-                        player.playerXOffset += CAMERA_SPEED;
-                        frameMovement.playerX -= CAMERA_SPEED;
-                    }
-                    if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
-                    {
-                        player.playerYOffset += CAMERA_SPEED;
-                        frameMovement.playerY -= CAMERA_SPEED;
-                    }
-                    if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
-                    {
-                        player.playerXOffset -= CAMERA_SPEED;
-                        frameMovement.playerX += CAMERA_SPEED;
-                    }
-                    if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
-                    {
-                        player.playerYOffset -= CAMERA_SPEED;
-                        frameMovement.playerY += CAMERA_SPEED;
-                    }
-                    if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
-                    {
-                        if (player.playerXOffset > 0) 
-                        {
-                            player.playerXOffset -= CAMERA_SPEED; 
-                            frameMovement.playerX += CAMERA_SPEED;
-                        }
-                        else if (player.playerXOffset == 0)
-                        {
-                            xOffset -= CAMERA_SPEED; 
-                            frameMovement.cameraX += CAMERA_SPEED; 
-                        }
-                    }
-                    if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
-                    {
-                        if (player.playerYOffset > 0)
-                        { 
-                            player.playerYOffset -= CAMERA_SPEED; 
-                            frameMovement.playerY += CAMERA_SPEED; 
-                        }
-                        else if (player.playerYOffset == 0)
-                        { 
-                            yOffset -= CAMERA_SPEED; 
-                            frameMovement.cameraY += CAMERA_SPEED; 
-                        }
-                    }
-                    if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
-                    {
-                        if (player.playerXOffset < 0)
-                        { 
-                            player.playerXOffset += CAMERA_SPEED; 
-                            frameMovement.playerX -= CAMERA_SPEED; 
-                        }
-                        else if (player.playerXOffset == 0)
-                        { 
-                            xOffset += CAMERA_SPEED; 
-                            frameMovement.cameraX -= CAMERA_SPEED; 
-                        }
-                    }
-                    if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
-                    {
-                        if (player.playerYOffset < 0)
-                        { 
-                            player.playerYOffset += CAMERA_SPEED; 
-                            frameMovement.playerY -= CAMERA_SPEED; 
-                        }
-                        else if (player.playerYOffset == 0) 
-                        { 
-                            yOffset += CAMERA_SPEED; 
-                            frameMovement.cameraY -= CAMERA_SPEED; 
-                        }
-                    }
-
-                    for (Door door : doors)
-                    {
-                        if (!door.isOpen && player.getBounds(WIDTH, HEIGHT).intersects(new Rectangle(door.x + xOffset, door.y + yOffset, door.width, door.height)))
-                        {
-                            pushOut(door, frameMovement);
-                        }
-                    }
-
-                    
-
-                    //Boundaries
-                    if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2;
-                    if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
-                    if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
-                    if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
-
-                    
-                    if (player.attacking)
-                    {
-                        frameMovement.attacking = true;
-                    }
-
-                    if (goingUp) frameMovement.facing = "Up";
-                    if (goingDown) frameMovement.facing = "Down";
-                    if (goingLeft) frameMovement.facing = "Left";
-                    if (goingRight) frameMovement.facing = "Right";
-                    
-                    
-                    // Add the frame
-                    movementHistory.get(rewindCount).add(frameMovement);
-
-                    Rectangle playerBounds = player.getBounds(WIDTH, HEIGHT);
-                    for (int i = 0; i < rows; i++)
-                    {
-                        for (int j = 0; j < cols; j++)
-                        {
-                            Tile tile = map[i][j];
-
-                            if (tile != null && tile.isLava())
-                            {
-                                Rectangle tileBounds = tile.getBounds(xOffset, yOffset);
-                                if (playerBounds.intersects(tileBounds))
-                                {    
-                                    if (!playerDying) 
-                                    {
-                                        System.out.println("PLAYER DYING");
-                                        playerDying = true;
-                                        player.deathFrame = 0;
-                                        player.lastDeathFrame = System.nanoTime();
-                                        goingUp = goingDown = goingLeft = goingRight = false;
-                                    }
-                                    rewinding = true;
-                                    rewindIndex = movementHistory.get(rewindCount).size();
-                                }
-                            }
-                            if (tile != null && tile.isEndZone())
-                            {
-                                Rectangle tileBounds = tile.getBounds(xOffset, yOffset);
-
-                                if (playerBounds.intersects(tileBounds))
-                                {
-                                    state = WIN;
-                                    finalRewinds = rewindCount;
-                                    goingUp = goingDown = goingLeft = goingRight = false;
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    for (Enemy enemy : enemies)
-                    {
-                        if (enemy.getBounds().intersects(playerBounds) && !enemy.dead)
-                        {
-                            if (!playerDying)
-                            {
-                                System.out.println("PLAYER DYING");
-                                playerDying = true;
-                                player.deathFrame = 0;
-                                player.lastDeathFrame = System.nanoTime();
-                                goingUp = goingDown = goingLeft = goingRight = false;
-                            }
-                            rewinding = true;
-                            rewindIndex = movementHistory.get(rewindCount).size();
-                        }
-                    }
-
-                    
-
-                    for (Ghost ghost : ghosts) {
-                        // Lava check
-                        for (int i = 0; i < rows; i++)
-                        {
-                            for (int j = 0; j < cols; j++)
-                            {
-                                Tile tile = map[i][j];
-
-                                if (tile != null && tile.isLava())
-                                {
-                                    if (ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset).intersects(tile.getBounds(xOffset, yOffset))) {
-                                        ghost.isDead = true;
-                                        //ghost.finished = true;
-                                    }
-                                }
-                            }
-                        }
-
-                        // Enemy check
-                        for (Enemy enemy : enemies)
-                        {
-                            if (enemy.getBounds().intersects(ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset)) && !enemy.dead) {
-                                ghost.isDead = true;
-                                //ghost.finished = true;
-                            }
-                        }
-                    }
-
-
-                    currentTime = System.nanoTime();
-                    elapsedTime = (resetTime - (currentTime - startTime))/ (double) SECONDS_TO_NANO;
-
-                    if (!rewinding && (currentTime - startTime) >= resetTime)
-                    {
-                        if (!playerDying)
-                        {
-                            System.out.println("PLAYER DYING");
-                            playerDying = true;
-                            player.deathFrame = 0;
-                            player.lastDeathFrame = System.nanoTime();
-                            goingUp = goingDown = goingLeft = goingRight = false;
-                        }
-                        rewinding = true;
-                        rewindIndex = movementHistory.get(rewindCount).size();
-                    }
-
-                    //System.out.println(xOffset);
-                    //System.out.println(yOffset);
-                    //System.out.println(player.playerXOffset);
-                    //System.out.println(player.playerYOffset);
+                    playing();
                 }
                 break;  
             }
@@ -560,170 +203,17 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             case MENU:
             {
-                g2d.setColor(Color.BLACK);
-                g2d.fillRect(0,0,WIDTH,HEIGHT);
-
-                g2d.setColor(Color.WHITE);
-                g2d.setFont(new Font("Bahnschrift", Font.BOLD, 50));
-                FontMetrics bahnschrift = g2d.getFontMetrics();
-                int titleLength = bahnschrift.stringWidth("PRESS ENTER TO START");
-                g2d.drawString("PRESS ENTER TO START", WIDTH/2 - titleLength/2, HEIGHT/2 + 20);
+                drawMenu(g2d);
                 break;
             }
             case PLAYING:
             {
-                //Tiles
-                for (int i = 0; i < rows; i++) {
-
-                    for (int j = 0; j < cols; j++) {
-
-                        Tile tile = map[i][j];
-
-                        if (tile != null) {
-
-                            int x = tile.x + xOffset;
-                            int y = tile.y + yOffset;
-
-                            if (x + TILE_SIZE > 0 && x < WIDTH && y + TILE_SIZE > 0 && y < HEIGHT)
-                            {
-                                tile.draw(g2d, xOffset, yOffset);
-                            }
-                        }
-                    }
-                }
-
-                //Objects        
-                for (Items item : items)
-                {
-                    item.draw(g2d, xOffset, yOffset);
-                }
-
-                for (Door door : doors)
-                {
-                    door.draw(g2d, xOffset, yOffset);
-
-                }
-
-                for (Enemy enemy : enemies)
-                {
-                    enemy.draw(g2d, xOffset, yOffset);
-                }
-
-                //Ghosts
-                g2d.setColor(Color.CYAN);
-                int ghostDrawStart = 0;
-
-                if (ghosts.size() - maxGhostAmount < 0) ghostDrawStart = 0;
-                else ghostDrawStart = ghosts.size() - maxGhostAmount;
-                for (int i = ghostDrawStart; i < ghosts.size(); i++) 
-                {
-                    ghosts.get(i).draw(g2d, WIDTH, HEIGHT, xOffset, yOffset);
-                }
-
-                //Player
-                player.draw(g2d, WIDTH, HEIGHT);
-
-                //Text
-                g2d.setColor(Color.WHITE);
-                g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
-
-                FontMetrics fontMetric = g2d.getFontMetrics();
-                int timeWidth = fontMetric.stringWidth("Time: " + String.format("%.0f", Math.abs(elapsedTime)));
-
-                int ghostWidth = fontMetric.stringWidth("Max Ghosts: " + (maxGhostAmount + Shop.addGhostAmount));
-
-                g2d.drawString("Time: " + String.format("%.1f", Math.abs(elapsedTime)), 30, 50);
-
-                g2d.drawString("Max Ghosts: " + (maxGhostAmount + Shop.addGhostAmount), 30, 150);
-                if (increasedTime)
-                {
-                    plusOneBrightness -= 5;
-                    if (plusOneBrightness <= 0)
-                    {
-                        plusOneBrightness = 0;
-                        increasedTime = false;
-                    }
-
-                    g2d.setColor(new Color(255,255,255, plusOneBrightness));
-                    g2d.drawString("+3", 65 + timeWidth, 50);
-                }
-
-                if (increasedGhost)
-                {
-                    plusGhostBrightness -= 5;
-                    if (plusGhostBrightness <= 0)
-                    {
-                        plusGhostBrightness = 0;
-                        increasedGhost = false;
-                    }
-
-                    g2d.setColor(new Color(255,255,255, plusGhostBrightness));
-                    g2d.drawString("+1", 40 + ghostWidth, 150);
-                }
-                
-                g2d.setColor(new Color(255,255,255));
-
-                g2d.drawString("Coins: " + String.valueOf(coins), 30, 100);
-
-                if (shopOpen)
-                {
-                    shop.update(g2d, 450, 425);
-                }
-
-                System.out.println(clicked);
-
+                drawPlaying(g2d);
                 break;
             }
             case WIN:
             {
-                g2d.setColor(Color.BLACK);
-                g2d.fillRect(0,0,WIDTH,HEIGHT);
-
-                g2d.setColor(Color.YELLOW);
-                g2d.setFont(new Font("Bahnschrift", Font.BOLD, 60));
-
-                String text = "YOU WIN";
-                FontMetrics fm = g2d.getFontMetrics();
-                int w = fm.stringWidth(text);
-
-                g2d.drawString(text, WIDTH/2 - w/2, HEIGHT/2 - 60);
-
-                g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
-                g2d.setColor(Color.WHITE);
-
-                String stats = "Rewinds used: " + finalRewinds;
-                int sw = g2d.getFontMetrics().stringWidth(stats);
-
-                g2d.drawString(stats, WIDTH/2 - sw/2, HEIGHT/2);
-
-                Rectangle playAgainButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
-
-                if (playAgainButton.contains(mouseX, mouseY))
-                {
-                    g2d.setColor(Color.GRAY);
-                    if (clicked)
-                    {
-                        resetGame();
-                    }
-
-                }
-                else
-                {
-                    g2d.setColor(Color.DARK_GRAY);
-
-                }
-                g2d.fill(playAgainButton);
-
-                g2d.setColor(Color.WHITE);
-                g2d.draw(playAgainButton);
-
-                String btn = "PLAY AGAIN";
-                int bw = g2d.getFontMetrics().stringWidth(btn);
-
-                g2d.drawString(btn, playAgainButton.x + playAgainButton.width/2 - bw/2, playAgainButton.y + 40);
-
-
-
+                drawWin(g2d);
                 break;
             }
         }
@@ -797,6 +287,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     goingRight = false;
                 }
             }
+
+            if (e.getKeyCode() == KeyEvent.VK_0) debugging = !debugging;
         }
 
         if (state == MENU && e.getKeyCode() == KeyEvent.VK_ENTER)
@@ -977,7 +469,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void spawnDoors()
     {
-        doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE,"1-2", false, NO_TIMER_DOOR)); // NO_TIMER_DOOR
+        doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE,"1-2", false, NO_TIMER_DOOR)); 
         doors.add(new Door(7 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE,"1-6", false, 3));
 
         doors.add(new Door(24 * TILE_SIZE, 13 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE,"ROOM 2 DOORS", false, NO_TIMER_DOOR));
@@ -1014,7 +506,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         doors.add(new Door(87 * TILE_SIZE, 87 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "FINAL DOOR", false, 200));
     }
 
-    public static void loadRewindAudio()
+    public static void loadAudio()
     {
         try 
         {
@@ -1025,6 +517,446 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         catch (Exception e)
         {
             System.out.println("REWIND SOUND WRONG");
+        }
+
+        try
+        {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/backgroundSound.wav"));
+            backgroundAudioClip = AudioSystem.getClip();
+            backgroundAudioClip.open(audioInputStream);
+            backgroundAudioClip.loop(Clip.LOOP_CONTINUOUSLY);
+            backgroundAudioClip.start();
+        }
+        catch (Exception e)
+        { 
+            System.out.println("BG SOUND FAIL!!"); 
+        }
+        try
+        {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/enemyDeath.wav"));
+            deathClip = AudioSystem.getClip();
+            deathClip.open(audioInputStream);
+        }
+        catch (Exception e)
+        { 
+            System.out.println("DEATH SOUND FAIL!!"); 
+        }
+    }
+
+    public static void rewinding()
+    {
+        shopOpen = false;
+        if (playerDying) return;
+
+        if (!rewindSoundPlaying && rewindClip != null)
+        {
+            rewindClip.setFramePosition(0);
+            rewindClip.loop(Clip.LOOP_CONTINUOUSLY);
+            rewindSoundPlaying = true;
+        }
+
+        goingLeft = false;
+        goingRight = false;
+        goingUp = false;
+        goingDown = false;
+        
+        for (int i = 0; i < REWIND_SPEED; i++)
+        {
+            if (rewindIndex > 0)
+            {
+                rewindIndex--;
+                Movement movement = movementHistory.get(rewindCount).get(rewindIndex);
+                player.playerXOffset += movement.playerX;
+                player.playerYOffset += movement.playerY;
+                xOffset += movement.cameraX;
+                yOffset += movement.cameraY;
+                player.lastDirection = movement.facing;
+                player.attacking = movement.attacking;
+                if (movement.interacted)
+                {
+                    for (Items item : items)
+                    {
+                        if (item.isTouchingPlayer(player))
+                        {
+                            Culminating.player.playInteractSound();
+                            item.activated = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                rewindReset();
+                break;
+            }
+        }
+    }
+
+    public static void rewindReset()
+    {
+        startTime = System.nanoTime();
+        ghosts.add(new Ghost(rewindCount, PLAYER_SIZE)); 
+        rewindCount++;
+        movementHistory.add(new java.util.ArrayList<>()); 
+                            
+        for (Ghost ghost : ghosts)
+        {
+            ghost.i = 0;
+            ghost.ghostX = STARTING_PLAYERXOFFSET;
+            ghost.ghostY = STARTING_PLAYERYOFFSET;
+            ghost.ghostCameraX = 0;
+            ghost.ghostCameraY = 0;
+            ghost.finished = false;
+            ghost.isDead = false;
+        }
+
+        player.directionX = Player.STANDARD_ATTACK_OFFSET;
+        player.directionY = player.directionDown;
+
+        for (Items item : items)
+        {
+            item.activated = false;
+        }
+        for (Enemy enemy : enemies)
+        {
+            enemy.reset();
+        }
+        for (Door door : doors)
+        {
+            door.startTime = door.currentTime-FRAMES_PER_SECOND/2;
+            door.isOpen = (door.startPosition.equals("Closed") ? false : true);
+                    
+            door.startTime = 0;  
+            door.currentTime = 0;     
+            door.elaspedTime = 0; 
+        }
+                            
+        player.reset();
+
+        if (Shop.addGhost)
+        {
+            maxGhostAmount += Shop.addGhostAmount;
+            Shop.addGhostAmount = 0;
+            Shop.addGhost = false;
+        }
+
+        rewinding = false;
+
+        if (backgroundAudioClip != null)
+        {
+            backgroundAudioClip.stop();
+            backgroundAudioClip.setFramePosition(0);
+            backgroundAudioClip.loop(Clip.LOOP_CONTINUOUSLY);
+            backgroundAudioClip.start();
+        }
+    }
+
+    public static void playing()
+    {
+        if (rewindSoundPlaying && rewindClip != null)
+        {
+            rewindClip.stop();
+            rewindSoundPlaying = false;
+        }
+
+        Movement frameMovement = new Movement(0, 0, 0, 0, false, false, null);
+        playerWorldX = WIDTH / 2 - PLAYER_SIZE / 2 - xOffset - player.playerXOffset;
+        playerWorldY = HEIGHT / 2 - PLAYER_SIZE / 2 - yOffset - player.playerYOffset;
+
+        for (Items item : items)
+        {
+            item.activated = false;
+        }
+
+        updateGhosts();
+
+        for (Enemy enemy : enemies)
+        {
+            enemy.update();
+        }
+
+        updateInteracting(frameMovement);
+
+        for (Door door : doors)
+        {
+            door.update();
+        }
+                    
+        clampCamera();
+        updatePlayerMovement(frameMovement);
+
+        for (Door door : doors)
+        {
+            if (!door.isOpen && player.getBounds(WIDTH, HEIGHT).intersects(new Rectangle(door.x + xOffset, door.y + yOffset, door.width, door.height)))
+            {
+                pushOut(door, frameMovement);
+            }
+        }
+
+        playerBounds();
+                    
+        if (player.attacking)
+        {
+            frameMovement.attacking = true;
+        }
+
+        if (goingUp) frameMovement.facing = "Up";
+        if (goingDown) frameMovement.facing = "Down";
+        if (goingLeft) frameMovement.facing = "Left";
+        if (goingRight) frameMovement.facing = "Right";
+                    
+        movementHistory.get(rewindCount).add(frameMovement);
+
+        playerDeathCheck();
+        ghostDeathCheck();
+        timerUpdate();
+    }
+
+    public static void updateGhosts()
+    {
+        int ghostStart = 0;
+
+        if (ghosts.size() - maxGhostAmount > 0)  ghostStart = ghosts.size() - maxGhostAmount;
+
+        for (int i = ghostStart; i < ghosts.size(); i++)
+        {
+            ghosts.get(i).update();
+        }
+    }
+
+    public static void updateInteracting(Movement frameMovement)
+    {
+        if (interactHeld)
+        {
+            for (Items item : items)
+            {
+                if (item.isTouchingPlayer(player))
+                {
+                    item.activated = true;
+                    frameMovement.interacted = true;
+                    frameMovement.interactedItemId = item.id;
+                }
+            }
+        }
+    }
+
+    public static void clampCamera()
+    {
+        if (xOffset > 0) xOffset = 0;
+        if (yOffset > 0) yOffset = 0;
+        if (xOffset < -(rows*TILE_SIZE - WIDTH)) xOffset = -(rows*TILE_SIZE - WIDTH);
+        if (yOffset < -((cols)*TILE_SIZE - HEIGHT)) yOffset = -((cols)*TILE_SIZE - HEIGHT);
+    }
+
+    public static void updatePlayerMovement(Movement frameMovement)
+    {
+        if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
+        {
+            player.playerXOffset += CAMERA_SPEED;
+            frameMovement.playerX -= CAMERA_SPEED;
+        }
+        if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
+        {
+            player.playerYOffset += CAMERA_SPEED;
+            frameMovement.playerY -= CAMERA_SPEED;
+        }
+        if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+        {
+            player.playerXOffset -= CAMERA_SPEED;
+            frameMovement.playerX += CAMERA_SPEED;
+        }
+        if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+        {
+            player.playerYOffset -= CAMERA_SPEED;
+            frameMovement.playerY += CAMERA_SPEED;
+        }
+        if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+        {
+            if (player.playerXOffset > 0) 
+            {
+                player.playerXOffset -= CAMERA_SPEED; 
+                frameMovement.playerX += CAMERA_SPEED;
+            }
+            else if (player.playerXOffset == 0)
+            {
+                xOffset -= CAMERA_SPEED; 
+                frameMovement.cameraX += CAMERA_SPEED; 
+            }
+        }
+        if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+        {
+            if (player.playerYOffset > 0)
+            { 
+                player.playerYOffset -= CAMERA_SPEED; 
+                frameMovement.playerY += CAMERA_SPEED; 
+            }
+            else if (player.playerYOffset == 0)
+            { 
+                yOffset -= CAMERA_SPEED; 
+                frameMovement.cameraY += CAMERA_SPEED; 
+            }
+        }
+        if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
+        {
+            if (player.playerXOffset < 0)
+            { 
+                player.playerXOffset += CAMERA_SPEED; 
+                frameMovement.playerX -= CAMERA_SPEED; 
+            }
+            else if (player.playerXOffset == 0)
+            { 
+                xOffset += CAMERA_SPEED; 
+                frameMovement.cameraX -= CAMERA_SPEED; 
+            }
+        }
+        if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
+        {
+            if (player.playerYOffset < 0)
+            { 
+                player.playerYOffset += CAMERA_SPEED; 
+                frameMovement.playerY -= CAMERA_SPEED; 
+            }
+            else if (player.playerYOffset == 0) 
+            { 
+                yOffset += CAMERA_SPEED; 
+                frameMovement.cameraY -= CAMERA_SPEED; 
+            }
+        }
+    }
+
+    public static void playerBounds()
+    {
+        if (player.playerXOffset > (WIDTH-PLAYER_SIZE)/2) player.playerXOffset = (WIDTH-PLAYER_SIZE)/2;
+        if (player.playerYOffset > (HEIGHT-PLAYER_SIZE)/2) player.playerYOffset = (HEIGHT-PLAYER_SIZE)/2;
+        if (player.playerXOffset < -((WIDTH - PLAYER_SIZE)/2)) player.playerXOffset = -((WIDTH - PLAYER_SIZE)/2);
+        if (player.playerYOffset < -((HEIGHT - PLAYER_SIZE)/2)) player.playerYOffset = -((HEIGHT - PLAYER_SIZE)/2);
+    }
+
+    public static void playerDeathCheck()
+    {
+        Rectangle playerBounds = player.getBounds(WIDTH, HEIGHT);
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                Tile tile = map[i][j];
+
+                if (tile != null && tile.isLava())
+                {
+                    Rectangle tileBounds = tile.getBounds(xOffset, yOffset);
+                    if (playerBounds.intersects(tileBounds))
+                    {    
+                        if (!playerDying) 
+                        {
+                            playerDying = true;
+                            player.deathFrame = 0;
+                            player.lastDeathFrame = System.nanoTime();
+                            goingUp = false;
+                            goingDown = false;
+                            goingLeft = false;
+                            goingRight = false;
+                        }
+                        rewinding = true;
+                        rewindIndex = movementHistory.get(rewindCount).size();
+                    }
+                }
+                if (tile != null && tile.isEndZone())
+                {
+                    Rectangle tileBounds = tile.getBounds(xOffset, yOffset);
+
+                    if (playerBounds.intersects(tileBounds))
+                    {
+                        state = WIN;
+
+                        stopWalkSound();
+
+                        finalRewinds = rewindCount;
+                        goingUp = false;
+                        goingDown = false;
+                        goingLeft = false;
+                        goingRight = false;
+                        return;
+                    }
+                }
+            }
+        }
+
+        for (Enemy enemy : enemies)
+        {
+            if (enemy.getBounds().intersects(playerBounds) && !enemy.dead)
+            {
+                if (!playerDying)
+                {
+                    playerDying = true;
+                    player.deathFrame = 0;
+                    player.lastDeathFrame = System.nanoTime();
+                    goingUp = goingDown = goingLeft = goingRight = false;
+                }
+                rewinding = true;
+                rewindIndex = movementHistory.get(rewindCount).size();
+            }
+        }
+    }
+
+    public static void stopWalkSound()
+    {
+        if (player.walkClip != null)
+        {
+            player.walkClip.stop();
+            player.walkClip.setFramePosition(0);
+            player.walkSoundPlaying = false;
+        }
+    }
+
+    public static void ghostDeathCheck()
+    {
+        for (Ghost ghost : ghosts)
+        {
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    Tile tile = map[i][j];
+
+                    if (tile != null && tile.isLava())
+                    {
+                        if (ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset).intersects(tile.getBounds(xOffset, yOffset)))
+                        {
+                            ghost.isDead = true;
+                        }
+                    }
+                }
+            }
+
+            for (Enemy enemy : enemies)
+            {
+                if (enemy.getBounds().intersects(ghost.getBounds(WIDTH, HEIGHT, xOffset, yOffset)) && !enemy.dead)
+                {
+                    ghost.isDead = true;
+                }
+            }
+        }
+    }
+
+    public static void timerUpdate()
+    {
+        currentTime = System.nanoTime();
+        elapsedTime = (resetTime - (currentTime - startTime))/ (double) SECONDS_TO_NANO;
+
+        if (!rewinding && (currentTime - startTime) >= resetTime)
+        {
+            if (!playerDying)
+            {
+                playerDying = true;
+                player.deathFrame = 0;
+                player.lastDeathFrame = System.nanoTime();
+                goingUp = false;
+                goingDown = false;
+                goingLeft = false;
+                goingRight = false;
+            }
+            rewinding = true;
+            rewindIndex = movementHistory.get(rewindCount).size();
         }
     }
     
@@ -1041,7 +973,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         if (door.type.equals("vertical"))
         {
-            // Push from left
             if (playerBounds.x < doorBounds.x)
             {
                 if (player.playerXOffset > 0 || xOffset == 0)
@@ -1055,7 +986,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     frameMovement.cameraX -= intersection.width;
                 }
             }
-            // Push from right
             else
             {
                 if (player.playerXOffset < 0 || xOffset == -(rows * TILE_SIZE - WIDTH))
@@ -1072,7 +1002,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
         else if (door.type.equals("horizontal"))
         {
-            // Push from top
             if (playerBounds.y < doorBounds.y)
             {
                 if (player.playerYOffset > 0 || yOffset == 0)
@@ -1086,7 +1015,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     frameMovement.cameraY -= intersection.height;
                 }
             }
-            // Push from bottom
             else
             {
                 if (player.playerYOffset < 0 || yOffset == -(cols * TILE_SIZE - HEIGHT))
@@ -1102,6 +1030,226 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
         }
     }
+
+    public static void drawMenu(Graphics2D g2d)
+    {
+        g2d.setColor(new Color(28, 20, 12));        
+        g2d.fillRect(0, 0, WIDTH, HEIGHT);
+
+        drawMenuTitle(g2d);
+        drawMenuButton(g2d);
+    }
+
+    public static void drawMenuTitle(Graphics2D g2d)
+    {
+        g2d.setFont(new Font("Serif", Font.ITALIC, 72));
+        g2d.setColor(new Color(160, 146, 74));
+        FontMetrics titleFont = g2d.getFontMetrics();
+        String title = "~ Past Lives ~";
+        g2d.drawString(title, WIDTH / 2 - titleFont.stringWidth(title) / 2, HEIGHT / 2 - 80);
+
+        g2d.setFont(new Font("Serif", Font.ITALIC, 20));
+        g2d.setColor(new Color(140, 120, 70));
+        FontMetrics subFont = g2d.getFontMetrics();
+        String subtitle = "it's time";
+        g2d.drawString(subtitle, WIDTH / 2 - subFont.stringWidth(subtitle) / 2, HEIGHT / 2 - 40);
+    }
+
+    public static void drawMenuButton(Graphics2D g2d)
+    {
+        int buttonWidth = 240;
+        int buttonHeight = 50;
+        int buttonX = WIDTH / 2 - buttonWidth / 2;
+        int buttonY = HEIGHT / 2 + 10;
+        Rectangle button = new Rectangle(buttonX, buttonY, buttonWidth, buttonHeight);
+
+        boolean isHovered = button.contains(mouseX, mouseY);
+
+        buttonX = isHovered ? buttonX - 3 : buttonX;
+        buttonY = isHovered ? buttonY - 1 : buttonY;
+        buttonWidth = isHovered ? buttonWidth + 6 : buttonWidth;
+        buttonHeight = isHovered ? buttonHeight + 2 : buttonHeight;
+
+        g2d.setColor(isHovered ? new Color(95, 72, 28) : new Color(46, 37, 25));
+        g2d.fillRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 20, 20);
+
+        g2d.setColor(isHovered ? new Color(160, 130, 50) : new Color(107, 90, 62));
+        g2d.drawRoundRect(buttonX, buttonY, buttonWidth, buttonHeight, 6, 6);
+        g2d.drawRoundRect(buttonX + 2, buttonY + 2, buttonWidth - 4, buttonHeight - 4, 6, 6);
+
+        g2d.setFont(new Font("Bahnschrift", Font.BOLD, 18));
+        g2d.setColor(new Color(200, 176, 104));
+        FontMetrics fm = g2d.getFontMetrics();
+        String text = "Enter the Jungle";
+        g2d.drawString(text, buttonX + buttonWidth / 2 - fm.stringWidth(text) / 2, buttonY + 32);
+
+        if (clicked && button.contains(mouseX, mouseY))
+        {
+            startTime = System.nanoTime();
+            state = PLAYING;
+            clicked = false;
+        }
+    }
+    
+    public static void drawPlaying(Graphics2D g2d)
+    {
+        drawTiles(g2d);
+
+        for (Items item : items)
+        {
+            item.draw(g2d, xOffset, yOffset);
+        }
+
+        for (Door door : doors)
+        {
+            door.draw(g2d, xOffset, yOffset);
+        }
+
+        for (Enemy enemy : enemies)
+        {
+            enemy.draw(g2d, xOffset, yOffset);
+        }
+        drawGhosts(g2d);
+        player.draw(g2d, WIDTH, HEIGHT);
+
+        drawText(g2d);
+
+        if (shopOpen)
+        {
+            shop.update(g2d, SHOP_WIDTH, SHOP_HEIGHT);
+        }
+    }
+
+    public static void drawTiles(Graphics2D g2d)
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                Tile tile = map[i][j];
+
+                if (tile != null) 
+                {
+                    int x = tile.x + xOffset;
+                    int y = tile.y + yOffset;
+
+                    if (x + TILE_SIZE > 0 && x < WIDTH && y + TILE_SIZE > 0 && y < HEIGHT)
+                    {
+                        tile.draw(g2d, xOffset, yOffset);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void drawGhosts(Graphics2D g2d)
+    {
+        g2d.setColor(Color.CYAN);
+        int ghostDrawStart = 0;
+
+        if (ghosts.size() - maxGhostAmount < 0) ghostDrawStart = 0;
+        else ghostDrawStart = ghosts.size() - maxGhostAmount;
+                
+        for (int i = ghostDrawStart; i < ghosts.size(); i++)   
+        {
+            ghosts.get(i).draw(g2d, WIDTH, HEIGHT, xOffset, yOffset);
+        }
+    }
+
+    public static void drawText(Graphics2D g2d)
+    {
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
+
+        FontMetrics fontMetric = g2d.getFontMetrics();
+        int timeWidth = fontMetric.stringWidth("Time: " + String.format("%.0f", Math.abs(elapsedTime)));
+
+        int ghostWidth = fontMetric.stringWidth("Max Ghosts: " + (maxGhostAmount + Shop.addGhostAmount));
+
+        g2d.drawString("Time: " + String.format("%.1f", Math.abs(elapsedTime)), 30, 50);
+
+        g2d.drawString("Max Ghosts: " + (maxGhostAmount + Shop.addGhostAmount), 30, 150);
+        if (increasedTime)
+        {
+            plusOneBrightness -= 5;
+            if (plusOneBrightness <= 0)
+            {
+                plusOneBrightness = 0;
+                increasedTime = false;
+            }
+
+            g2d.setColor(new Color(255,255,255, plusOneBrightness));
+            g2d.drawString("+3", 65 + timeWidth, 50);
+        }
+
+        if (increasedGhost)
+        {
+            plusGhostBrightness -= 5;
+            if (plusGhostBrightness <= 0)
+            {
+                plusGhostBrightness = 0;
+                increasedGhost = false;
+            }
+
+            g2d.setColor(new Color(255,255,255, plusGhostBrightness));
+            g2d.drawString("+1", 40 + ghostWidth, 150);
+        }
+        
+        g2d.setColor(new Color(255,255,255));
+
+        g2d.drawString("Coins: " + String.valueOf(coins), 30, 100);
+    }
+
+    public static void drawWin (Graphics2D g2d)
+    {
+        g2d.setColor(new Color(28, 20, 12));
+        g2d.fillRect(0, 0, WIDTH, HEIGHT);
+
+        g2d.setFont(new Font("Serif", Font.ITALIC, 72));
+        g2d.setColor(new Color(160, 146, 74));
+        String text = "~ You Escaped ~";
+        FontMetrics fontMetrics = g2d.getFontMetrics();
+        int winWidth = fontMetrics.stringWidth(text);
+        g2d.drawString(text, WIDTH / 2 - winWidth / 2, HEIGHT / 2 - 60);
+
+        g2d.setFont(new Font("Serif", Font.ITALIC, 24));
+        g2d.setColor(new Color(140, 120, 70));
+        String stats = "Rewinds used: " + finalRewinds;
+        int rewindWidth = g2d.getFontMetrics().stringWidth(stats);
+        g2d.drawString(stats, WIDTH / 2 - rewindWidth / 2, HEIGHT / 2);
+
+        drawWinButton(g2d);
+    }
+    
+    public static void drawWinButton(Graphics2D g2d)
+    {
+        Rectangle playAgainButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
+
+        if (playAgainButton.contains(mouseX, mouseY))
+        {
+            g2d.setColor(Color.GRAY);
+
+            if (clicked)
+            {
+                resetGame();
+            }
+        }
+        else
+        {
+            g2d.setColor(Color.DARK_GRAY);
+        }
+        
+        g2d.fill(playAgainButton);
+
+        g2d.setColor(Color.WHITE);
+        g2d.draw(playAgainButton);
+
+        String button = "PLAY AGAIN";
+        int buttonWidth = g2d.getFontMetrics().stringWidth(button);
+
+        g2d.drawString(button, playAgainButton.x + playAgainButton.width/2 - buttonWidth/2, playAgainButton.y + 40);
+    }
+
     public static void resetGame()
     {
         state = PLAYING;
@@ -1125,22 +1273,39 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         movementHistory.clear();
         movementHistory.add(new ArrayList<>());
 
-        for (Items item : items) item.activated = false;
+        for (Items item : items) 
+        {
+            item.activated = false;
+        }
 
-        for (Enemy enemy : enemies) enemy.reset();
+        for (Enemy enemy : enemies) 
+        {
+            enemy.reset();
+        }
 
         startTime = System.nanoTime();
     }
 
     public static void playSound(String path)
     {
-        try {
+        try
+        {
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(path));
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-        } catch (Exception e) {
+        } 
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
+    } 
+    
+    public static void playDeathSound()
+    {
+        if (deathClip == null) return;
+        deathClip.stop();
+        deathClip.setFramePosition(0);
+        deathClip.start();
     }
 }
