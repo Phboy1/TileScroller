@@ -2,8 +2,6 @@ package TileScroller;
 
 import java.awt.Rectangle;
 
-import org.w3c.dom.css.Rect;
-
 public class CollisionChecker
 {
     public boolean canMove(Player player, int moveX, int moveY)

@@ -15,7 +15,7 @@ public class Shop {
 
     static String[] shopItems = {"Borrowed Time", "Midas Touch", "Release the Undead", "Hard Bargain"};
     static String[] shopDescriptions = {"+1 Second of Time in the Jungle", "Enemies drop more gold", "+1 Ghost", "Cheaper shop prices"};
-    static int[] shopPrices = {8, 14, 1, 45};
+    static int[] shopPrices = {8, 14, 20, 45};
 
     public void update(Graphics2D g2d, int shopWidth, int shopHeight)
     {

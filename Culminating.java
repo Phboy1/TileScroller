@@ -51,12 +51,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int SHOP_WIDTH = 450;
     static final int SHOP_HEIGHT = 425;
 
-
     static int coins = 0;
 
     static boolean clicked = false;
 
-    static long secondTime = 10L;
+    static long secondTime = 20L;
 
     static long resetTime = secondTime * SECONDS_TO_NANO;
 
@@ -79,6 +78,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static int mouseX;
     static int mouseY;
+
+    static int ghostStart = 0;
 
     static long startTime;
     static long currentTime;
@@ -311,8 +312,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         if (e.getKeyCode() == KeyEvent.VK_E)
         { 
-            Culminating.playSound("TileScroller/assets/button.wav");
-
             interactHeld = false; 
         }
         
@@ -578,7 +577,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     {
                         if (item.isTouchingPlayer(player))
                         {
-                            Culminating.player.playInteractSound();
+                            //Culminating.player.playInteractSound();
                             item.activated = true;
                         }
                     }
@@ -714,7 +713,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void updateGhosts()
     {
-        int ghostStart = 0;
+        ghostStart = 0;
 
         if (ghosts.size() - maxGhostAmount > 0)  ghostStart = ghosts.size() - maxGhostAmount;
 
@@ -735,6 +734,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     item.activated = true;
                     frameMovement.interacted = true;
                     frameMovement.interactedItemId = item.id;
+
+                    player.playInteractSound();
                 }
             }
         }
@@ -1198,6 +1199,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.setColor(new Color(255,255,255));
 
         g2d.drawString("Coins: " + String.valueOf(coins), 30, 100);
+
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
+        g2d.drawString("Rewinds: " + rewindCount, 30, 200);
     }
 
     public static void drawWin (Graphics2D g2d)

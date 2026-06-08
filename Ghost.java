@@ -53,7 +53,7 @@ public class Ghost {
     int ghostCameraY;
     int size;
     int ghostIndex;
-    int i = 0;
+    int i = Culminating.ghostStart;
     boolean finished = false;
     boolean isDead = false;
 
