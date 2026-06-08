@@ -10,8 +10,8 @@ public class Shop {
     static final int SHOP_TITLE_BUTTON_BUFFER = 115;
     static final int CORNER_CUBE_SIZE = 15;
 
-    static final double SHOP_INCREMENTER = 1.4;
-    static final double HARD_BARGAIN_DISCOUNT = 0.9;
+    static final double SHOP_INCREMENTER = 1.3;
+    static final double HARD_BARGAIN_DISCOUNT = 0.8;
 
     static boolean addGhost = false;
     static int addGhostAmount = 0;
