@@ -10,12 +10,15 @@ public class Shop {
     static final int SHOP_TITLE_BUTTON_BUFFER = 115;
     static final int CORNER_CUBE_SIZE = 15;
 
+    static final double SHOP_INCREMENTER = 1.4;
+    static final double HARD_BARGAIN_DISCOUNT = 0.9;
+
     static boolean addGhost = false;
     static int addGhostAmount = 0;
 
     static String[] shopItems = {"Borrowed Time", "Midas Touch", "Release the Undead", "Hard Bargain"};
     static String[] shopDescriptions = {"+1 Second of Time in the Jungle", "Enemies drop more gold", "+1 Ghost", "Cheaper shop prices"};
-    static int[] shopPrices = {8, 14, 20, 45};
+    static int[] shopPrices = {3, 6, 15, 35};
 
     public void update(Graphics2D g2d, int shopWidth, int shopHeight)
     {
@@ -149,7 +152,7 @@ public class Shop {
     public void purchaseItem(int i)
     {
         Culminating.coins -= shopPrices[i];
-        shopPrices[i] = (int) Math.round(shopPrices[i] * 1.5);
+        shopPrices[i] = (int) Math.round(shopPrices[i] * SHOP_INCREMENTER);
 
         if (shopItems[i].equals("Borrowed Time"))
         {
@@ -179,7 +182,7 @@ public class Shop {
         {
             for (int j = 0; j < shopPrices.length; j++)
             {
-                if (!shopItems[j].equals("Hard Bargain")) shopPrices[j] = (int) Math.floor(shopPrices[j] * 0.9);
+                if (!shopItems[j].equals("Hard Bargain")) shopPrices[j] = (int) Math.floor(shopPrices[j] * HARD_BARGAIN_DISCOUNT);
             }
         }
         Culminating.clicked = false;
