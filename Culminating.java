@@ -1046,13 +1046,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.setFont(new Font("Serif", Font.ITALIC, 72));
         g2d.setColor(new Color(160, 146, 74));
         FontMetrics titleFont = g2d.getFontMetrics();
-        String title = "~ Past Lives ~";
+        String title = "~ It's About Time ~";
         g2d.drawString(title, WIDTH / 2 - titleFont.stringWidth(title) / 2, HEIGHT / 2 - 80);
 
         g2d.setFont(new Font("Serif", Font.ITALIC, 20));
         g2d.setColor(new Color(140, 120, 70));
         FontMetrics subFont = g2d.getFontMetrics();
-        String subtitle = "it's time";
+        String subtitle = "Join Us Eternally";
         g2d.drawString(subtitle, WIDTH / 2 - subFont.stringWidth(subtitle) / 2, HEIGHT / 2 - 40);
     }
 
