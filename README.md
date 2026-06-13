@@ -34,3 +34,12 @@ I wanted a game where my past could affect my future, and I could constantly esc
 # Controls
 
 WASD or arrow keys to move. Space to attack. E to interact with buttons. Q for the shop. R to rewind. Click a ghost to take control of that body.
+
+# Screenshots from the Game
+
+<img width="697" height="653" alt="Screenshot 2026-06-13 165902" src="https://github.com/user-attachments/assets/a5fd5f8c-80a6-460f-bd83-9ecfeab78a23" />
+<img width="537" height="347" alt="Screenshot 2026-06-13 165731" src="https://github.com/user-attachments/assets/f3fba592-2678-4f67-8841-a350ab1ac32c" />
+<img width="672" height="432" alt="Screenshot 2026-06-13 165535" src="https://github.com/user-attachments/assets/2e5c1a31-28bd-4bb9-9863-d3ffd03495af" />
+<img width="685" height="461" alt="Screenshot 2026-06-13 165445" src="https://github.com/user-attachments/assets/b689f7ce-88ea-4a28-afb7-5b2088b1bdee" />
+<img width="840" height="383" alt="Screenshot 2026-06-13 165354" src="https://github.com/user-attachments/assets/15548acf-364a-4840-bef4-4ac95a44ac48" />
+
