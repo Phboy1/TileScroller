@@ -1,5 +1,3 @@
-package TileScroller;
-
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
@@ -51,7 +49,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int SHOP_WIDTH = 450;
     static final int SHOP_HEIGHT = 425;
 
-    static int coins = 0;
+    static int coins = 10000;
 
     static boolean clicked = false;
 
@@ -1265,6 +1263,17 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         playerDying = false;
 
         coins = 0;
+        secondTime = 20L;
+        resetTime = secondTime * SECONDS_TO_NANO;
+            
+        maxGhostAmount = 15;
+        Shop.addGhostAmount = 0;
+
+        maxCoinDrop = 4;
+        minCoinDrop = 1;
+
+        Shop.shopPrices = new int[] {3, 6, 15, 35};
+
 
         xOffset = 0;
         yOffset = 0;

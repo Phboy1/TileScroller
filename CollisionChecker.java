@@ -1,4 +1,3 @@
-package TileScroller;
 
 import java.awt.Rectangle;
 
