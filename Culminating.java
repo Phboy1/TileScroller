@@ -1,3 +1,5 @@
+package TileScroller;
+
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
@@ -49,7 +51,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int SHOP_WIDTH = 450;
     static final int SHOP_HEIGHT = 425;
 
-    static int coins = 10000;
+    static int coins = 0;
 
     static boolean clicked = false;
 
@@ -319,7 +321,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     public static void loadMap()
     {
         try {
-            BufferedReader br = new BufferedReader(new FileReader("TileScroller/TileGrid.txt"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(Culminating.class.getResourceAsStream("/TileScroller/TileGrid.txt")));
             String line = br.readLine();
             int j = 0;
 
@@ -507,7 +509,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         try 
         {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/rewind.wav"));
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(resource("TileScroller/assets/rewind.wav"));
             rewindClip = AudioSystem.getClip();
             rewindClip.open(audioInputStream);
         } 
@@ -518,7 +520,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         try
         {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/backgroundSound.wav"));
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(resource("TileScroller/assets/backgroundSound.wav"));
             backgroundAudioClip = AudioSystem.getClip();
             backgroundAudioClip.open(audioInputStream);
             backgroundAudioClip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -530,7 +532,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
         try
         {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/enemyDeath.wav"));
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(resource("TileScroller/assets/enemyDeath.wav"));
             deathClip = AudioSystem.getClip();
             deathClip.open(audioInputStream);
         }
@@ -1300,11 +1302,16 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         startTime = System.nanoTime();
     }
 
+    public static java.net.URL resource(String path)
+    {
+        return Culminating.class.getResource("/" + path);
+    }
+
     public static void playSound(String path)
     {
         try
         {
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(path));
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(resource(path));
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();

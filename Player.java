@@ -1,3 +1,4 @@
+package TileScroller;
 
 import java.awt.*;
 import java.io.File;
@@ -88,36 +89,36 @@ public class Player {
     {
         try
         {
-            sprite = ImageIO.read(new File("TileScroller/assets/playerIdleDown.png"));
+            sprite = ImageIO.read(Culminating.resource("TileScroller/assets/playerIdleDown.png"));
         }
         catch (Exception e)
         { 
-            System.out.println("IDLE IS WRONG"); 
+            e.getStackTrace();
         }
 
         try
         {
-            for (int i = 1; i <= deathFrameAmount; i++) deathSprites[i - 1] = ImageIO.read(new File("TileScroller/assets/playerDeath" + i + ".png"));
+            for (int i = 1; i <= deathFrameAmount; i++) deathSprites[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerDeath" + i + ".png"));
 
-            idle[UP] = ImageIO.read(new File("TileScroller/assets/playerIdleUp.png"));
-            idle[RIGHT] = ImageIO.read(new File("TileScroller/assets/playerIdleRight.png"));
-            idle[DOWN] = ImageIO.read(new File("TileScroller/assets/playerIdleDown.png"));
-            idle[LEFT] = ImageIO.read(new File("TileScroller/assets/playerIdleLeft.png"));
+            idle[UP] = ImageIO.read(Culminating.resource("TileScroller/assets/playerIdleUp.png"));
+            idle[RIGHT] = ImageIO.read(Culminating.resource("TileScroller/assets/playerIdleRight.png"));
+            idle[DOWN] = ImageIO.read(Culminating.resource("TileScroller/assets/playerIdleDown.png"));
+            idle[LEFT] = ImageIO.read(Culminating.resource("TileScroller/assets/playerIdleLeft.png"));
 
-            for (int i = 1; i <= frameAmount; i++) walkLeft[i - 1] = ImageIO.read(new File("TileScroller/assets/playerWalkLeft" + i + ".png"));
-            for (int i = 1; i <= frameAmount; i++) walkRight[i - 1] = ImageIO.read(new File("TileScroller/assets/playerWalkRight" + i + ".png"));
-            for (int i = 1; i <= frameAmount; i++) walkUp[i - 1] = ImageIO.read(new File("TileScroller/assets/playerWalkUp" + i + ".png"));
-            for (int i = 1; i <= frameAmount; i++) walkDown[i - 1] = ImageIO.read(new File("TileScroller/assets/playerWalkDown" + i + ".png"));
+            for (int i = 1; i <= frameAmount; i++) walkLeft[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerWalkLeft" + i + ".png"));
+            for (int i = 1; i <= frameAmount; i++) walkRight[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerWalkRight" + i + ".png"));
+            for (int i = 1; i <= frameAmount; i++) walkUp[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerWalkUp" + i + ".png"));
+            for (int i = 1; i <= frameAmount; i++) walkDown[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerWalkDown" + i + ".png"));
 
-            for (int i = 1; i <= attackFrameAmount; i++) attackLeft[i - 1] = ImageIO.read(new File("TileScroller/assets/playerAttackLeft" + i + ".png"));
-            for (int i = 1; i <= attackFrameAmount; i++) attackRight[i - 1] = ImageIO.read(new File("TileScroller/assets/playerAttackRight" + i + ".png"));
-            for (int i = 1; i <= attackFrameAmount; i++) attackUp[i - 1] = ImageIO.read(new File("TileScroller/assets/playerAttackUp" + i + ".png"));
-            for (int i = 1; i <= attackFrameAmount; i++) attackDown[i - 1] = ImageIO.read(new File("TileScroller/assets/playerAttackDown" + i + ".png"));
+            for (int i = 1; i <= attackFrameAmount; i++) attackLeft[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerAttackLeft" + i + ".png"));
+            for (int i = 1; i <= attackFrameAmount; i++) attackRight[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerAttackRight" + i + ".png"));
+            for (int i = 1; i <= attackFrameAmount; i++) attackUp[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerAttackUp" + i + ".png"));
+            for (int i = 1; i <= attackFrameAmount; i++) attackDown[i - 1] = ImageIO.read(Culminating.resource("TileScroller/assets/playerAttackDown" + i + ".png"));
 
         }
         catch (Exception e)
         {
-            System.out.println("LOADING PLAYER TOO HARD"); 
+            e.printStackTrace();
         }
     }
 
@@ -126,7 +127,7 @@ public class Player {
     {
         try
         {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/walk.wav"));
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Culminating.resource("TileScroller/assets/walk.wav"));
             walkClip = AudioSystem.getClip();
             walkClip.open(audioInputStream);
         }
@@ -137,14 +138,13 @@ public class Player {
 
         try
         {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("TileScroller/assets/button.wav"));
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Culminating.resource("TileScroller/assets/button.wav"));
             interactClip = AudioSystem.getClip();
             interactClip.open(audioInputStream);
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("CLICK SOUND FAILED");
         }
     }
 
@@ -169,7 +169,7 @@ public class Player {
                 updateWalkSound(false);
             }
         }
-        catch (Exception e) { System.out.println("LOADING PLAYER TOO HARD"); }
+        catch (Exception e) { e.printStackTrace(); }
 
         g2d.drawImage(sprite, WIDTH / 2 - size / 2 - playerXOffset, HEIGHT / 2 - size / 2 - playerYOffset, size, size, null);
 
@@ -237,7 +237,7 @@ public class Player {
             {
                 attackFrame++;
                 lastAttackFrame = currentTime;
-                if (attackFrame > attackFrameAmount) { attackFrame = 0; attacking = false; }
+                if (attackFrame >= attackFrameAmount) { attackFrame = 0; attacking = false; }
             }
             if (attacking)
             {
@@ -298,9 +298,9 @@ public class Player {
         lastDirection = "Down";
         try
         {
-            sprite = ImageIO.read(new File("TileScroller/assets/playerIdleDown.png"));
+            sprite = ImageIO.read(Culminating.resource("TileScroller/assets/playerIdleDown.png"));
         }
-        catch (Exception e) { System.out.println("IDLE WRONG"); }
+        catch (Exception e) { e.getStackTrace(); }
     }
 
     public Rectangle getBounds(int WIDTH, int HEIGHT)

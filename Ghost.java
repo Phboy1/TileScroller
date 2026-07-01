@@ -1,3 +1,4 @@
+package TileScroller;
 
 import java.awt.*;
 import java.io.File;
@@ -89,55 +90,55 @@ public class Ghost {
     {
         try
         {
-            sprite = ImageIO.read(new File("TileScroller/assets/ghostIdleDown.png"));
+            sprite = ImageIO.read(Culminating.resource("TileScroller/assets/ghostIdleDown.png"));
         } 
         catch(Exception e)
         {
-            System.out.println("WRONG");
+            e.getStackTrace();
         }
 
         try
         {
             for (int i = 1; i <= deathFrameAmount; i++)
             {
-                deathSprites[i-1] = ImageIO.read(new File("TileScroller/assets/ghostDeath" + i + ".png"));
+                deathSprites[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostDeath" + i + ".png"));
             } 
             for (int i = 1; i <= frameAmount; i++)
             {
-                walkLeft[i-1] = ImageIO.read(new File("TileScroller/assets/ghostWalkLeft" + i + ".png"));
+                walkLeft[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostWalkLeft" + i + ".png"));
             } 
             for (int i = 1; i <= frameAmount; i++)
             {
-                walkRight[i-1] = ImageIO.read(new File("TileScroller/assets/ghostWalkRight" + i + ".png"));
+                walkRight[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostWalkRight" + i + ".png"));
             } 
             for (int i = 1; i <= frameAmount; i++)
             {
-                walkUp[i-1] = ImageIO.read(new File("TileScroller/assets/ghostWalkUp" + i + ".png"));
+                walkUp[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostWalkUp" + i + ".png"));
             } 
             for (int i = 1; i <= frameAmount; i++)
             {
-                walkDown[i-1] = ImageIO.read(new File("TileScroller/assets/ghostWalkDown" + i + ".png"));
+                walkDown[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostWalkDown" + i + ".png"));
             } 
             for (int i = 1; i <= attackFrameAmount; i++)
             {
-                attackLeft[i-1] = ImageIO.read(new File("TileScroller/assets/ghostAttackLeft" + i + ".png"));
+                attackLeft[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostAttackLeft" + i + ".png"));
             } 
             for (int i = 1; i <= attackFrameAmount; i++)
             {
-                attackRight[i-1] = ImageIO.read(new File("TileScroller/assets/ghostAttackRight" + i + ".png"));
+                attackRight[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostAttackRight" + i + ".png"));
             } 
             for (int i = 1; i <= attackFrameAmount; i++)
             {
-                attackUp[i-1] = ImageIO.read(new File("TileScroller/assets/ghostAttackUp" + i + ".png"));
+                attackUp[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostAttackUp" + i + ".png"));
             } 
             for (int i = 1; i <= attackFrameAmount; i++)
             {
-                attackDown[i-1] = ImageIO.read(new File("TileScroller/assets/ghostAttackDown" + i + ".png"));
+                attackDown[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/ghostAttackDown" + i + ".png"));
             } 
         } 
         catch(Exception e)
         {
-            System.out.println("LOADING GHOST TOO HARD");
+            e.getStackTrace();
         }
     }
 
@@ -190,10 +191,10 @@ public class Ghost {
                     }
                     else if (wasMoving)
                     {
-                        sprite = ImageIO.read(new File("TileScroller/assets/ghostIdle" + lastDirection + ".png"));
+                        sprite = ImageIO.read(Culminating.resource("TileScroller/assets/ghostIdle" + lastDirection + ".png"));
                     }
                 } catch (Exception e) {
-                    System.out.println("GHOST TOO HARD");
+                    e.getStackTrace();
                 }
             }    
             ghostInteraction(actions);

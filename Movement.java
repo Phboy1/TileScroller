@@ -1,3 +1,4 @@
+package TileScroller;
 
 public class Movement {
     int playerX;

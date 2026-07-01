@@ -1,3 +1,4 @@
+package TileScroller;
 
 import java.awt.*;
 import java.io.File;
@@ -73,31 +74,31 @@ public class Enemy {
     {
         try 
         {
-            sprite = ImageIO.read(new File("TileScroller/assets/enemy001.png"));
+            sprite = ImageIO.read(Culminating.resource("TileScroller/assets/enemy001.png"));
             for (int i = 1; i <= frameAmount; i++)
             {
-                walkLeft[i-1] = ImageIO.read(new File("TileScroller/assets/enemyWalkLeft" + i + ".png"));
+                walkLeft[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/enemyWalkLeft" + i + ".png"));
             } 
             for (int i = 1; i <= frameAmount; i++)
             {
-                walkRight[i-1] = ImageIO.read(new File("TileScroller/assets/enemyWalkRight" + i + ".png"));
+                walkRight[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/enemyWalkRight" + i + ".png"));
             } 
             for (int i = 1; i <= frameAmount; i++)
             {
-                walkUp[i-1] = ImageIO.read(new File("TileScroller/assets/enemyWalkUp" + i + ".png"));
+                walkUp[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/enemyWalkUp" + i + ".png"));
             } 
             for (int i = 1; i <= frameAmount; i++)
             {
-                walkDown[i-1] = ImageIO.read(new File("TileScroller/assets/enemyWalkDown" + i + ".png"));
+                walkDown[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/enemyWalkDown" + i + ".png"));
             }
             for (int i = 1; i <= deathFrameAmount; i++)
             {
-                death[i-1] = ImageIO.read(new File("TileScroller/assets/enemyDeath" + i + ".png"));
+                death[i-1] = ImageIO.read(Culminating.resource("TileScroller/assets/enemyDeath" + i + ".png"));
             }
         } 
         catch(Exception e) 
         {
-            System.out.println("IDLE IS WRONG");
+            e.getStackTrace();
         }
     }
 
@@ -310,7 +311,7 @@ public class Enemy {
             for (int col = 0; col < Culminating.cols; col++)
             {
                 Tile tile = Culminating.map[row][col];
-                if (tile.solid && futureEnemy.intersects(tile.x, tile.y, tile.size, tile.size))
+                if (tile != null && tile.solid && futureEnemy.intersects(tile.x, tile.y, tile.size, tile.size))
                 {
                     return false;
                 }
