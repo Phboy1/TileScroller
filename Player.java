@@ -7,8 +7,8 @@ import javax.imageio.ImageIO;
 
 public class Player {
     static Image sprite;
-    Clip walkClip;
-    Clip interactClip;
+    volatile Clip walkClip;
+    volatile Clip interactClip;
 
     boolean walkSoundPlaying = false;
 
@@ -82,7 +82,6 @@ public class Player {
         this.hitboxYOffset = (size - HITBOX_SIZE_Y) / 2 + (size - HITBOX_SIZE_Y) / 12;
 
         loadAnimations();
-        loadSounds();
     }
 
     public void loadAnimations()

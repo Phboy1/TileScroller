@@ -90,12 +90,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static boolean playerDying = false;
 
-    static Clip rewindClip;
+    static volatile Clip rewindClip;
     static boolean rewindSoundPlaying = false;
 
-    static Clip backgroundAudioClip;
+    static volatile Clip backgroundAudioClip;
 
-    static Clip deathClip;
+    static volatile Clip deathClip;
 
     static boolean shopOpen = false;
 
@@ -148,8 +148,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         spawnEnemies();
         spawnItems();
         spawnDoors();
-        loadAudio();
-        
+
+        new Thread(() -> {
+            player.loadSounds();
+            loadAudio();
+        }, "audio-loader").start();
+
         while (true) {
             // 1. Logic (Thinking)
             update();
@@ -1314,6 +1318,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(resource(path));
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) clip.close();
+            });
             clip.start();
         } 
         catch (Exception e)
