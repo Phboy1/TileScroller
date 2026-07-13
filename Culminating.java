@@ -363,8 +363,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             width = 15;
             height = 26;
-            spawnCol = 3; 
-            spawnRow = 2;
+            spawnCol = 5; 
+            spawnRow = 5;
         }
         Level level = new Level("Jungle Escape", 20, width, height);
         
@@ -1200,6 +1200,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     
     public static void drawPlaying(Graphics2D g2d)
     {
+        g2d.setColor(Color.BLACK);
+        g2d.fillRect(0,0,WIDTH,HEIGHT);
         drawTiles(g2d);
 
         for (Items item : items)
