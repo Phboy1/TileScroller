@@ -356,8 +356,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             width = 100;
             height = 100;
-            spawnCol = 90; 
-            spawnRow = 90;
+            spawnCol = 10; 
+            spawnRow = 10;
         }
         else if (levelId == 2)
         {
@@ -389,8 +389,22 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         if (cameraX > 0) cameraX = 0;
         if (cameraY > 0) cameraY = 0;
-        if (cameraX < -(currentCols * TILE_SIZE - WIDTH)) cameraX = -(currentCols * TILE_SIZE - WIDTH);
-        if (cameraY < -(currentRows * TILE_SIZE - HEIGHT)) cameraY = -(currentRows * TILE_SIZE - HEIGHT);
+        if (currentCols * TILE_SIZE >= WIDTH)
+        {
+            if (cameraX < -(currentCols * TILE_SIZE - WIDTH)) cameraX = -(currentCols * TILE_SIZE - WIDTH);
+        }
+        else
+        {
+            cameraX = (WIDTH - currentCols * TILE_SIZE)/2;
+        }
+        if (currentRows * TILE_SIZE >= HEIGHT)
+        {
+            if (cameraY < -(currentRows * TILE_SIZE - HEIGHT)) cameraY = -(currentRows * TILE_SIZE - HEIGHT);
+        }
+        else
+        {
+            cameraY = (HEIGHT - currentRows * TILE_SIZE)/2;
+        }
 
         spawnCameraX = cameraX;
         spawnCameraY = cameraY;
@@ -752,10 +766,26 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void clampCamera()
     {
-        if (xOffset > 0) xOffset = 0;
-        if (yOffset > 0) yOffset = 0;
-        if (xOffset < -(currentRows*TILE_SIZE - WIDTH)) xOffset = -(currentRows*TILE_SIZE - WIDTH);
-        if (yOffset < -((currentCols)*TILE_SIZE - HEIGHT)) yOffset = -((currentCols)*TILE_SIZE - HEIGHT);
+        if (currentCols * TILE_SIZE >= WIDTH)
+        {
+            if (xOffset > 0) xOffset = 0;
+            if (xOffset < -(currentRows*TILE_SIZE - WIDTH)) xOffset = -(currentRows*TILE_SIZE - WIDTH);
+
+        }
+        else
+        {
+            xOffset = (WIDTH - currentCols * TILE_SIZE)/2;
+        }
+        if (currentRows * TILE_SIZE >= HEIGHT)
+        {
+            if (yOffset > 0) yOffset = 0;
+            if (yOffset < -((currentCols)*TILE_SIZE - HEIGHT)) yOffset = -((currentCols)*TILE_SIZE - HEIGHT);
+        }
+        else
+        {
+            yOffset = (HEIGHT - currentRows * TILE_SIZE)/2;
+        }
+        
     }
 
     public static void updatePlayerMovement(Movement frameMovement)
