@@ -43,11 +43,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int STARTING_XOFFSET = 0;
     static final int STARTING_YOFFSET = 0;
 
-    static int spawnX;
-    static int spawnY;
-
-    static int currentSpawnX;
-    static int currentSpawnY;
+    static int spawnPlayerXOffset;
+    static int spawnPlayerYOffset;
+    static int spawnCameraX;
+    static int spawnCameraY;
 
     static final int CAMERA_SPEED = 5;
 
@@ -125,8 +124,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static boolean rewinding = false;
 
     static {
-        player.playerXOffset = spawnX;
-        player.playerYOffset = spawnY;
         movementHistory.add(new java.util.ArrayList<>());
     }
 
@@ -359,8 +356,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             width = 100;
             height = 100;
-            spawnCol = 7; 
-            spawnRow = 1;
+            spawnCol = 90; 
+            spawnRow = 90;
         }
         else if (levelId == 2)
         {
@@ -371,8 +368,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
         Level level = new Level("Jungle Escape", 20, width, height);
         
-        level.spawnX = spawnCol * TILE_SIZE;
-        level.spawnY = spawnRow * TILE_SIZE;
+        level.spawnX = spawnCol;
+        level.spawnY = spawnRow;
 
         loadMap(level.map, levelId);
         spawnEnemies(level.enemies, levelId);
@@ -380,6 +377,26 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         spawnDoors(level.doors, levelId);
 
         return level;
+    }
+
+    static void setSpawn(int col, int row)
+    {
+        int worldX = col * TILE_SIZE + TILE_SIZE/2 - PLAYER_SIZE/2;
+        int worldY = row * TILE_SIZE + TILE_SIZE/2 - PLAYER_SIZE/2;
+
+        int cameraX = WIDTH/2 - PLAYER_SIZE/2 - worldX;
+        int cameraY = HEIGHT/2 - PLAYER_SIZE/2 - worldY;
+
+        if (cameraX > 0) cameraX = 0;
+        if (cameraY > 0) cameraY = 0;
+        if (cameraX < -(currentCols * TILE_SIZE - WIDTH)) cameraX = -(currentCols * TILE_SIZE - WIDTH);
+        if (cameraY < -(currentRows * TILE_SIZE - HEIGHT)) cameraY = -(currentRows * TILE_SIZE - HEIGHT);
+
+        spawnCameraX = cameraX;
+        spawnCameraY = cameraY;
+
+        spawnPlayerXOffset = WIDTH / 2 - PLAYER_SIZE / 2 - worldX - cameraX;
+        spawnPlayerYOffset = HEIGHT / 2 - PLAYER_SIZE / 2 - worldY - cameraY;
     }
 
     static void loadCurrentLevel()
@@ -394,8 +411,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         currentRows = level.map.length;
         currentCols = level.map[0].length;
 
-        currentSpawnX = level.spawnX;
-        currentSpawnY = level.spawnY;
+        setSpawn(level.spawnX, level.spawnY);
     }
 
     public static void loadMap(Tile[][] levelMap, int levelId)
@@ -594,10 +610,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         for (Ghost ghost : ghosts)
         {
             ghost.i = 0;
-            ghost.ghostX = spawnX;
-            ghost.ghostY = spawnY;
-            ghost.ghostCameraX = 0;
-            ghost.ghostCameraY = 0;
+            ghost.ghostX = spawnPlayerXOffset;
+            ghost.ghostY = spawnPlayerYOffset;
+            ghost.ghostCameraX = spawnCameraX;
+            ghost.ghostCameraY = spawnCameraY;
             ghost.finished = false;
             ghost.isDead = false;
         }
@@ -1366,11 +1382,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         Shop.shopPrices = new int[] {3, 6, 15, 35};
 
-        xOffset = 0;
-        yOffset = 0;
+        xOffset = spawnCameraX;
+        yOffset = spawnCameraY;
 
-        player.playerXOffset = spawnX;
-        player.playerYOffset = spawnY;
+        player.playerXOffset = spawnPlayerXOffset;
+        player.playerYOffset = spawnPlayerYOffset;
 
         player.lastDirection = "Down";
 
