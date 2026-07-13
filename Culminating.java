@@ -769,7 +769,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (currentCols * TILE_SIZE >= WIDTH)
         {
             if (xOffset > 0) xOffset = 0;
-            if (xOffset < -(currentRows*TILE_SIZE - WIDTH)) xOffset = -(currentRows*TILE_SIZE - WIDTH);
+            if (xOffset < -(currentCols*TILE_SIZE - WIDTH)) xOffset = -(currentCols*TILE_SIZE - WIDTH);
 
         }
         else
@@ -779,7 +779,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (currentRows * TILE_SIZE >= HEIGHT)
         {
             if (yOffset > 0) yOffset = 0;
-            if (yOffset < -((currentCols)*TILE_SIZE - HEIGHT)) yOffset = -((currentCols)*TILE_SIZE - HEIGHT);
+            if (yOffset < -((currentRows)*TILE_SIZE - HEIGHT)) yOffset = -((currentRows)*TILE_SIZE - HEIGHT);
         }
         else
         {
@@ -790,78 +790,121 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void updatePlayerMovement(Movement frameMovement)
     {
-        if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
+        if (currentCols * TILE_SIZE < WIDTH)
         {
-            player.playerXOffset += CAMERA_SPEED;
-            frameMovement.playerX -= CAMERA_SPEED;
-        }
-        if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
-        {
-            player.playerYOffset += CAMERA_SPEED;
-            frameMovement.playerY -= CAMERA_SPEED;
-        }
-        if (xOffset == -(currentRows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
-        {
-            player.playerXOffset -= CAMERA_SPEED;
-            frameMovement.playerX += CAMERA_SPEED;
-        }
-        if (yOffset == -(currentCols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
-        {
-            player.playerYOffset -= CAMERA_SPEED;
-            frameMovement.playerY += CAMERA_SPEED;
-        }
-        if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
-        {
-            if (player.playerXOffset > 0) 
+            if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
             {
-                player.playerXOffset -= CAMERA_SPEED; 
+                player.playerXOffset += CAMERA_SPEED;
+                frameMovement.playerX -=CAMERA_SPEED;
+            }
+            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+            {
+                player.playerXOffset -= CAMERA_SPEED;
                 frameMovement.playerX += CAMERA_SPEED;
             }
-            else if (player.playerXOffset == 0)
+        }
+        else
+        {
+            if (xOffset == 0 && goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0)) 
             {
-                xOffset -= CAMERA_SPEED; 
-                frameMovement.cameraX += CAMERA_SPEED; 
+                player.playerXOffset += CAMERA_SPEED;
+                frameMovement.playerX -= CAMERA_SPEED;
+            }
+
+            if (xOffset == -(currentCols * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+            {
+                player.playerXOffset -= CAMERA_SPEED;
+                frameMovement.playerX += CAMERA_SPEED;
+            }
+
+            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+            {
+                if (player.playerXOffset > 0) 
+                {
+                    player.playerXOffset -= CAMERA_SPEED; 
+                    frameMovement.playerX += CAMERA_SPEED;
+                }
+                else if (player.playerXOffset == 0)
+                {
+                    xOffset -= CAMERA_SPEED; 
+                    frameMovement.cameraX += CAMERA_SPEED; 
+                }
+            }
+
+            if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
+            {
+                if (player.playerXOffset < 0)
+                { 
+                    player.playerXOffset += CAMERA_SPEED; 
+                    frameMovement.playerX -= CAMERA_SPEED; 
+                }
+                else if (player.playerXOffset == 0)
+                { 
+                    xOffset += CAMERA_SPEED; 
+                    frameMovement.cameraX -= CAMERA_SPEED; 
+                }
             }
         }
-        if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+
+        if (currentRows * TILE_SIZE < HEIGHT)
         {
-            if (player.playerYOffset > 0)
-            { 
-                player.playerYOffset -= CAMERA_SPEED; 
-                frameMovement.playerY += CAMERA_SPEED; 
+            if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
+            {
+                player.playerYOffset += CAMERA_SPEED;
+                frameMovement.playerY -=CAMERA_SPEED;
             }
-            else if (player.playerYOffset == 0)
-            { 
-                yOffset -= CAMERA_SPEED; 
-                frameMovement.cameraY += CAMERA_SPEED; 
+            if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+            {
+                player.playerYOffset -= CAMERA_SPEED;
+                frameMovement.playerY += CAMERA_SPEED;
             }
         }
-        if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
+        else
         {
-            if (player.playerXOffset < 0)
-            { 
-                player.playerXOffset += CAMERA_SPEED; 
-                frameMovement.playerX -= CAMERA_SPEED; 
+            if (yOffset == 0 && goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
+            {
+                player.playerYOffset += CAMERA_SPEED;
+                frameMovement.playerY -= CAMERA_SPEED;
             }
-            else if (player.playerXOffset == 0)
-            { 
-                xOffset += CAMERA_SPEED; 
-                frameMovement.cameraX -= CAMERA_SPEED; 
+            
+            if (yOffset == -(currentRows * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+            {
+                player.playerYOffset -= CAMERA_SPEED;
+                frameMovement.playerY += CAMERA_SPEED;
+            }
+            
+            if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+            {
+                if (player.playerYOffset > 0)
+                { 
+                    player.playerYOffset -= CAMERA_SPEED; 
+                    frameMovement.playerY += CAMERA_SPEED; 
+                }
+                else if (player.playerYOffset == 0)
+                { 
+                    yOffset -= CAMERA_SPEED; 
+                    frameMovement.cameraY += CAMERA_SPEED; 
+                }
+            }
+            
+            if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
+            {
+                if (player.playerYOffset < 0)
+                { 
+                    player.playerYOffset += CAMERA_SPEED; 
+                    frameMovement.playerY -= CAMERA_SPEED; 
+                }
+                else if (player.playerYOffset == 0) 
+                { 
+                    yOffset += CAMERA_SPEED; 
+                    frameMovement.cameraY -= CAMERA_SPEED; 
+                }
             }
         }
-        if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
-        {
-            if (player.playerYOffset < 0)
-            { 
-                player.playerYOffset += CAMERA_SPEED; 
-                frameMovement.playerY -= CAMERA_SPEED; 
-            }
-            else if (player.playerYOffset == 0) 
-            { 
-                yOffset += CAMERA_SPEED; 
-                frameMovement.cameraY -= CAMERA_SPEED; 
-            }
-        }
+
+
+        
+        
     }
 
     public static void playerBounds()
@@ -1030,7 +1073,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             else
             {
-                if (player.playerXOffset < 0 || xOffset == -(currentRows * TILE_SIZE - WIDTH))
+                if (player.playerXOffset < 0 || xOffset == -(currentCols * TILE_SIZE - WIDTH))
                 {
                     player.playerXOffset -= intersection.width;
                     frameMovement.playerX += intersection.width;
@@ -1059,7 +1102,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             else
             {
-                if (player.playerYOffset < 0 || yOffset == -(currentCols * TILE_SIZE - HEIGHT))
+                if (player.playerYOffset < 0 || yOffset == -(currentRows * TILE_SIZE - HEIGHT))
                 {
                     player.playerYOffset -= intersection.height;
                     frameMovement.playerY -= intersection.height;
