@@ -127,6 +127,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static Level[] levels;
 
+    static int currentLevelIndex = 0;
+
     static boolean interactHeld = false;
     public static void main(String[] args) {
         JFrame frame = new JFrame("👾");
@@ -146,15 +148,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         game.createBufferStrategy(3);
         BufferStrategy bs = game.getBufferStrategy();
 
-        loadMap();
-        spawnEnemies();
-        spawnItems();
-        spawnDoors();
-
         new Thread(() -> {
             player.loadSounds();
             loadAudio();
         }, "audio-loader").start();
+
+        loadAllLevels();
+        loadCurrentLevel();
 
         while (true) {
             // 1. Logic (Thinking)
@@ -324,21 +324,30 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[3];
+        levels = new Level[1];
         levels[0] = createLevel(1);
     }
 
     static Level createLevel(int levelId)
     {
-        if (levelId == 1)
-        {
-            Level level = new Level("Jungle Escape", 20);
-            level.map = new Tile[100][100];
-            loadMap(level.map, levelId);
-            spawnEnemies(level.enemies, levelId);
-            spawnItems(level.items, levelId);
-            spawnDoors(level.doors, levelId);
-        }
+        Level level = new Level("Jungle Escape", 20);
+        level.map = new Tile[100][100];
+        loadMap(level.map, levelId);
+        spawnEnemies(level.enemies, levelId);
+        spawnItems(level.items, levelId);
+        spawnDoors(level.doors, levelId);
+
+        return level;
+    }
+
+    static void loadCurrentLevel()
+    {
+        Level level = levels[currentLevelIndex];
+
+        map = level.map;
+        enemies = level.enemies;
+        items = level.items;
+        doors = level.doors;
     }
 
     public static void loadMap(Tile[][] levelMap, int levelId)
@@ -370,7 +379,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void spawnEnemies(ArrayList<Enemy> enemies, int levelId)
     {
-        try (BufferedReader br = new BufferedReader(new FileReader("/TileScroller/levels/enemies" + levelId + ".txt")))
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Culminating.class.getResourceAsStream("/TileScroller/levels/enemies" + levelId + ".txt"))))
         {
             br.readLine();
             
@@ -392,7 +401,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void spawnItems(ArrayList<Items> items, int levelId)
     {
-        try (BufferedReader br = new BufferedReader(new FileReader("/TileScroller/levels/enemies" + levelId + ".txt")))
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Culminating.class.getResourceAsStream("/TileScroller/levels/items" + levelId + ".txt"))))
         {
             br.readLine();
 
@@ -417,49 +426,29 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void spawnDoors(ArrayList<Door> doors, int levelId)
     {
-        try (BufferedReader br = new BufferedReader(new FileReader("/TileScroller/levels/doors" + levelId + ".txt")))
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(Culminating.class.getResourceAsStream("/TileScroller/levels/doors" + levelId + ".txt"))))
         {
             br.readLine();
 
-            String line = br.readLine()
+            String line = br.readLine();
+
+            while (line != null)
+            {
+                String[] doorInfo = line.split(",");
+
+                if (doorInfo[6].trim().equals("NO_TIMER_DOOR"))
+                {
+                    doorInfo[6] = "0";
+                }
+
+                doors.add(new Door(Integer.valueOf(doorInfo[0].trim()) * TILE_SIZE, Integer.valueOf(doorInfo[1].trim()) * TILE_SIZE, Integer.valueOf(doorInfo[2].trim()) * TILE_SIZE, Integer.valueOf(doorInfo[3].trim()) * TILE_SIZE, doorInfo[4].trim(), Boolean.valueOf(doorInfo[5].trim()), Integer.valueOf(doorInfo[6].trim())));
+            
+                line = br.readLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
-    doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE,"1-2", false, NO_TIMER_DOOR)); 
-        doors.add(new Door(7 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE,"1-6", false, 3));
-
-        doors.add(new Door(24 * TILE_SIZE, 13 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE,"ROOM 2 DOORS", false, NO_TIMER_DOOR));
-
-        doors.add(new Door(34 * TILE_SIZE, 4 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "ROOM 2 DOORS", true, NO_TIMER_DOOR));
-
-        doors.add(new Door(28 * TILE_SIZE, 24 * TILE_SIZE,3 *TILE_SIZE, TILE_SIZE, "ROOM 7 GATE", false, 10));
-
-        doors.add(new Door(52 * TILE_SIZE, 7 * TILE_SIZE,TILE_SIZE, 3 * TILE_SIZE, "3-4", false, NO_TIMER_DOOR));
-        doors.add(new Door(52 * TILE_SIZE, 19 * TILE_SIZE,TILE_SIZE, 3 * TILE_SIZE, "4-7", false, 5));
-
-        doors.add(new Door(42 * TILE_SIZE, 84 * TILE_SIZE,TILE_SIZE, TILE_SIZE, "MAZE CUT", false, NO_TIMER_DOOR));
-
-
-        doors.add(new Door(72 * TILE_SIZE, 13 * TILE_SIZE,TILE_SIZE, 3 * TILE_SIZE, "5-6", false, NO_TIMER_DOOR));
-        doors.add(new Door(78 * TILE_SIZE, 21 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "5-10", false, 8));
-        doors.add(new Door(60 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "9-10", false, 7));
-        doors.add(new Door(39 * TILE_SIZE, 37 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "7-9", false, NO_TIMER_DOOR));
-        doors.add(new Door(22 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "8-9", false, 9));
-        doors.add(new Door(11 * TILE_SIZE, 56 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "SECRET", false, 5));
-        doors.add(new Door(70 * TILE_SIZE, 67 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "10-11", false, 8));
-        doors.add(new Door(18 * TILE_SIZE, 90 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE, "GAUNTLET ENTRANCE", false, 3));
-
-        doors.add(new Door(23 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 1", false, 2));
-        doors.add(new Door(27 * TILE_SIZE, 89 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 2", false, 2));
-        doors.add(new Door(31 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 3", false, 2));
-        doors.add(new Door(35 * TILE_SIZE, 89 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 4", false, 2));
-        doors.add(new Door(39 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 5", false, 2));
-        doors.add(new Door(43 * TILE_SIZE, 89 * TILE_SIZE,2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 6", false, 2));
-        doors.add(new Door(47 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 7", false, 2));
-        doors.add(new Door(51 * TILE_SIZE, 89 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 8", false, 2));
-        doors.add(new Door(55 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 9", false, 2));
-
-        doors.add(new Door(87 * TILE_SIZE, 87 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "FINAL DOOR", false, 200));
 
     public static void loadAudio()
     {
