@@ -23,9 +23,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static int state = 0;
 
-    static final int MENU = 0;
-    static final int PLAYING = 1;
-    static final int WIN = 2;
+    static final int HERO = 0;
+    static final int MENU = 1;
+    static final int PLAYING = 2;
+    static final int WIN = 3;
 
     static final int WIDTH = 1280; 
     static final int HEIGHT = 720;
@@ -197,7 +198,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 }
                 break;  
             }
-            case MENU:
+            case HERO:
             {
                 break;
             }
@@ -208,6 +209,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         switch (state)
         {
+            case HERO:
+            {
+                drawHero(g2d);
+                break;
+            }
             case MENU:
             {
                 drawMenu(g2d);
@@ -298,11 +304,18 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (e.getKeyCode() == KeyEvent.VK_0) debugging = !debugging;
         }
 
-        if (state == MENU && e.getKeyCode() == KeyEvent.VK_ENTER)
+        if (state == HERO && e.getKeyCode() == KeyEvent.VK_ENTER)
+        {
+            state = MENU;
+        }
+
+        if (state == MENU && e.getKeyCode() == KeyEvent.VK_R)
         {
             startTime = System.nanoTime();
-            state = PLAYING;
+            state = PLAYING;            
         }
+
+        
     }
 
     public void keyReleased(KeyEvent e) {
@@ -413,7 +426,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                 Color color = (Color) Color.class.getField(itemInfo[0].trim()).get(null);
 
-                items.add(new Items(color, Integer.valueOf(itemInfo[1].trim()), Integer.valueOf(itemInfo[2].trim()), itemInfo[3].trim()));
+                items.add(new Items(color, Integer.valueOf(itemInfo[1].trim()) * TILE_SIZE, Integer.valueOf(itemInfo[2].trim()) * TILE_SIZE, itemInfo[3].trim()));
 
                 line = br.readLine();
             }
@@ -977,16 +990,16 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
     }
 
-    public static void drawMenu(Graphics2D g2d)
+    public static void drawHero(Graphics2D g2d)
     {
         g2d.setColor(new Color(28, 20, 12));        
         g2d.fillRect(0, 0, WIDTH, HEIGHT);
 
-        drawMenuTitle(g2d);
-        drawMenuButton(g2d);
+        drawHeroTitle(g2d);
+        drawHeroButton(g2d);
     }
 
-    public static void drawMenuTitle(Graphics2D g2d)
+    public static void drawHeroTitle(Graphics2D g2d)
     {
         g2d.setFont(new Font("Serif", Font.ITALIC, 72));
         g2d.setColor(new Color(160, 146, 74));
@@ -1001,7 +1014,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.drawString(subtitle, WIDTH / 2 - subFont.stringWidth(subtitle) / 2, HEIGHT / 2 - 40);
     }
 
-    public static void drawMenuButton(Graphics2D g2d)
+    public static void drawHeroButton(Graphics2D g2d)
     {
         int buttonWidth = 240;
         int buttonHeight = 50;
@@ -1032,9 +1045,18 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (clicked && button.contains(mouseX, mouseY))
         {
             startTime = System.nanoTime();
-            state = PLAYING;
+            state = MENU;
             clicked = false;
         }
+    }
+
+    public static void drawMenu(Graphics2D g2d)
+    {
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
+
+        Level currentLevel = levels[currentLevelIndex];
+        g2d.drawString(currentLevel.name + " (Level " + (currentLevelIndex + 1) + "/" + levels.length + ")", 30, 30);
     }
     
     public static void drawPlaying(Graphics2D g2d)
