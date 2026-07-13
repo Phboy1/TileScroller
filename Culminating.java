@@ -356,8 +356,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
         else if (levelId == 2)
         {
-            width = 14;
-            height = 8;
+            width = 15;
+            height = 26;
         }
         Level level = new Level("Jungle Escape", 20, width, height);
         loadMap(level.map, levelId);
@@ -404,7 +404,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             br.close();
 
         } catch (Exception e) {
-            System.out.println("SOMETHING WENT WRONG WITH THE FILE!!!!!!");
+            e.printStackTrace();
         }
     }
 
