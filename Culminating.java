@@ -42,8 +42,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final int STARTING_XOFFSET = 0;
     static final int STARTING_YOFFSET = 0;
-    static final int STARTING_PLAYERXOFFSET = TILE_SIZE * 7;
-    static final int STARTING_PLAYERYOFFSET = TILE_SIZE * 1;
+
+    static int spawnX;
+    static int spawnY;
+
+    static int currentSpawnX;
+    static int currentSpawnY;
 
     static final int CAMERA_SPEED = 5;
 
@@ -121,8 +125,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static boolean rewinding = false;
 
     static {
-        player.playerXOffset = STARTING_PLAYERXOFFSET;
-        player.playerYOffset = STARTING_PLAYERYOFFSET;
+        player.playerXOffset = spawnX;
+        player.playerYOffset = spawnY;
         movementHistory.add(new java.util.ArrayList<>());
     }
 
@@ -349,17 +353,27 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         int width = 0;
         int height = 0;
+        int spawnCol = 7; 
+        int spawnRow = 1;
         if (levelId == 1)
         {
             width = 100;
             height = 100;
+            spawnCol = 7; 
+            spawnRow = 1;
         }
         else if (levelId == 2)
         {
             width = 15;
             height = 26;
+            spawnCol = 3; 
+            spawnRow = 2;
         }
         Level level = new Level("Jungle Escape", 20, width, height);
+        
+        level.spawnX = spawnCol * TILE_SIZE;
+        level.spawnY = spawnRow * TILE_SIZE;
+
         loadMap(level.map, levelId);
         spawnEnemies(level.enemies, levelId);
         spawnItems(level.items, levelId);
@@ -379,6 +393,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         currentRows = level.map.length;
         currentCols = level.map[0].length;
+
+        currentSpawnX = level.spawnX;
+        currentSpawnY = level.spawnY;
     }
 
     public static void loadMap(Tile[][] levelMap, int levelId)
@@ -577,8 +594,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         for (Ghost ghost : ghosts)
         {
             ghost.i = 0;
-            ghost.ghostX = STARTING_PLAYERXOFFSET;
-            ghost.ghostY = STARTING_PLAYERYOFFSET;
+            ghost.ghostX = spawnX;
+            ghost.ghostY = spawnY;
             ghost.ghostCameraX = 0;
             ghost.ghostCameraY = 0;
             ghost.finished = false;
@@ -1121,9 +1138,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             if (clicked && unlocked && button.contains(mouseX, mouseY))
             {
-                resetGame();
                 currentLevelIndex = i;
                 loadCurrentLevel();
+                resetGame();
                 startTime = System.nanoTime();
                 state = PLAYING;
                 clicked = false;
@@ -1352,8 +1369,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         xOffset = 0;
         yOffset = 0;
 
-        player.playerXOffset = STARTING_PLAYERXOFFSET;
-        player.playerYOffset = STARTING_PLAYERYOFFSET;
+        player.playerXOffset = spawnX;
+        player.playerYOffset = spawnY;
 
         player.lastDirection = "Down";
 

@@ -10,6 +10,8 @@ public class Level
     public ArrayList<Door> doors;
     public ArrayList<Items> items;
     public long maxTime;
+    public int spawnX;
+    public int spawnY;
 
     public Level(String name, long maxTime, int width, int height)
     {
