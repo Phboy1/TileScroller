@@ -130,6 +130,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static int currentLevelIndex = 0;
 
+    static int unlockedLevels = 1;
+
     static boolean interactHeld = false;
     public static void main(String[] args) {
         JFrame frame = new JFrame("👾");
@@ -337,8 +339,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[1];
+        levels = new Level[4];
         levels[0] = createLevel(1);
+        levels[1] = createLevel(2);
+        levels[2] = createLevel(3);
+        levels[3] = createLevel(4);
     }
 
     static Level createLevel(int levelId)
@@ -1052,11 +1057,50 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void drawMenu(Graphics2D g2d)
     {
-        g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("Bahnschrift", Font.BOLD, 32));
+        g2d.setColor(new Color(28, 20, 12));        
+        g2d.fillRect(0, 0, WIDTH, HEIGHT);
 
-        Level currentLevel = levels[currentLevelIndex];
-        g2d.drawString(currentLevel.name + " (Level " + (currentLevelIndex + 1) + "/" + levels.length + ")", 30, 30);
+        drawMenuTitle(g2d);
+        drawLevelPath(g2d);
+    }
+
+    public static void drawMenuTitle(Graphics2D g2d)
+    {
+        g2d.setFont(new Font("Serif", Font.ITALIC, 72));
+        g2d.setColor(new Color(160, 146, 74));
+        FontMetrics titleFont = g2d.getFontMetrics();
+        String title = "~ It's About Time ~";
+        g2d.drawString(title, WIDTH / 2 - titleFont.stringWidth(title) / 2, HEIGHT / 2 - 220);
+    }
+
+    public static void drawLevelPath(Graphics2D g2d)
+    {
+        int levelCount = levels.length;
+
+        
+
+        int boxSize = 100;
+
+        int margin = 150;
+
+        int boxX = (WIDTH-(boxSize + (levelCount - 1) * (boxSize + margin)))/2;
+        int boxY = HEIGHT/2 + 60;
+
+        g2d.setColor(Color.WHITE);
+
+        for (int i = 0; i < levelCount; i++)
+        {
+            g2d.fillRoundRect(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize, 10, 10);
+
+            if (i != levelCount - 1)
+            {
+                g2d.drawLine(boxX + boxSize, boxY + ((int) (Math.sin(i * 0.7) * 100)) + boxSize/2, boxX + boxSize + margin,  boxY + ((int) (Math.sin((i + 1) * 0.7) * 100)) + boxSize/2);
+            }
+
+            boxX += boxSize + margin;
+        }
+
+
     }
     
     public static void drawPlaying(Graphics2D g2d)
@@ -1242,7 +1286,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         minCoinDrop = 1;
 
         Shop.shopPrices = new int[] {3, 6, 15, 35};
-
 
         xOffset = 0;
         yOffset = 0;
