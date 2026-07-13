@@ -1086,15 +1086,32 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int boxX = (WIDTH-(boxSize + (levelCount - 1) * (boxSize + margin)))/2;
         int boxY = HEIGHT/2 + 60;
 
-        g2d.setColor(Color.WHITE);
 
         for (int i = 0; i < levelCount; i++)
         {
+            boolean unlocked = i < unlockedLevels;
+
+
+            Rectangle button = new Rectangle(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize);
+
+            g2d.setColor(!unlocked ? new Color(30, 26, 20) : (button.contains(mouseX, mouseY) ? new Color(95, 72, 28) : new Color(46, 37, 25)));
+
             g2d.fillRoundRect(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize, 10, 10);
 
+            g2d.setColor(new Color(46, 37, 25));
             if (i != levelCount - 1)
             {
                 g2d.drawLine(boxX + boxSize, boxY + ((int) (Math.sin(i * 0.7) * 100)) + boxSize/2, boxX + boxSize + margin,  boxY + ((int) (Math.sin((i + 1) * 0.7) * 100)) + boxSize/2);
+            }
+
+            if (clicked && unlocked && button.contains(mouseX, mouseY))
+            {
+                resetGame();
+                currentLevelIndex = i;
+                loadCurrentLevel();
+                startTime = System.nanoTime();
+                state = PLAYING;
+                clicked = false;
             }
 
             boxX += boxSize + margin;
@@ -1235,6 +1252,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.drawString(stats, WIDTH / 2 - rewindWidth / 2, HEIGHT / 2);
 
         drawWinButton(g2d);
+        drawBackToMenuButton(g2d);
     }
     
     public static void drawWinButton(Graphics2D g2d)
@@ -1264,6 +1282,35 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int buttonWidth = g2d.getFontMetrics().stringWidth(button);
 
         g2d.drawString(button, playAgainButton.x + playAgainButton.width/2 - buttonWidth/2, playAgainButton.y + 40);
+    }
+
+    public static void drawBackToMenuButton(Graphics2D g2d)
+    {
+        Rectangle backToMenu = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 120, 240, 60);
+
+        if (backToMenu.contains(mouseX, mouseY))
+        {
+            g2d.setColor(Color.GRAY);
+
+            if (clicked)
+            {
+                state = MENU;
+            }
+        }
+        else
+        {
+            g2d.setColor(Color.DARK_GRAY);
+        }
+        
+        g2d.fill(backToMenu);
+
+        g2d.setColor(Color.WHITE);
+        g2d.draw(backToMenu);
+
+        String button = "RETURN TO MENU";
+        int buttonWidth = g2d.getFontMetrics().stringWidth(button);
+
+        g2d.drawString(button, backToMenu.x + backToMenu.width/2 - buttonWidth/2, backToMenu.y + 40);
     }
 
     public static void resetGame()
