@@ -33,9 +33,9 @@ public class CollisionChecker
 
     public boolean checkSolidTiles(Rectangle futureBounds)
     {
-        for (int i = 0; i < Culminating.rows; i++)
+        for (int i = 0; i < Culminating.currentRows; i++)
         {
-            for (int j = 0; j < Culminating.cols; j++)
+            for (int j = 0; j < Culminating.currentCols; j++)
             {
                 Tile tile = Culminating.map[i][j];
 

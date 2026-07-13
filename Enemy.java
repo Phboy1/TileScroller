@@ -306,9 +306,9 @@ public class Enemy {
 
         Rectangle futureEnemy = new Rectangle(futureX + HITBOX_OFFSET_X, futureY + HITBOX_OFFSET_Y, size - 2*HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
 
-        for (int row = 0; row < Culminating.rows; row++)
+        for (int row = 0; row < Culminating.currentRows; row++)
         {
-            for (int col = 0; col < Culminating.cols; col++)
+            for (int col = 0; col < Culminating.currentCols; col++)
             {
                 Tile tile = Culminating.map[row][col];
                 if (tile != null && tile.solid && futureEnemy.intersects(tile.x, tile.y, tile.size, tile.size))

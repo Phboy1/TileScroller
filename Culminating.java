@@ -34,8 +34,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static final long SECONDS_TO_NANO = 1000000000L;
 
-    static final int rows = 100;
-    static final int cols = 100;
+    static int currentRows;
+    static int currentCols;
 
     static final int TILE_SIZE = 40;
     static final int PLAYER_SIZE = 80;
@@ -60,7 +60,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static long resetTime = secondTime * SECONDS_TO_NANO;
 
-    static Tile[][] map = new Tile[rows][cols];
+    static Tile[][] map = new Tile[currentRows][currentCols];
 
     static Player player = new Player(PLAYER_SIZE, CAMERA_SPEED);
 
@@ -339,17 +339,27 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[4];
+        levels = new Level[2];
         levels[0] = createLevel(1);
         levels[1] = createLevel(2);
-        levels[2] = createLevel(3);
-        levels[3] = createLevel(4);
+
     }
 
     static Level createLevel(int levelId)
     {
-        Level level = new Level("Jungle Escape", 20);
-        level.map = new Tile[100][100];
+        int width = 0;
+        int height = 0;
+        if (levelId == 1)
+        {
+            width = 100;
+            height = 100;
+        }
+        else if (levelId == 2)
+        {
+            width = 14;
+            height = 8;
+        }
+        Level level = new Level("Jungle Escape", 20, width, height);
         loadMap(level.map, levelId);
         spawnEnemies(level.enemies, levelId);
         spawnItems(level.items, levelId);
@@ -366,6 +376,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         enemies = level.enemies;
         items = level.items;
         doors = level.doors;
+
+        currentRows = level.map.length;
+        currentCols = level.map[0].length;
     }
 
     public static void loadMap(Tile[][] levelMap, int levelId)
@@ -708,8 +721,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         if (xOffset > 0) xOffset = 0;
         if (yOffset > 0) yOffset = 0;
-        if (xOffset < -(rows*TILE_SIZE - WIDTH)) xOffset = -(rows*TILE_SIZE - WIDTH);
-        if (yOffset < -((cols)*TILE_SIZE - HEIGHT)) yOffset = -((cols)*TILE_SIZE - HEIGHT);
+        if (xOffset < -(currentRows*TILE_SIZE - WIDTH)) xOffset = -(currentRows*TILE_SIZE - WIDTH);
+        if (yOffset < -((currentCols)*TILE_SIZE - HEIGHT)) yOffset = -((currentCols)*TILE_SIZE - HEIGHT);
     }
 
     public static void updatePlayerMovement(Movement frameMovement)
@@ -724,12 +737,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             player.playerYOffset += CAMERA_SPEED;
             frameMovement.playerY -= CAMERA_SPEED;
         }
-        if (xOffset == -(rows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+        if (xOffset == -(currentRows * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
         {
             player.playerXOffset -= CAMERA_SPEED;
             frameMovement.playerX += CAMERA_SPEED;
         }
-        if (yOffset == -(cols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+        if (yOffset == -(currentCols * TILE_SIZE - HEIGHT) && goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
         {
             player.playerYOffset -= CAMERA_SPEED;
             frameMovement.playerY += CAMERA_SPEED;
@@ -799,9 +812,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     public static void playerDeathCheck()
     {
         Rectangle playerBounds = player.getBounds(WIDTH, HEIGHT);
-        for (int i = 0; i < rows; i++)
+        for (int i = 0; i < currentRows; i++)
         {
-            for (int j = 0; j < cols; j++)
+            for (int j = 0; j < currentCols; j++)
             {
                 Tile tile = map[i][j];
 
@@ -831,6 +844,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     if (playerBounds.intersects(tileBounds))
                     {
                         state = WIN;
+                        currentLevelIndex++;
+                        unlockedLevels = Math.max(unlockedLevels, currentLevelIndex + 1);
 
                         stopWalkSound();
 
@@ -876,9 +891,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         for (Ghost ghost : ghosts)
         {
-            for (int i = 0; i < rows; i++)
+            for (int i = 0; i < currentRows; i++)
             {
-                for (int j = 0; j < cols; j++)
+                for (int j = 0; j < currentCols; j++)
                 {
                     Tile tile = map[i][j];
 
@@ -952,7 +967,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             else
             {
-                if (player.playerXOffset < 0 || xOffset == -(rows * TILE_SIZE - WIDTH))
+                if (player.playerXOffset < 0 || xOffset == -(currentRows * TILE_SIZE - WIDTH))
                 {
                     player.playerXOffset -= intersection.width;
                     frameMovement.playerX += intersection.width;
@@ -981,7 +996,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             else
             {
-                if (player.playerYOffset < 0 || yOffset == -(cols * TILE_SIZE - HEIGHT))
+                if (player.playerYOffset < 0 || yOffset == -(currentCols * TILE_SIZE - HEIGHT))
                 {
                     player.playerYOffset -= intersection.height;
                     frameMovement.playerY -= intersection.height;
@@ -1151,9 +1166,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void drawTiles(Graphics2D g2d)
     {
-        for (int i = 0; i < rows; i++)
+        for (int i = 0; i < currentRows; i++)
         {
-            for (int j = 0; j < cols; j++)
+            for (int j = 0; j < currentCols; j++)
             {
                 Tile tile = map[i][j];
 

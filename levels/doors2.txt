@@ -1,0 +1,2 @@
+x,y,width,height,id,isOpen,timerMax
+2,2,1,1,hi,false,NO_TIMER_DOOR
