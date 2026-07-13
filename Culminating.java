@@ -125,6 +125,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         movementHistory.add(new java.util.ArrayList<>());
     }
 
+    static Level[] levels;
+
     static boolean interactHeld = false;
     public static void main(String[] args) {
         JFrame frame = new JFrame("👾");
@@ -318,14 +320,31 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         { 
             interactHeld = false; 
         }
-        
-        
     }
 
-    public static void loadMap()
+    static void loadAllLevels()
+    {
+        levels = new Level[3];
+        levels[0] = createLevel(1);
+    }
+
+    static Level createLevel(int levelId)
+    {
+        if (levelId == 1)
+        {
+            Level level = new Level("Jungle Escape", 20);
+            level.map = new Tile[100][100];
+            loadMap(level.map, levelId);
+            spawnEnemies(level.enemies, levelId);
+            spawnItems(level.items, levelId);
+            spawnDoors(level.doors, levelId);
+        }
+    }
+
+    public static void loadMap(Tile[][] levelMap, int levelId)
     {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(Culminating.class.getResourceAsStream("/TileScroller/TileGrid.txt")));
+            BufferedReader br = new BufferedReader(new InputStreamReader(Culminating.class.getResourceAsStream("/TileScroller/levels/levelGrid" + levelId + ".txt")));
             String line = br.readLine();
             int j = 0;
 
@@ -335,7 +354,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 String character[] = line.split(",");
                 while (i < character.length)
                 {
-                    map[j][i] = new Tile(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, character[i]);
+                    levelMap[j][i] = new Tile(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, character[i]);
                     i++;
                 }
                 line = br.readLine();
@@ -349,130 +368,64 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
     }
 
-    public static void spawnEnemies()
+    public static void spawnEnemies(ArrayList<Enemy> enemies, int levelId)
     {
-        enemies.add(new Enemy(40, 48, 0, 0, 1, "following"));
-        enemies.add(new Enemy(21, 4, 30, 4, 1, "patrolling"));
-        enemies.add(new Enemy(30, 9, 21, 9, 1, "patrolling"));
-        enemies.add(new Enemy(46, 6, 0, 0, 1, "following"));
-        enemies.add(new Enemy(67, 10, 0, 0, 1, "following"));
-        enemies.add(new Enemy(75, 7, 0, 0, 2, "following"));
-        enemies.add(new Enemy(93, 27, 0, 0, 2, "following"));
-        enemies.add(new Enemy(93, 28, 0, 0, 2, "following"));
-        enemies.add(new Enemy(93, 33, 80, 33, 2, "patrolling"));
-        enemies.add(new Enemy(94, 34, 80, 34, 2, "patrolling"));
-        enemies.add(new Enemy(4, 17, 0, 0, 1, "following"));
+        try (BufferedReader br = new BufferedReader(new FileReader("/TileScroller/levels/enemies" + levelId + ".txt")))
+        {
+            br.readLine();
+            
+            String line = br.readLine();
 
-        enemies.add(new Enemy(65, 89, 65, 92, 4, "patrolling"));
-        enemies.add(new Enemy(67, 92, 67, 89, 4, "patrolling"));
+            while (line != null)
+            {
+                String[] enemyInfo = line.split(",");
 
-        enemies.add(new Enemy(69, 89, 69, 92, 4, "patrolling"));
-        enemies.add(new Enemy(71, 92, 71, 89, 4, "patrolling"));
+                enemies.add(new Enemy(Integer.valueOf(enemyInfo[0].trim()), Integer.valueOf(enemyInfo[1].trim()), Integer.valueOf(enemyInfo[2].trim()), Integer.valueOf(enemyInfo[3].trim()), Integer.valueOf(enemyInfo[4].trim()), enemyInfo[5].trim()));
 
-        enemies.add(new Enemy(73, 89, 73, 92, 4, "patrolling"));
-        enemies.add(new Enemy(75, 92, 75, 89, 4, "patrolling"));
-
-        enemies.add(new Enemy(77, 89, 77, 92, 4, "patrolling"));
-        enemies.add(new Enemy(79, 92, 79, 89, 4, "patrolling"));
-
-        enemies.add(new Enemy(81, 89, 81, 92, 4, "patrolling"));
-        enemies.add(new Enemy(83, 92, 83, 89, 4, "patrolling"));
-
-        enemies.add(new Enemy(85, 89, 85, 92, 4, "patrolling"));
-
-        enemies.add(new Enemy(45, 20, 55, 20, 3, "patrolling"));
-        enemies.add(new Enemy(60, 18, 70, 18, 2, "patrolling"));
-
-        enemies.add(new Enemy(35, 30, 50, 30, 3, "patrolling"));
-        enemies.add(new Enemy(55, 28, 55, 38, 2, "patrolling"));
-
-        enemies.add(new Enemy(45, 42, 60, 42, 2, "patrolling"));
-        enemies.add(new Enemy(72, 40, 72, 50, 2, "patrolling"));
-        enemies.add(new Enemy(83, 84, 0, 0, 5, "following"));
+                line = br.readLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void spawnItems()
+
+    public static void spawnItems(ArrayList<Items> items, int levelId)
     {
-        items.add(new Items(Color.blue, 10 * TILE_SIZE, 7 * TILE_SIZE, "1-2"));
-        items.add(new Items(Color.red, 21 * TILE_SIZE, 7 * TILE_SIZE, "1-6"));
+        try (BufferedReader br = new BufferedReader(new FileReader("/TileScroller/levels/enemies" + levelId + ".txt")))
+        {
+            br.readLine();
 
-        items.add(new Items(Color.blue, 29 * TILE_SIZE, 7 * TILE_SIZE, "ROOM 2 DOORS"));
+            String line = br.readLine();
 
-        items.add(new Items(Color.blue, 25 * TILE_SIZE, 16 * TILE_SIZE, "ROOM 2 DOORS"));
+            while (line != null)
+            {
+                String[] itemInfo = line.split(",");
 
+                Color color = (Color) Color.class.getField(itemInfo[0].trim()).get(null);
 
-        items.add(new Items(Color.blue, 14 * TILE_SIZE, 16 * TILE_SIZE, "ROOM 7 GATE"));
+                items.add(new Items(color, Integer.valueOf(itemInfo[1].trim()), Integer.valueOf(itemInfo[2].trim()), itemInfo[3].trim()));
 
-        items.add(new Items(Color.blue, 68 * TILE_SIZE, 11 * TILE_SIZE, "5-6"));
-        items.add(new Items(Color.blue, 48 * TILE_SIZE, 6 * TILE_SIZE, "3-4"));
-
-        items.add(new Items(Color.blue, 48 * TILE_SIZE, 20 * TILE_SIZE, "4-7"));
-        items.add(new Items(Color.blue, 58 * TILE_SIZE, 15 * TILE_SIZE, "4-7"));
-
-
-        items.add(new Items(Color.blue, 78 * TILE_SIZE, 20 * TILE_SIZE, "5-10"));
-
-        items.add(new Items(Color.blue, 41 * TILE_SIZE, 48 * TILE_SIZE, "9-10"));
-        items.add(new Items(Color.blue, 67 * TILE_SIZE, 46 * TILE_SIZE, "9-10"));
-
-        items.add(new Items(Color.blue, 29 * TILE_SIZE, 27 * TILE_SIZE, "7-9"));
-        items.add(new Items(Color.blue, 39 * TILE_SIZE, 50 * TILE_SIZE, "8-9"));
-        items.add(new Items(Color.blue, 21 * TILE_SIZE, 50 * TILE_SIZE, "8-9"));
-
-
-        items.add(new Items(Color.blue, 3 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 1"));
-        items.add(new Items(Color.blue, 5 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 2"));
-        items.add(new Items(Color.blue, 7 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 3"));
-        items.add(new Items(Color.blue, 9 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 4"));
-        items.add(new Items(Color.blue, 11 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 5"));
-        items.add(new Items(Color.blue, 13 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 6"));
-        items.add(new Items(Color.blue, 15 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 7"));
-        items.add(new Items(Color.blue, 17 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 8"));
-        items.add(new Items(Color.blue, 19 * TILE_SIZE, 48 * TILE_SIZE, "FAKE 9"));
-
-        items.add(new Items(Color.blue, 3 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 10"));
-        items.add(new Items(Color.blue, 5 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 11"));
-        items.add(new Items(Color.blue, 7 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 12"));
-        items.add(new Items(Color.blue, 9 * TILE_SIZE, 50 * TILE_SIZE, "SECRET"));
-        items.add(new Items(Color.blue, 11 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 13"));
-        items.add(new Items(Color.blue, 13 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 14"));
-        items.add(new Items(Color.blue, 15 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 15"));
-        items.add(new Items(Color.blue, 17 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 16"));
-        items.add(new Items(Color.blue, 19 * TILE_SIZE, 50 * TILE_SIZE, "FAKE 17"));
-
-        items.add(new Items(Color.blue, 3 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 18"));
-        items.add(new Items(Color.blue, 5 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 19"));
-        items.add(new Items(Color.blue, 7 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 20"));
-        items.add(new Items(Color.blue, 9 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 21"));
-        items.add(new Items(Color.blue, 11 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 22"));
-        items.add(new Items(Color.blue, 13 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 23"));
-        items.add(new Items(Color.blue, 15 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 24"));
-        items.add(new Items(Color.blue, 17 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 25"));
-        items.add(new Items(Color.blue, 19 * TILE_SIZE, 52 * TILE_SIZE, "FAKE 26"));
-
-        items.add(new Items(Color.blue, 12 * TILE_SIZE, 63 * TILE_SIZE, "FINAL DOOR"));
-
-
-        items.add(new Items(Color.blue, 51 * TILE_SIZE, 71 * TILE_SIZE, "MAZE CUT"));
-
-        items.add(new Items(Color.blue, 70 * TILE_SIZE, 66 * TILE_SIZE, "10-11"));
-
-        items.add(new Items(Color.blue, 17 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET ENTRANCE"));
-
-        items.add(new Items(Color.blue, 23 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 1"));
-        items.add(new Items(Color.blue, 27 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 2"));
-        items.add(new Items(Color.blue, 31 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 3"));
-        items.add(new Items(Color.blue, 35 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 4"));
-        items.add(new Items(Color.blue, 39 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 5"));
-        items.add(new Items(Color.blue, 43 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 6"));
-        items.add(new Items(Color.blue, 47 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 7"));
-        items.add(new Items(Color.blue, 51 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 8"));
-        items.add(new Items(Color.blue, 55 * TILE_SIZE, 96 * TILE_SIZE, "GAUNTLET 9"));
+                line = br.readLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void spawnDoors()
+    
+
+    public static void spawnDoors(ArrayList<Door> doors, int levelId)
     {
-        doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE,"1-2", false, NO_TIMER_DOOR)); 
+        try (BufferedReader br = new BufferedReader(new FileReader("/TileScroller/levels/doors" + levelId + ".txt")))
+        {
+            br.readLine();
+
+            String line = br.readLine()
+        }
+    }
+
+    doors.add(new Door(16 * TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE,"1-2", false, NO_TIMER_DOOR)); 
         doors.add(new Door(7 * TILE_SIZE, 14 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE,"1-6", false, 3));
 
         doors.add(new Door(24 * TILE_SIZE, 13 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE,"ROOM 2 DOORS", false, NO_TIMER_DOOR));
@@ -507,7 +460,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         doors.add(new Door(55 * TILE_SIZE, 93 * TILE_SIZE, 2 *TILE_SIZE, TILE_SIZE, "GAUNTLET 9", false, 2));
 
         doors.add(new Door(87 * TILE_SIZE, 87 * TILE_SIZE, 3 *TILE_SIZE, TILE_SIZE, "FINAL DOOR", false, 200));
-    }
 
     public static void loadAudio()
     {
