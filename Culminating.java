@@ -312,12 +312,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             state = MENU;
         }
 
-        if (state == MENU && e.getKeyCode() == KeyEvent.VK_R)
-        {
-            startTime = System.nanoTime();
-            state = PLAYING;            
-        }
-
         
     }
 
@@ -1248,10 +1242,22 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
 
             Rectangle button = new Rectangle(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize);
+            boolean hovering = button.contains(mouseX, mouseY);
 
-            g2d.setColor(!unlocked ? new Color(30, 26, 20) : (button.contains(mouseX, mouseY) ? new Color(95, 72, 28) : new Color(46, 37, 25)));
+            g2d.setColor(!unlocked ? new Color(30, 26, 20) : (hovering) ? new Color(95, 72, 28) : new Color(46, 37, 25));
 
             g2d.fillRoundRect(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize, 10, 10);
+
+            g2d.setColor(!unlocked ? new Color(60,52,40) : (hovering) ? new Color(160, 130, 50) : new Color(107, 90, 62));
+            g2d.drawRoundRect(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize, 10, 10);
+            g2d.drawRoundRect(boxX + 2, boxY + ((int) (Math.sin(i * 0.7) * 100))+ 2, boxSize-4, boxSize-4, 10, 10);
+
+            g2d.setFont(new Font("Bahnschrift", Font.BOLD, 28));
+            g2d.setColor(unlocked ? new Color(200, 176, 104) : new Color(80, 70, 55));
+            String label = String.valueOf(i + 1);
+            FontMetrics labelFont = g2d.getFontMetrics();
+            g2d.drawString(label, boxX + boxSize / 2 - labelFont.stringWidth(label) / 2, boxY + ((int) (Math.sin(i * 0.7) * 100)) + boxSize / 2 + 10);
+
 
             g2d.setColor(new Color(46, 37, 25));
             if (i != levelCount - 1)
