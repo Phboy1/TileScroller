@@ -12,6 +12,7 @@ public class Level
     public long maxTime;
     public int spawnX;
     public int spawnY;
+    public int startingGhosts;
 
     public Level(String name, long maxTime, int width, int height)
     {

@@ -346,12 +346,14 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int height = 0;
         int spawnCol = 7; 
         int spawnRow = 1;
+        int startingGhosts = 15;
         if (levelId == 1)
         {
             width = 100;
             height = 100;
             spawnCol = 10; 
             spawnRow = 10;
+            startingGhosts = 15;
         }
         else if (levelId == 2)
         {
@@ -359,11 +361,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             height = 26;
             spawnCol = 5; 
             spawnRow = 5;
+            startingGhosts = 2;
         }
         Level level = new Level("Jungle Escape", 20, width, height);
         
         level.spawnX = spawnCol;
         level.spawnY = spawnRow;
+        level.startingGhosts = startingGhosts;
 
         loadMap(level.map, levelId);
         spawnEnemies(level.enemies, levelId);
@@ -415,9 +419,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         enemies = level.enemies;
         items = level.items;
         doors = level.doors;
+        maxGhostAmount = level.startingGhosts;
 
         currentRows = level.map.length;
         currentCols = level.map[0].length;
+
+
 
         setSpawn(level.spawnX, level.spawnY);
     }
