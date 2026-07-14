@@ -1294,7 +1294,28 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     g2d.fillRoundRect(WIDTH-statsWidth, HEIGHT-statsHeight, statsWidth, statsHeight, 10, 10);
                     g2d.setColor(new Color(107, 90, 62));
                     g2d.drawRoundRect(WIDTH-statsWidth + 4, HEIGHT-statsHeight + 4, statsWidth - 8, statsHeight - 8, 10, 10);
+                }
+                else if (mouseX + statsWidth > WIDTH)
+                {
+                    g2d.fillRoundRect(WIDTH-statsWidth, mouseY, statsWidth, statsHeight, 10, 10);
+                    g2d.setColor(new Color(107, 90, 62));
+                    g2d.drawRoundRect(WIDTH-statsWidth + 4, mouseY + 4, statsWidth - 8, statsHeight - 8, 10, 10);
+                }
+                else if (mouseY + statsHeight > HEIGHT)
+                {
+                    g2d.fillRoundRect(mouseX, HEIGHT-statsHeight, statsWidth, statsHeight, 10, 10);
+                    g2d.setColor(new Color(107, 90, 62));
+                    g2d.drawRoundRect(mouseX + 4, HEIGHT-statsHeight + 4, statsWidth - 8, statsHeight - 8, 10, 10);
+                }
+                else
+                {
+                    g2d.fillRoundRect(mouseX, mouseY, statsWidth, statsHeight, 10, 10);
+                    g2d.setColor(new Color(107, 90, 62));
+                    g2d.drawRoundRect(mouseX + 4, mouseY + 4, statsWidth - 8, statsHeight - 8, 10, 10);
+                }
 
+                if (mouseX + statsWidth > WIDTH && mouseY + statsHeight > HEIGHT)
+                {
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
                     g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, WIDTH-statsWidth + 12, HEIGHT-statsHeight + 25);
@@ -1307,10 +1328,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 }
                 else if (mouseX + statsWidth > WIDTH)
                 {
-                    g2d.fillRoundRect(WIDTH-statsWidth, mouseY, statsWidth, statsHeight, 10, 10);
-                    g2d.setColor(new Color(107, 90, 62));
-                    g2d.drawRoundRect(WIDTH-statsWidth + 4, mouseY + 4, statsWidth - 8, statsHeight - 8, 10, 10);
-
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
                     g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, WIDTH-statsWidth + 12, mouseY);
@@ -1323,10 +1340,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 }
                 else if (mouseY + statsHeight > HEIGHT)
                 {
-                    g2d.fillRoundRect(mouseX, HEIGHT-statsHeight, statsWidth, statsHeight, 10, 10);
-                    g2d.setColor(new Color(107, 90, 62));
-                    g2d.drawRoundRect(mouseX + 4, HEIGHT-statsHeight + 4, statsWidth - 8, statsHeight - 8, 10, 10);
-
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
                     g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, mouseX + 12, HEIGHT-statsHeight + 25);
@@ -1336,14 +1349,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
                     g2d.drawString(best, mouseX + 12, HEIGHT-statsHeight + 50);
-
                 }
                 else
                 {
-                    g2d.fillRoundRect(mouseX, mouseY, statsWidth, statsHeight, 10, 10);
-                    g2d.setColor(new Color(107, 90, 62));
-                    g2d.drawRoundRect(mouseX + 4, mouseY + 4, statsWidth - 8, statsHeight - 8, 10, 10);
-
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
                     g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, mouseX + 12, mouseY + 25);
