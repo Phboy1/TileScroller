@@ -336,12 +336,15 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[2];
-        bestRewinds = new int[2];
+        levels = new Level[4];
+        bestRewinds = new int[4];
 
         Arrays.fill(bestRewinds, -1);
         levels[0] = createLevel(1);
         levels[1] = createLevel(2);
+        levels[2] = createLevel(3);
+        levels[3] = createLevel(4);
+
 
     }
 
@@ -1249,10 +1252,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int boxSize = 100;
 
-        int margin = 150;
+        int margin = 220;
 
         int boxX = (WIDTH-(boxSize + (levelCount - 1) * (boxSize + margin)))/2;
-        int boxY = HEIGHT/2 + 60;
+        int boxY = HEIGHT/2;
 
 
         for (int i = 0; i < levelCount; i++)
@@ -1278,10 +1281,21 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             g2d.drawString(label, boxX + boxSize / 2 - labelFont.stringWidth(label) / 2, boxY + ((int) (Math.sin(i * 0.7) * 100)) + boxSize / 2 + 10);
 
 
-            g2d.setColor(new Color(30, 26, 20));
+            
             if (i != levelCount - 1)
             {
+                if (!unlocked)
+                {
+                    g2d.setColor(new Color(30, 26, 20));
+                    g2d.setStroke(new BasicStroke(1));
+                }
+                else
+                {
+                    g2d.setColor(new Color(45, 40, 30));
+                    g2d.setStroke(new BasicStroke(2));
+                }
                 g2d.drawLine(boxX + boxSize, boxY + ((int) (Math.sin(i * 0.7) * 100)) + boxSize/2, boxX + boxSize + margin,  boxY + ((int) (Math.sin((i + 1) * 0.7) * 100)) + boxSize/2);
+                g2d.setStroke(new BasicStroke(1));
             }
 
             if (unlocked && hovering)
