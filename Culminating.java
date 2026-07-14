@@ -1286,8 +1286,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             if (unlocked && hovering)
             {
-                int statsWidth = 150;
-                int statsHeight = 200;
+                int statsWidth = 200;
+                int statsHeight = 100;
                 g2d.setColor(new Color(46, 37, 25));
                 if (mouseX + statsWidth > WIDTH && mouseY + statsHeight > HEIGHT)
                 {
@@ -1297,9 +1297,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
-                    g2d.drawString("Level " + (i + 1), WIDTH-statsWidth + 12, HEIGHT-statsHeight + 25);
+                    g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, WIDTH-statsWidth + 12, HEIGHT-statsHeight + 25);
 
-                    g2d.setFont(new Font("Serif", Font.ITALIC, 14));
+                    g2d.setFont(new Font("Serif", Font.ITALIC, 15));
                     g2d.setColor(new Color(140,120,70));
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
@@ -1313,9 +1313,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
-                    g2d.drawString("Level " + (i + 1), WIDTH-statsWidth + 12, mouseY);
+                    g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, WIDTH-statsWidth + 12, mouseY);
 
-                    g2d.setFont(new Font("Serif", Font.ITALIC, 14));
+                    g2d.setFont(new Font("Serif", Font.ITALIC, 15));
                     g2d.setColor(new Color(140,120,70));
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
@@ -1329,9 +1329,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
-                    g2d.drawString("Level " + (i + 1), mouseX + 12, HEIGHT-statsHeight + 25);
+                    g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, mouseX + 12, HEIGHT-statsHeight + 25);
 
-                    g2d.setFont(new Font("Serif", Font.ITALIC, 14));
+                    g2d.setFont(new Font("Serif", Font.ITALIC, 15));
                     g2d.setColor(new Color(140,120,70));
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
@@ -1346,9 +1346,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
-                    g2d.drawString("Level " + (i + 1), mouseX + 12, mouseY + 25);
+                    g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, mouseX + 12, mouseY + 25);
 
-                    g2d.setFont(new Font("Serif", Font.ITALIC, 14));
+                    g2d.setFont(new Font("Serif", Font.ITALIC, 15));
                     g2d.setColor(new Color(140,120,70));
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
