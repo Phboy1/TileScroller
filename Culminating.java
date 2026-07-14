@@ -274,6 +274,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_0) debugging = !debugging;
+        
         if (!rewinding && !interactHeld && !playerDying && !player.attacking && state == PLAYING)
         {
             if (e.getKeyCode() == KeyEvent.VK_Q) shopOpen = !shopOpen;
@@ -306,7 +308,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 }
             }
 
-            if (e.getKeyCode() == KeyEvent.VK_0) debugging = !debugging;
+            
         }
 
         if (state == HERO && e.getKeyCode() == KeyEvent.VK_ENTER)
@@ -401,6 +403,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadCurrentLevel()
     {
+
         Level level = levels[currentLevelIndex];
 
         map = level.map;
@@ -1228,6 +1231,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.setColor(new Color(28, 20, 12));        
         g2d.fillRect(0, 0, WIDTH, HEIGHT);
 
+        if (debugging)
+        {
+            unlockedLevels = levels.length;
+            System.out.println("hello");
+        }
+
         drawMenuFrame(g2d);
         drawMenuTitle(g2d);
         drawLevelPath(g2d);
@@ -1284,11 +1293,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             Rectangle button = new Rectangle(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize);
             boolean hovering = button.contains(mouseX, mouseY);
 
-            g2d.setColor((!unlocked || debugging) ? new Color(30, 26, 20) : (hovering) ? new Color(95, 72, 28) : new Color(46, 37, 25));
+            g2d.setColor(!unlocked ? new Color(30, 26, 20) : (hovering) ? new Color(95, 72, 28) : new Color(46, 37, 25));
 
             g2d.fillRoundRect(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize, 10, 10);
 
-            g2d.setColor((!unlocked || debugging) ? new Color(60,52,40) : (hovering) ? new Color(160, 130, 50) : new Color(107, 90, 62));
+            g2d.setColor(!unlocked ? new Color(60,52,40) : (hovering) ? new Color(160, 130, 50) : new Color(107, 90, 62));
             g2d.drawRoundRect(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize, 10, 10);
             g2d.drawRoundRect(boxX + 2, boxY + ((int) (Math.sin(i * 0.7) * 100))+ 2, boxSize-4, boxSize-4, 10, 10);
 
@@ -1302,7 +1311,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             
             if (i != levelCount - 1)
             {
-                if (!unlocked || !debugging)
+                if (!unlocked)
                 {
                     g2d.setColor(new Color(30, 26, 20));
                     g2d.setStroke(new BasicStroke(1));
@@ -1401,6 +1410,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 currentLevelIndex = i;
                 resetGame();
                 loadCurrentLevel();
+                
                 startTime = System.nanoTime();
                 state = PLAYING;
                 clicked = false;
