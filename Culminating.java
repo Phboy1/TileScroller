@@ -1138,6 +1138,19 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         FontMetrics subFont = g2d.getFontMetrics();
         String subtitle = "Join Us Eternally";
         g2d.drawString(subtitle, WIDTH / 2 - subFont.stringWidth(subtitle) / 2, HEIGHT / 2 - 40);
+
+        int margin = 40;
+        int frameX = margin, frameY = margin;
+
+        int frameWidth = WIDTH - 2 * margin;
+        int frameHeight = HEIGHT - 2 * margin;
+        int cornerCube = 20;
+
+        g2d.setColor(new Color(107, 90, 62));
+        g2d.drawRoundRect(frameX, frameY, frameWidth, frameHeight, 8, 8);
+        g2d.drawRoundRect(frameX + 1, frameY + 1, frameWidth - 2, frameHeight - 2, 8, 8);
+        g2d.drawRoundRect(frameX + 3, frameY + 3, frameWidth - 6, frameHeight - 6, 8, 8);
+        g2d.drawRoundRect(frameX + 7, frameY + 7, frameWidth - 14, frameHeight - 14, 6, 6);
     }
 
     public static void drawHeroButton(Graphics2D g2d)
@@ -1181,8 +1194,24 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.setColor(new Color(28, 20, 12));        
         g2d.fillRect(0, 0, WIDTH, HEIGHT);
 
+        drawMenuFrame(g2d);
         drawMenuTitle(g2d);
         drawLevelPath(g2d);
+    }
+
+    public static void drawMenuFrame(Graphics2D g2d)
+    {
+        int margin = 40;
+        int frameX = margin, frameY = margin;
+
+        int frameWidth = WIDTH - 2 * margin;
+        int frameHeight = HEIGHT - 2 * margin;
+
+        g2d.setColor(new Color(107, 90, 62));
+        g2d.drawRoundRect(frameX, frameY, frameWidth, frameHeight, 8, 8);
+        g2d.drawRoundRect(frameX + 1, frameY + 1, frameWidth - 2, frameHeight - 2, 8, 8);
+        g2d.drawRoundRect(frameX + 3, frameY + 3, frameWidth - 6, frameHeight - 6, 8, 8);
+        g2d.drawRoundRect(frameX + 7, frameY + 7, frameWidth - 14, frameHeight - 14, 6, 6);
     }
 
     public static void drawMenuTitle(Graphics2D g2d)
@@ -1192,13 +1221,18 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         FontMetrics titleFont = g2d.getFontMetrics();
         String title = "~ It's About Time ~";
         g2d.drawString(title, WIDTH / 2 - titleFont.stringWidth(title) / 2, HEIGHT / 2 - 220);
+
+        g2d.setFont(new Font("Serif", Font.ITALIC, 20));
+        g2d.setColor(new Color(140, 120, 70));
+        FontMetrics subFont = g2d.getFontMetrics();
+        String subtitle = "Choose Your Path";
+        g2d.drawString(subtitle, WIDTH / 2 - subFont.stringWidth(subtitle) / 2, HEIGHT / 2 - 180);
+
     }
 
     public static void drawLevelPath(Graphics2D g2d)
     {
         int levelCount = levels.length;
-
-        
 
         int boxSize = 100;
 

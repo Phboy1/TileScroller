@@ -17,7 +17,7 @@ public class Shop {
     static int addGhostAmount = 0;
 
     static String[] shopItems = {"Borrowed Time", "Midas Touch", "Release the Undead", "Hard Bargain"};
-    static String[] shopDescriptions = {"+1 Second of Time in the Jungle", "Enemies drop more gold", "+1 Ghost", "Cheaper shop prices"};
+    static String[] shopDescriptions = {"+3 Second of Time in the Jungle", "Enemies drop more gold", "+1 Ghost", "Cheaper shop prices"};
     static int[] shopPrices = {3, 6, 15, 35};
 
     public void update(Graphics2D g2d, int shopWidth, int shopHeight)
