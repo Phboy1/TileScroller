@@ -133,6 +133,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static int unlockedLevels = 1;
 
+    static int[] bestRewinds;
+
     static boolean interactHeld = false;
     public static void main(String[] args) {
         JFrame frame = new JFrame("👾");
@@ -335,6 +337,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static void loadAllLevels()
     {
         levels = new Level[2];
+        bestRewinds = new int[2];
+
+        Arrays.fill(bestRewinds, -1);
         levels[0] = createLevel(1);
         levels[1] = createLevel(2);
 
@@ -951,6 +956,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     if (playerBounds.intersects(tileBounds))
                     {
                         state = WIN;
+
+                        if (bestRewinds[currentLevelIndex] == -1 || rewindCount < bestRewinds[currentLevelIndex])
+                        {
+                            bestRewinds[currentLevelIndex] = rewindCount;
+                        }
+
+
                         currentLevelIndex++;
                         unlockedLevels = Math.max(unlockedLevels, currentLevelIndex + 1);
 
@@ -1266,13 +1278,85 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             g2d.drawString(label, boxX + boxSize / 2 - labelFont.stringWidth(label) / 2, boxY + ((int) (Math.sin(i * 0.7) * 100)) + boxSize / 2 + 10);
 
 
-            g2d.setColor(new Color(46, 37, 25));
+            g2d.setColor(new Color(30, 26, 20));
             if (i != levelCount - 1)
             {
                 g2d.drawLine(boxX + boxSize, boxY + ((int) (Math.sin(i * 0.7) * 100)) + boxSize/2, boxX + boxSize + margin,  boxY + ((int) (Math.sin((i + 1) * 0.7) * 100)) + boxSize/2);
             }
 
-            if (clicked && unlocked && button.contains(mouseX, mouseY))
+            if (unlocked && hovering)
+            {
+                int statsWidth = 150;
+                int statsHeight = 200;
+                g2d.setColor(new Color(46, 37, 25));
+                if (mouseX + statsWidth > WIDTH && mouseY + statsHeight > HEIGHT)
+                {
+                    g2d.fillRoundRect(WIDTH-statsWidth, HEIGHT-statsHeight, statsWidth, statsHeight, 10, 10);
+                    g2d.setColor(new Color(107, 90, 62));
+                    g2d.drawRoundRect(WIDTH-statsWidth + 4, HEIGHT-statsHeight + 4, statsWidth - 8, statsHeight - 8, 10, 10);
+
+                    g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
+                    g2d.setColor(new Color(200, 176, 104));
+                    g2d.drawString("Level " + (i + 1), WIDTH-statsWidth + 12, HEIGHT-statsHeight + 25);
+
+                    g2d.setFont(new Font("Serif", Font.ITALIC, 14));
+                    g2d.setColor(new Color(140,120,70));
+                    String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
+
+                    g2d.drawString(best, WIDTH-statsWidth + 12, HEIGHT-statsHeight + 50);
+                }
+                else if (mouseX + statsWidth > WIDTH)
+                {
+                    g2d.fillRoundRect(WIDTH-statsWidth, mouseY, statsWidth, statsHeight, 10, 10);
+                    g2d.setColor(new Color(107, 90, 62));
+                    g2d.drawRoundRect(WIDTH-statsWidth + 4, mouseY + 4, statsWidth - 8, statsHeight - 8, 10, 10);
+
+                    g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
+                    g2d.setColor(new Color(200, 176, 104));
+                    g2d.drawString("Level " + (i + 1), WIDTH-statsWidth + 12, mouseY);
+
+                    g2d.setFont(new Font("Serif", Font.ITALIC, 14));
+                    g2d.setColor(new Color(140,120,70));
+                    String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
+
+                    g2d.drawString(best, WIDTH-statsWidth + 12, mouseY + 50);
+                }
+                else if (mouseY + statsHeight > HEIGHT)
+                {
+                    g2d.fillRoundRect(mouseX, HEIGHT-statsHeight, statsWidth, statsHeight, 10, 10);
+                    g2d.setColor(new Color(107, 90, 62));
+                    g2d.drawRoundRect(mouseX + 4, HEIGHT-statsHeight + 4, statsWidth - 8, statsHeight - 8, 10, 10);
+
+                    g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
+                    g2d.setColor(new Color(200, 176, 104));
+                    g2d.drawString("Level " + (i + 1), mouseX + 12, HEIGHT-statsHeight + 25);
+
+                    g2d.setFont(new Font("Serif", Font.ITALIC, 14));
+                    g2d.setColor(new Color(140,120,70));
+                    String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
+
+                    g2d.drawString(best, mouseX + 12, HEIGHT-statsHeight + 50);
+
+                }
+                else
+                {
+                    g2d.fillRoundRect(mouseX, mouseY, statsWidth, statsHeight, 10, 10);
+                    g2d.setColor(new Color(107, 90, 62));
+                    g2d.drawRoundRect(mouseX + 4, mouseY + 4, statsWidth - 8, statsHeight - 8, 10, 10);
+
+                    g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
+                    g2d.setColor(new Color(200, 176, 104));
+                    g2d.drawString("Level " + (i + 1), mouseX + 12, mouseY + 25);
+
+                    g2d.setFont(new Font("Serif", Font.ITALIC, 14));
+                    g2d.setColor(new Color(140,120,70));
+                    String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
+
+                    g2d.drawString(best, mouseX + 12, mouseY + 50);
+                }
+            }
+
+            if (clicked && unlocked && hovering)
             {
                 currentLevelIndex = i;
                 loadCurrentLevel();
