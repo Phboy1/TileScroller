@@ -1376,6 +1376,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         drawWinButton(g2d);
         drawBackToMenuButton(g2d);
+        drawNextLevelButton(g2d);
     }
     
     public static void drawWinButton(Graphics2D g2d)
@@ -1434,6 +1435,41 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int buttonWidth = g2d.getFontMetrics().stringWidth(button);
 
         g2d.drawString(button, backToMenu.x + backToMenu.width/2 - buttonWidth/2, backToMenu.y + 40);
+    }
+
+    public static void drawNextLevelButton(Graphics2D g2d)
+    {
+        Rectangle nextLevel = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 200, 240, 60);
+
+        if (nextLevel.contains(mouseX, mouseY))
+        {
+            g2d.setColor(Color.GRAY);
+
+            if (clicked)
+            {
+                if (currentLevelIndex <= levels.length - 1)
+                {
+                    resetGame();
+                    loadCurrentLevel();
+                }
+
+                clicked = false;
+            }
+        }
+        else
+        {
+            g2d.setColor(Color.DARK_GRAY);
+        }
+        
+        g2d.fill(nextLevel);
+
+        g2d.setColor(Color.WHITE);
+        g2d.draw(nextLevel);
+
+        String button = "NEXT LEVEL";
+        int buttonWidth = g2d.getFontMetrics().stringWidth(button);
+
+        g2d.drawString(button, nextLevel.x + nextLevel.width/2 - buttonWidth/2, nextLevel.y + 40);
     }
 
     public static void resetGame()
