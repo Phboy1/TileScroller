@@ -77,6 +77,13 @@ public class Door {
             g2d.setColor(CLOSED_DOOR);
         }
         g2d.fillRect(x + xOffset, y + yOffset, width, height);
+
+        if (Culminating.debugging)
+        {
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Serif", Font.BOLD, 20));
+            g2d.drawString(id, x + xOffset, y + yOffset);
+        }
     }
 
     public Rectangle getBounds()

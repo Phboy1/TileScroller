@@ -275,7 +275,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_0) debugging = !debugging;
-        
+
         if (!rewinding && !interactHeld && !playerDying && !player.attacking && state == PLAYING)
         {
             if (e.getKeyCode() == KeyEvent.VK_Q) shopOpen = !shopOpen;
@@ -403,7 +403,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadCurrentLevel()
     {
-
+        System.out.println(currentLevelIndex);
         Level level = levels[currentLevelIndex];
 
         map = level.map;
@@ -412,12 +412,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         doors = level.doors;
         maxGhostAmount = level.startingGhosts;
 
-        System.out.println(maxGhostAmount);
-
         currentRows = level.map.length;
         currentCols = level.map[0].length;
-
-
 
         setSpawn(level.spawnX, level.spawnY);
     
@@ -1234,7 +1230,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (debugging)
         {
             unlockedLevels = levels.length;
-            System.out.println("hello");
         }
 
         drawMenuFrame(g2d);
@@ -1408,6 +1403,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (clicked && unlocked && hovering)
             {
                 currentLevelIndex = i;
+                loadCurrentLevel();
                 resetGame();
                 loadCurrentLevel();
                 
@@ -1501,7 +1497,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         g2d.drawString("Time: " + String.format("%.1f", Math.abs(elapsedTime)), 30, 50);
 
-        System.out.println(maxGhostAmount);
         g2d.drawString("Max Ghosts: " + (maxGhostAmount + Shop.addGhostAmount), 30, 150);
         if (increasedTime)
         {
@@ -1631,6 +1626,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             {
                 if (currentLevelIndex <= levels.length - 1)
                 {
+                    loadCurrentLevel();
                     resetGame();
                     loadCurrentLevel();
                 }

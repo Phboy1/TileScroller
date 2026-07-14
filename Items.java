@@ -45,6 +45,13 @@ public class Items {
     {
         g2d.setColor(getColor());
         g2d.fillOval(x + xOffset, y + yOffset, width, height);
+
+        if (Culminating.debugging)
+        {
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Serif", Font.BOLD, 20));
+            g2d.drawString(id, x + xOffset, y + yOffset);
+        }
     }
 
     public boolean isTouchingPlayer(Player player)
