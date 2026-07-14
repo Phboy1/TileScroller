@@ -14,9 +14,8 @@ public class Level
     public int spawnY;
     public int startingGhosts;
 
-    public Level(String name, long maxTime, int width, int height)
+    public Level(long maxTime, int width, int height)
     {
-        this.name = name;
         this.maxTime = maxTime;
         this.enemies = new ArrayList<>();
         this.doors = new ArrayList<>();

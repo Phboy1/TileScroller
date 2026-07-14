@@ -19,7 +19,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static boolean debugging = false;
 
-    static int maxGhostAmount = 15;
+    static int maxGhostAmount;
 
     static int state = 0;
 
@@ -336,32 +336,34 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[4];
-        bestRewinds = new int[4];
+        levels = new Level[3];
+        bestRewinds = new int[3];
 
         Arrays.fill(bestRewinds, -1);
         levels[0] = createLevel(1);
         levels[1] = createLevel(2);
         levels[2] = createLevel(3);
-        levels[3] = createLevel(4);
 
 
     }
 
     static Level createLevel(int levelId)
     {
+        
         int width = 0;
         int height = 0;
         int spawnCol = 7; 
         int spawnRow = 1;
         int startingGhosts = 15;
+        String name = "PLACEHOLDER";
         if (levelId == 1)
         {
-            width = 100;
-            height = 100;
-            spawnCol = 10; 
-            spawnRow = 10;
-            startingGhosts = 15;
+            width = 7;
+            height = 11;
+            spawnCol = 6;
+            spawnRow = 4;
+            startingGhosts = 1;
+            name = "Jungle Entrance";
         }
         else if (levelId == 2)
         {
@@ -370,11 +372,23 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             spawnCol = 5; 
             spawnRow = 5;
             startingGhosts = 2;
+            name = "Getting Used to it";
         }
-        Level level = new Level("Jungle Escape", 20, width, height);
+        else if (levelId == 3)
+        {
+            width = 100;
+            height = 100;
+            spawnCol = 10; 
+            spawnRow = 10;
+            startingGhosts = 15;
+            name = "Jungle Temple";
+        }
+        Level level = new Level(20, width, height);
+
+        level.name = name;
         
-        level.spawnX = spawnCol;
-        level.spawnY = spawnRow;
+        level.spawnX = spawnCol - 1;
+        level.spawnY = spawnRow - 1;
         level.startingGhosts = startingGhosts;
 
         loadMap(level.map, levelId);
@@ -383,6 +397,27 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         spawnDoors(level.doors, levelId);
 
         return level;
+    }
+
+    static void loadCurrentLevel()
+    {
+        Level level = levels[currentLevelIndex];
+
+        map = level.map;
+        enemies = level.enemies;
+        items = level.items;
+        doors = level.doors;
+        maxGhostAmount = level.startingGhosts;
+
+        System.out.println(maxGhostAmount);
+
+        currentRows = level.map.length;
+        currentCols = level.map[0].length;
+
+
+
+        setSpawn(level.spawnX, level.spawnY);
+    
     }
 
     static void setSpawn(int col, int row)
@@ -419,23 +454,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         spawnPlayerYOffset = HEIGHT / 2 - PLAYER_SIZE / 2 - worldY - cameraY;
     }
 
-    static void loadCurrentLevel()
-    {
-        Level level = levels[currentLevelIndex];
-
-        map = level.map;
-        enemies = level.enemies;
-        items = level.items;
-        doors = level.doors;
-        maxGhostAmount = level.startingGhosts;
-
-        currentRows = level.map.length;
-        currentCols = level.map[0].length;
-
-
-
-        setSpawn(level.spawnX, level.spawnY);
-    }
 
     public static void loadMap(Tile[][] levelMap, int levelId)
     {
@@ -1266,11 +1284,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             Rectangle button = new Rectangle(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize);
             boolean hovering = button.contains(mouseX, mouseY);
 
-            g2d.setColor(!unlocked ? new Color(30, 26, 20) : (hovering) ? new Color(95, 72, 28) : new Color(46, 37, 25));
+            g2d.setColor((!unlocked || debugging) ? new Color(30, 26, 20) : (hovering) ? new Color(95, 72, 28) : new Color(46, 37, 25));
 
             g2d.fillRoundRect(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize, 10, 10);
 
-            g2d.setColor(!unlocked ? new Color(60,52,40) : (hovering) ? new Color(160, 130, 50) : new Color(107, 90, 62));
+            g2d.setColor((!unlocked || debugging) ? new Color(60,52,40) : (hovering) ? new Color(160, 130, 50) : new Color(107, 90, 62));
             g2d.drawRoundRect(boxX, boxY + ((int) (Math.sin(i * 0.7) * 100)), boxSize, boxSize, 10, 10);
             g2d.drawRoundRect(boxX + 2, boxY + ((int) (Math.sin(i * 0.7) * 100))+ 2, boxSize-4, boxSize-4, 10, 10);
 
@@ -1284,7 +1302,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             
             if (i != levelCount - 1)
             {
-                if (!unlocked)
+                if (!unlocked || !debugging)
                 {
                     g2d.setColor(new Color(30, 26, 20));
                     g2d.setStroke(new BasicStroke(1));
@@ -1381,8 +1399,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (clicked && unlocked && hovering)
             {
                 currentLevelIndex = i;
-                loadCurrentLevel();
                 resetGame();
+                loadCurrentLevel();
                 startTime = System.nanoTime();
                 state = PLAYING;
                 clicked = false;
@@ -1473,6 +1491,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         g2d.drawString("Time: " + String.format("%.1f", Math.abs(elapsedTime)), 30, 50);
 
+        System.out.println(maxGhostAmount);
         g2d.drawString("Max Ghosts: " + (maxGhostAmount + Shop.addGhostAmount), 30, 150);
         if (increasedTime)
         {
