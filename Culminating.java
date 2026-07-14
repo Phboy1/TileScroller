@@ -1645,6 +1645,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         minCoinDrop = 1;
 
         Shop.shopPrices = new int[] {3, 6, 15, 35};
+        shopOpen = false;
 
         xOffset = spawnCameraX;
         yOffset = spawnCameraY;
