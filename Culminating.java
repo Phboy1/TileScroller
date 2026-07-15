@@ -353,11 +353,21 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                 if (paused)
                 {
+                    if (rewindSoundPlaying && rewindClip != null)
+                    {
+                        rewindClip.stop();
+                    }
+
                     pausedStartTime = System.nanoTime();
                     state = PAUSE;
                 }
                 else
                 {
+                    if (rewindSoundPlaying && rewindClip != null)
+                    {
+                        rewindClip.loop(Clip.LOOP_CONTINUOUSLY);
+                    }
+
                     startTime += System.nanoTime() - pausedStartTime;
                     state = PLAYING;
                 }
