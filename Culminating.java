@@ -371,8 +371,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             width = 22;
             height = 48;
-            spawnCol = 5; 
-            spawnRow = 5;
+            spawnCol = 1; 
+            spawnRow = 1;
             startingGhosts = 2;
             name = "Getting Used to it";
         }

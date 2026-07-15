@@ -1,2 +1,2 @@
 startX,startY,endX,endY,speed,type
-3,3,3,6,1, patrolling
+30,16,0,0,1,following
