@@ -982,9 +982,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                             bestRewinds[currentLevelIndex] = rewindCount;
                         }
 
-
-                        currentLevelIndex++;
-                        unlockedLevels = Math.max(unlockedLevels, currentLevelIndex + 1);
+                        unlockedLevels = Math.max(unlockedLevels, currentLevelIndex + 2);
 
                         stopWalkSound();
 
@@ -1277,7 +1275,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int margin = 220;
 
         int boxX = (WIDTH-(boxSize + (levelCount - 1) * (boxSize + margin)))/2;
-        int boxY = HEIGHT/2;
+        int boxY = HEIGHT/2 - 60;
 
 
         for (int i = 0; i < levelCount; i++)
@@ -1626,6 +1624,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             {
                 if (currentLevelIndex <= levels.length - 1)
                 {
+                    currentLevelIndex++;
                     loadCurrentLevel();
                     resetGame();
                     loadCurrentLevel();
