@@ -1436,49 +1436,49 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 {
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
-                    g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, WIDTH-statsWidth + 12, HEIGHT-statsHeight + 25);
+                    int y = textWrapping(g2d, "Level " + (i + 1) + " | " + levels[i].name, WIDTH-statsWidth + 12, HEIGHT-statsHeight + 25, 200);
 
                     g2d.setFont(new Font("Serif", Font.ITALIC, 15));
                     g2d.setColor(new Color(140,120,70));
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
-                    g2d.drawString(best, WIDTH-statsWidth + 12, HEIGHT-statsHeight + 50);
+                     g2d.drawString(best, WIDTH-statsWidth + 12, y + 20);
                 }
                 else if (mouseX + statsWidth > WIDTH)
                 {
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
-                    g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, WIDTH-statsWidth + 12, mouseY);
+                    int y = textWrapping(g2d, "Level " + (i + 1) + " | " + levels[i].name, WIDTH-statsWidth + 12, mouseY + 25, 200);
 
                     g2d.setFont(new Font("Serif", Font.ITALIC, 15));
                     g2d.setColor(new Color(140,120,70));
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
-                    g2d.drawString(best, WIDTH-statsWidth + 12, mouseY + 50);
+                    g2d.drawString(best, WIDTH-statsWidth + 12, y + 20);
                 }
                 else if (mouseY + statsHeight > HEIGHT)
                 {
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
-                    g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, mouseX + 12, HEIGHT-statsHeight + 25);
+                    int y = textWrapping(g2d, "Level " + (i + 1) + " | " + levels[i].name, mouseX + 12, HEIGHT-statsHeight + 25, 200);
 
                     g2d.setFont(new Font("Serif", Font.ITALIC, 15));
                     g2d.setColor(new Color(140,120,70));
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
-                    g2d.drawString(best, mouseX + 12, HEIGHT-statsHeight + 50);
+                     g2d.drawString(best, mouseX + 12, y + 20);
                 }
                 else
                 {
                     g2d.setFont(new Font("Bahnschrift", Font.BOLD, 15));
                     g2d.setColor(new Color(200, 176, 104));
-                    g2d.drawString("Level " + (i + 1) + " | " + levels[i].name, mouseX + 12, mouseY + 25);
+                    int y = textWrapping(g2d, "Level " + (i + 1) + " | " + levels[i].name, mouseX + 12, mouseY + 25, 200);
 
                     g2d.setFont(new Font("Serif", Font.ITALIC, 15));
                     g2d.setColor(new Color(140,120,70));
                     String best = (bestRewinds[i] == -1) ? "Best: N/A" : "Best: " + bestRewinds[i] + " rewinds";
 
-                    g2d.drawString(best, mouseX + 12, mouseY + 50);
+                    g2d.drawString(best, mouseX + 12, y + 20);
                 }
             }
 
@@ -1496,8 +1496,41 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             boxX += boxSize + margin;
         }
+    }
 
+    public static int textWrapping(Graphics2D g2d, String text, int x, int y, int maxWidth)
+    {
+        FontMetrics fm = g2d.getFontMetrics();
+        String[] words = text.split(" ");
+        String line = "";
 
+        for (int i = 0; i < words.length; i++)
+        {
+            String testLine;
+            if (line.isEmpty())
+            {
+                testLine = words[i];
+            }
+            else
+            {
+                testLine = line + " " + words[i];
+            }
+            
+            if (fm.stringWidth(testLine) > maxWidth && !line.isEmpty())
+            {
+                g2d.drawString(line, x, y);
+                y += fm.getHeight();
+                line = words[i];
+            }
+            else
+            {
+                line = testLine;
+            }
+        }
+
+        g2d.drawString(line, x,y);
+
+        return y;
     }
     
     public static void drawPlaying(Graphics2D g2d)
