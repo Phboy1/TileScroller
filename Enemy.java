@@ -215,6 +215,17 @@ public class Enemy {
             }
         }
 
+        for (Items item : Culminating.items)
+        {
+            if (getBounds().intersects(item.getBounds(Culminating.xOffset, Culminating.yOffset)))
+            {
+                item.activated = true;
+                Culminating.player.playInteractSound();
+            }
+        }
+
+        
+
         animatePatrolling(oldX, oldY);
     }
 
