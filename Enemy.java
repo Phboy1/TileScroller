@@ -283,14 +283,27 @@ public class Enemy {
             x += moveX;
             y += moveY;
         }
-        else if (canMove(x, y, 0, speed))
+        else if (canMove(x,y,speed, 0) && Culminating.playerWorldX + Culminating.player.hitboxXOffset + Player.HITBOX_SIZE_X/2 > x)
         {
+            System.out.println("RIGHT");
+            x += speed;
+        }
+        else if (canMove(x,y,-speed, 0) && Culminating.playerWorldX + Culminating.player.hitboxXOffset + Player.HITBOX_SIZE_X/2 < x)
+        {
+            System.out.println("LEFT");
+            x -= speed;
+        }
+        else if (canMove(x, y, 0, speed) && Culminating.playerWorldY + Culminating.player.hitboxYOffset + Player.HITBOX_SIZE_Y/2 > y)
+        {
+            System.out.println("DOWN");
             y += speed;
         }
-        else if (canMove(x, y, speed, 0))
+        else if (canMove(x, y, 0, speed) && Culminating.playerWorldY + Culminating.player.hitboxYOffset + Player.HITBOX_SIZE_Y/2 < y)
         {
-            x += speed;          
+            System.out.println("UP");
+            y -= speed;
         }
+        
 
         double degrees = Math.toDegrees(angle);
 
