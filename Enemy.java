@@ -267,27 +267,42 @@ public class Enemy {
         int moveX = (int) Math.round((Math.cos(angle) * speed));
         int moveY = (int) Math.round((Math.sin(angle) * speed));
 
-        if (canMove(x, y, moveX, 0))
+        if (canMove(x, y, moveX, moveY))
         {
-            x += moveX;  
-        }
-
-        if (canMove(x, y, 0, moveY))
-        {
+            x += moveX;
             y += moveY;
         }
-
-        if (Math.abs(x - oldX) > Math.abs(y - oldY))
+        else if (canMove(x, y, 0, speed))
         {
-            if (x - oldX > 0) lastDirection = "Right";
-            else if (x - oldX < 0) lastDirection = "Left";
-            System.out.println("HORIZONTAL");
+            y += speed;
         }
-        else if (y != oldY)
+        else if (canMove(x, y, speed, 0))
         {
-            if (y - oldY > 0) lastDirection = "Down";
-            else if (y - oldY < 0) lastDirection = "Up";
-            System.out.println("VERTICAL");
+            x += speed;          
+        }
+
+        double degrees = Math.toDegrees(angle);
+
+        if (degrees < 0)
+        {
+            degrees += 360;
+        }
+
+        if (degrees >= 50 && degrees < 140)
+        {
+            lastDirection = "Down";
+        }
+        else if (degrees >= 140 && degrees < 230) 
+        {
+            lastDirection = "Left";
+        }
+        else if (degrees >= 230 && degrees < 320)
+        {
+            lastDirection = "Up";
+        }
+        else
+        {
+            lastDirection = "Right";
         }
 
         animateFollowing();
