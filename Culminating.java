@@ -27,6 +27,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int MENU = 1;
     static final int PLAYING = 2;
     static final int WIN = 3;
+    static final int PAUSE = 4;
+
+    static boolean paused = false;
 
     static final int WIDTH = 1280; 
     static final int HEIGHT = 720;
@@ -191,6 +194,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     public static void update() {
         switch (state)
         {
+            case HERO:
+            {
+                break;
+            }
             case PLAYING:
             {
                 if (rewinding)
@@ -203,10 +210,15 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 }
                 break;  
             }
-            case HERO:
+            case WIN:
             {
                 break;
             }
+            case PAUSE:
+            {
+                break;
+            }
+
         }
     }
 
@@ -232,6 +244,26 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             case WIN:
             {
                 drawWin(g2d);
+                break;
+            }
+            case PAUSE:
+            {
+                drawPlaying(g2d);
+
+                g2d.setColor(new Color(0,0,0,200));
+
+                g2d.fillRect(0,0,WIDTH, HEIGHT);
+
+                g2d.setFont(new Font("Serif", Font.ITALIC, 70));
+
+                g2d.setColor(new Color(160,146,74));
+
+                String text = "~ Paused ~";
+                FontMetrics fm = g2d.getFontMetrics();
+
+                int textWidth = fm.stringWidth(text);
+
+                g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2);
                 break;
             }
         }
@@ -270,7 +302,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public void keyTyped(KeyEvent e) {
-
+            
     }
 
     public void keyPressed(KeyEvent e) {
@@ -282,6 +314,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             if (!shopOpen)
             {
+                if (e.getKeyCode() == KeyEvent.VK_E)
+                {
+                    interactHeld = true;
+                }
+
                 if (e.getKeyCode() == KeyEvent.VK_S) goingDown = true;
                 if (e.getKeyCode() == KeyEvent.VK_W) goingUp = true;
                 if (e.getKeyCode() == KeyEvent.VK_A) goingLeft = true;
@@ -292,10 +329,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 if (e.getKeyCode() == KeyEvent.VK_LEFT) goingLeft = true;
                 if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = true;
 
-                if (e.getKeyCode() == KeyEvent.VK_E)
-                {
-                    interactHeld = true;
-                }
+                
 
                 if (e.getKeyCode() == KeyEvent.VK_SPACE && !player.attacking) 
                 {
@@ -306,9 +340,24 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     goingLeft = false;
                     goingRight = false;
                 }
-            }
+            } 
+        }
 
-            
+        if (state == PLAYING || state == PAUSE)
+        {
+            if (e.getKeyCode() == KeyEvent.VK_P)
+            {
+                paused = !paused;
+
+                if (paused)
+                {
+                    state = PAUSE;
+                }
+                else
+                {
+                    state = PLAYING;
+                }
+            }
         }
 
         if (state == HERO && e.getKeyCode() == KeyEvent.VK_ENTER)
