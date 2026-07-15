@@ -268,6 +268,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2);
 
                 resetGameButton(g2d);
+                drawBackToMenuButton(g2d);
                 break;
             }
         }
@@ -408,13 +409,14 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[3];
-        bestRewinds = new int[3];
+        levels = new Level[4];
+        bestRewinds = new int[4];
 
         Arrays.fill(bestRewinds, -1);
         levels[0] = createLevel(1);
         levels[1] = createLevel(2);
         levels[2] = createLevel(3);
+        levels[3] = createLevel(4);
 
 
     }
@@ -434,10 +436,19 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             height = 47;
             spawnCol = 6;
             spawnRow = 4;
-            startingGhosts = 1;
+            startingGhosts = 0;
             name = "Jungle Entrance";
         }
         else if (levelId == 2)
+        {
+            width = 11;
+            height = 47;
+            spawnCol = 6;
+            spawnRow = 4;
+            startingGhosts = 1;
+            name = "Jungle Entrance... Again?";
+        }
+        else if (levelId == 3)
         {
             width = 22;
             height = 48;
@@ -446,7 +457,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             startingGhosts = 2;
             name = "Getting Used to it";
         }
-        else if (levelId == 3)
+        else if (levelId == 4)
         {
             width = 100;
             height = 100;
