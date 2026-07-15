@@ -368,6 +368,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                         rewindClip.loop(Clip.LOOP_CONTINUOUSLY);
                     }
 
+                    for (Door door : doors)
+                    {
+                        door.startTime += System.nanoTime() - pausedStartTime;
+                    }
+
                     startTime += System.nanoTime() - pausedStartTime;
                     state = PLAYING;
                 }
