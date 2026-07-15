@@ -1,0 +1,2 @@
+color,x,y,id
+blue,10,5,door1

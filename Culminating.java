@@ -369,8 +369,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
         else if (levelId == 2)
         {
-            width = 15;
-            height = 26;
+            width = 22;
+            height = 48;
             spawnCol = 5; 
             spawnRow = 5;
             startingGhosts = 2;
