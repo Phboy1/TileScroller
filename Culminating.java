@@ -266,6 +266,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 int textWidth = fm.stringWidth(text);
 
                 g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2);
+
+                resetGameButton(g2d);
                 break;
             }
         }
@@ -1624,6 +1626,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     
     public static void drawWinButton(Graphics2D g2d)
     {
+        g2d.setFont(new Font("Serif", Font.ITALIC, 24));
+
         Rectangle playAgainButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
 
         if (playAgainButton.contains(mouseX, mouseY))
@@ -1632,7 +1636,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             if (clicked)
             {
+                loadCurrentLevel();
                 resetGame();
+                loadCurrentLevel();
             }
         }
         else
@@ -1649,6 +1655,39 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int buttonWidth = g2d.getFontMetrics().stringWidth(button);
 
         g2d.drawString(button, playAgainButton.x + playAgainButton.width/2 - buttonWidth/2, playAgainButton.y + 40);
+    }
+
+    public static void resetGameButton(Graphics2D g2d)
+    {
+        g2d.setFont(new Font("Serif", Font.ITALIC, 24));
+
+        Rectangle resetGameButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
+
+        if (resetGameButton.contains(mouseX, mouseY))
+        {
+            g2d.setColor(Color.GRAY);
+
+            if (clicked)
+            {
+                loadCurrentLevel();
+                resetGame();
+                loadCurrentLevel();
+            }
+        }
+        else
+        {
+            g2d.setColor(Color.DARK_GRAY);
+        }
+        
+        g2d.fill(resetGameButton);
+
+        g2d.setColor(Color.WHITE);
+        g2d.draw(resetGameButton);
+
+        String button = "RESET GAME";
+        int buttonWidth = g2d.getFontMetrics().stringWidth(button);
+
+        g2d.drawString(button, resetGameButton.x + resetGameButton.width/2 - buttonWidth/2, resetGameButton.y + 40);
     }
 
     public static void drawBackToMenuButton(Graphics2D g2d)

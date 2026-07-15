@@ -398,7 +398,7 @@ public class Enemy {
 
     public void pushOut(Door door)
     {
-        Rectangle enemy = new Rectangle(x + HITBOX_OFFSET_X, y + HITBOX_OFFSET_Y, size - 2*HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
+        Rectangle enemy = new Rectangle(hitboxX(), hitboxY(), hitboxWidth(), hitboxHeight());
         Rectangle doorBounds = new Rectangle(door.x, door.y, door.width, door.height);
 
         if (!enemy.intersects(doorBounds)) return;

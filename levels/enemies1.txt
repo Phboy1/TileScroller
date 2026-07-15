@@ -1,1 +1,2 @@
 startX,startY,endX,endY,speed,type
+20,5,0,0,1,following
