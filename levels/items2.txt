@@ -1,2 +1,3 @@
 color,x,y,id
-yellow,1,1,hi
+yellow,30,1,door1
+yellow,13,18,door2
