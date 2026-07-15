@@ -269,7 +269,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
 
 
-                drawWinButton(g2d);
+                
+                resetGameButton(g2d);
+                drawBackToMenuButton(g2d);
                 break;
             }
         }
@@ -410,13 +412,14 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[3];
-        bestRewinds = new int[3];
+        levels = new Level[4];
+        bestRewinds = new int[4];
 
         Arrays.fill(bestRewinds, -1);
         levels[0] = createLevel(1);
         levels[1] = createLevel(2);
         levels[2] = createLevel(3);
+        levels[3] = createLevel(4);
 
 
     }
@@ -436,10 +439,19 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             height = 47;
             spawnCol = 6;
             spawnRow = 4;
-            startingGhosts = 1;
+            startingGhosts = 0;
             name = "Jungle Entrance";
         }
         else if (levelId == 2)
+        {
+            width = 11;
+            height = 47;
+            spawnCol = 6;
+            spawnRow = 4;
+            startingGhosts = 1;
+            name = "Jungle Entrance... Again?";
+        }
+        else if (levelId == 3)
         {
             width = 22;
             height = 48;
@@ -448,7 +460,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             startingGhosts = 2;
             name = "Getting Used to it";
         }
-        else if (levelId == 3)
+        else if (levelId == 4)
         {
             width = 100;
             height = 100;
@@ -1628,6 +1640,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     
     public static void drawWinButton(Graphics2D g2d)
     {
+        g2d.setFont(new Font("Serif", Font.ITALIC, 24));
+
         Rectangle playAgainButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
         g2d.setFont(new Font("Serif", Font.ITALIC, 24));
 
@@ -1638,7 +1652,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             if (clicked)
             {
                 loadCurrentLevel();
+                loadCurrentLevel();
                 resetGame();
+                loadCurrentLevel();
                 loadCurrentLevel();
             }
         }
@@ -1656,6 +1672,39 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int buttonWidth = g2d.getFontMetrics().stringWidth(button);
 
         g2d.drawString(button, playAgainButton.x + playAgainButton.width/2 - buttonWidth/2, playAgainButton.y + 40);
+    }
+
+    public static void resetGameButton(Graphics2D g2d)
+    {
+        g2d.setFont(new Font("Serif", Font.ITALIC, 24));
+
+        Rectangle resetGameButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
+
+        if (resetGameButton.contains(mouseX, mouseY))
+        {
+            g2d.setColor(Color.GRAY);
+
+            if (clicked)
+            {
+                loadCurrentLevel();
+                resetGame();
+                loadCurrentLevel();
+            }
+        }
+        else
+        {
+            g2d.setColor(Color.DARK_GRAY);
+        }
+        
+        g2d.fill(resetGameButton);
+
+        g2d.setColor(Color.WHITE);
+        g2d.draw(resetGameButton);
+
+        String button = "RESET GAME";
+        int buttonWidth = g2d.getFontMetrics().stringWidth(button);
+
+        g2d.drawString(button, resetGameButton.x + resetGameButton.width/2 - buttonWidth/2, resetGameButton.y + 40);
     }
 
     public static void drawBackToMenuButton(Graphics2D g2d)
