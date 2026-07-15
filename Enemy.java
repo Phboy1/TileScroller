@@ -1,7 +1,6 @@
 package TileScroller;
 
 import java.awt.*;
-import java.io.File;
 
 import javax.imageio.ImageIO;
 
@@ -23,8 +22,8 @@ public class Enemy {
 
     static final int TOWARDS_END = 1;
     static final int TOWARDS_START = -1;
-    static final int HITBOX_OFFSET_X = 30;
-    static final int HITBOX_OFFSET_Y = 20;
+    static final int HITBOX_OFFSET_X = 20;
+    static final int HITBOX_OFFSET_Y = 10;
     
     Image[] walkLeft = new Image[frameAmount];
     Image[] walkRight = new Image[frameAmount];
@@ -147,9 +146,31 @@ public class Enemy {
     public void draw(Graphics2D g2d, int xOffset, int yOffset)
     {
         g2d.setColor(new Color(180, 0, 255, 200));
-        g2d.drawImage(sprite, x + xOffset, y + yOffset, size, size, null);
+        int drawX = x + xOffset - Culminating.TILE_SIZE/2;
+        int drawY = y + yOffset - Culminating.TILE_SIZE/2;
+        g2d.drawImage(sprite, drawX, drawY, size, size, null);
         
-        if (Culminating.debugging) g2d.fillRect(x + xOffset + HITBOX_OFFSET_X, y + yOffset + HITBOX_OFFSET_Y, size - 2 * HITBOX_OFFSET_X, size - 2 * HITBOX_OFFSET_Y);
+        if (Culminating.debugging) g2d.fillRect(hitboxX() + xOffset, hitboxY() + yOffset, hitboxWidth(), hitboxHeight());
+    }
+
+    public int hitboxX()
+    {
+        return x + (Culminating.TILE_SIZE - hitboxWidth()) / 2;
+    }
+
+    public int hitboxY()
+    {
+        return y + (Culminating.TILE_SIZE - hitboxHeight());
+    }
+
+    public int hitboxWidth()
+    {
+        return Culminating.TILE_SIZE - HITBOX_OFFSET_X;
+    }
+
+    public int hitboxHeight()
+    {
+        return Culminating.TILE_SIZE - HITBOX_OFFSET_Y;
     }
 
     public void patrolling()
@@ -238,15 +259,18 @@ public class Enemy {
         int moveX = 0;
         int moveY = 0;
 
-        double angle = Math.atan2(Culminating.playerWorldY - y, Culminating.playerWorldX - x);
+        int drawX = x - Culminating.TILE_SIZE/2;
+        int drawY = y - Culminating.TILE_SIZE/2;
+
+        double angle = Math.atan2(Culminating.playerWorldY - drawY, Culminating.playerWorldX - drawX);
 
         moveX = (int) Math.round((Math.cos(angle) * speed));
         moveY = (int) Math.round((Math.sin(angle) * speed));
 
-        if (canMove(x, y, moveX, moveY))
+        if (canMove(drawX, drawY, moveX, moveY))
         {
-            x += moveX;
-            y += moveY;
+            drawX += moveX;
+            drawY += moveY;
         }
 
         if (Math.abs(moveX) > Math.abs(moveY))
@@ -296,15 +320,16 @@ public class Enemy {
 
     public Rectangle getBounds()
     {
-        return new Rectangle(x + Culminating.xOffset + HITBOX_OFFSET_X, y + Culminating.yOffset + HITBOX_OFFSET_Y, size - 2* HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
+        return new Rectangle(hitboxX() + Culminating.xOffset, hitboxY() + Culminating.yOffset, size - 2* HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
     }
 
     public boolean canMove(int x, int y, int moveX, int moveY)
     {
-        int futureX = x + moveX;
-        int futureY = y + moveY;
+        int futureHitboxX = x + (Culminating.TILE_SIZE - hitboxWidth()) / 2 + moveX;
+        int futureHitboxY = y + Culminating.TILE_SIZE - hitboxHeight() + moveY;
 
-        Rectangle futureEnemy = new Rectangle(futureX + HITBOX_OFFSET_X, futureY + HITBOX_OFFSET_Y, size - 2*HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
+        Rectangle futureEnemy = new Rectangle(futureHitboxX, futureHitboxY, hitboxWidth(), hitboxHeight());
+
 
         for (int row = 0; row < Culminating.currentRows; row++)
         {
