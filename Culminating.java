@@ -139,6 +139,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int[] bestRewinds;
 
     static boolean interactHeld = false;
+
+    static long pausedStartTime = 0;
     public static void main(String[] args) {
         JFrame frame = new JFrame("👾");
         Culminating game = new Culminating();
@@ -351,10 +353,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
                 if (paused)
                 {
+                    pausedStartTime = System.nanoTime();
                     state = PAUSE;
                 }
                 else
                 {
+                    startTime += System.nanoTime() - pausedStartTime;
                     state = PLAYING;
                 }
             }
