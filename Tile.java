@@ -51,7 +51,7 @@ public class Tile {
             g2d.setColor(new Color(255, 215, 0)); 
         }
         else {
-            g2d.setColor(Color.WHITE);
+            g2d.setColor(Color.BLACK);
         }
 
         g2d.fillRect(drawX, drawY, size, size);

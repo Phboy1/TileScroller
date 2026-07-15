@@ -360,8 +360,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         String name = "PLACEHOLDER";
         if (levelId == 1)
         {
-            width = 7;
-            height = 11;
+            width = 11;
+            height = 47;
             spawnCol = 6;
             spawnRow = 4;
             startingGhosts = 1;
