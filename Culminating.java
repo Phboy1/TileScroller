@@ -266,6 +266,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 int textWidth = fm.stringWidth(text);
 
                 g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2);
+
+
+
+                drawWinButton(g2d);
                 break;
             }
         }
@@ -1625,6 +1629,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     public static void drawWinButton(Graphics2D g2d)
     {
         Rectangle playAgainButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
+        g2d.setFont(new Font("Serif", Font.ITALIC, 24));
 
         if (playAgainButton.contains(mouseX, mouseY))
         {
@@ -1632,7 +1637,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             if (clicked)
             {
+                loadCurrentLevel();
                 resetGame();
+                loadCurrentLevel();
             }
         }
         else
