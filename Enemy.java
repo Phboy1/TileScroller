@@ -256,38 +256,39 @@ public class Enemy {
 
     public void following()
     {
-        int moveX = 0;
-        int moveY = 0;
+        int oldX = x;
+        int oldY = y;
 
-        int drawX = x - Culminating.TILE_SIZE/2;
-        int drawY = y - Culminating.TILE_SIZE/2;
+        int drawX = hitboxX() + hitboxWidth()/2;
+        int drawY = hitboxY() + hitboxHeight()/2;
 
-        double angle = Math.atan2(Culminating.playerWorldY - drawY, Culminating.playerWorldX - drawX);
+        double angle = Math.atan2(Culminating.playerWorldY + Culminating.player.hitboxYOffset + Player.HITBOX_SIZE_Y/2 - drawY, Culminating.playerWorldX + Culminating.player.hitboxXOffset + Player.HITBOX_SIZE_X/2 - drawX);
 
-        moveX = (int) Math.round((Math.cos(angle) * speed));
-        moveY = (int) Math.round((Math.sin(angle) * speed));
+        int moveX = (int) Math.round((Math.cos(angle) * speed));
+        int moveY = (int) Math.round((Math.sin(angle) * speed));
 
-        if (canMove(drawX, drawY, moveX, moveY))
+        if (canMove(x, y, moveX, 0))
         {
-            drawX += moveX;
-            drawY += moveY;
+            x += moveX;  
         }
 
-        if (Math.abs(moveX) > Math.abs(moveY))
+        if (canMove(x, y, 0, moveY))
         {
-            if (moveX > 0) lastDirection = "Right";
-            else if (moveX < 0) lastDirection = "Left";
-        }
-        else if (Math.abs(moveX) < Math.abs(moveY))
-        {
-            if (moveY > 0) lastDirection = "Down";
-            else if (moveY < 0) lastDirection = "Up";
+            y += moveY;
         }
 
-        if (Culminating.playerWorldY < y && canMove(x, y, 0, -speed)) y -= speed;
-        if (Culminating.playerWorldY > y && canMove(x, y, 0, speed)) y += speed;
-        if (Culminating.playerWorldX > x && canMove(x, y, speed, 0)) x += speed;
-        if (Culminating.playerWorldX < x && canMove(x, y, -speed, 0)) x -= speed;
+        if (Math.abs(x - oldX) > Math.abs(y - oldY))
+        {
+            if (x - oldX > 0) lastDirection = "Right";
+            else if (x - oldX < 0) lastDirection = "Left";
+            System.out.println("HORIZONTAL");
+        }
+        else if (y != oldY)
+        {
+            if (y - oldY > 0) lastDirection = "Down";
+            else if (y - oldY < 0) lastDirection = "Up";
+            System.out.println("VERTICAL");
+        }
 
         animateFollowing();
 
@@ -320,7 +321,7 @@ public class Enemy {
 
     public Rectangle getBounds()
     {
-        return new Rectangle(hitboxX() + Culminating.xOffset, hitboxY() + Culminating.yOffset, size - 2* HITBOX_OFFSET_X, size - 2*HITBOX_OFFSET_Y);
+        return new Rectangle(hitboxX() + Culminating.xOffset, hitboxY() + Culminating.yOffset, hitboxWidth(), hitboxHeight());
     }
 
     public boolean canMove(int x, int y, int moveX, int moveY)
