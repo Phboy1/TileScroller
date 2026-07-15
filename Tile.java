@@ -55,6 +55,12 @@ public class Tile {
         }
 
         g2d.fillRect(drawX, drawY, size, size);
+
+        if (Culminating.debugging)
+        {
+            g2d.setColor(Color.WHITE);
+            g2d.drawRect(drawX, drawY, size, size);
+        }
     }
 
     public boolean isLava()
