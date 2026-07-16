@@ -878,9 +878,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
 
         if (goingUp) frameMovement.facing = "Up";
-        if (goingDown) frameMovement.facing = "Down";
-        if (goingLeft) frameMovement.facing = "Left";
-        if (goingRight) frameMovement.facing = "Right";
+        else if (goingDown) frameMovement.facing = "Down";
+        else if (goingLeft) frameMovement.facing = "Left";
+        else if (goingRight) frameMovement.facing = "Right";
                     
         movementHistory.get(rewindCount).add(frameMovement);
 
