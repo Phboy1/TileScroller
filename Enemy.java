@@ -298,7 +298,7 @@ public class Enemy {
             System.out.println("DOWN");
             y += speed;
         }
-        else if (canMove(x, y, 0, speed) && Culminating.playerWorldY + Culminating.player.hitboxYOffset + Player.HITBOX_SIZE_Y/2 < y)
+        else if (canMove(x, y, 0, -speed) && Culminating.playerWorldY + Culminating.player.hitboxYOffset + Player.HITBOX_SIZE_Y/2 < y)
         {
             System.out.println("UP");
             y -= speed;

@@ -393,15 +393,15 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[4];
-        bestRewinds = new int[4];
+        levels = new Level[5];
+        bestRewinds = new int[5];
 
         Arrays.fill(bestRewinds, -1);
         levels[0] = createLevel(1);
         levels[1] = createLevel(2);
         levels[2] = createLevel(3);
         levels[3] = createLevel(4);
-
+        levels[4] = createLevel(5);
 
     }
 
@@ -449,6 +449,15 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             spawnRow = 10;
             startingGhosts = 15;
             name = "Jungle Temple";
+        }
+        else if (levelId == 5)
+        {
+            width = 24;
+            height = 48;
+            spawnCol = 3; 
+            spawnRow = 3;
+            startingGhosts = 12;
+            name = "Lava Gauntlet";
         }
         Level level = new Level(20, width, height);
 

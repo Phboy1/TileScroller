@@ -1,0 +1,12 @@
+startX,startY,endX,endY,speed,type
+26,1,26,10,2,patrolling
+30,10,30,1,2,patrolling
+34,1,34,10,2,patrolling
+38,10,38,1,2,patrolling
+44,2,0,0,1,following
+4,15,27,15,2,patrolling
+4,21,0,0,1,following
+19,16,19,21,2,patrolling
+26,18,26,21,1,patrolling
+34,19,0,0,2,following
+35,16,35,20,1,patrolling
