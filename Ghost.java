@@ -165,7 +165,7 @@ public class Ghost {
                 deathFrame = 0;
                 boolean moving = false;
 
-                if (actions.get(i).playerX != 0 || actions.get(i).playerY != 0 || actions.get(i).cameraX != 0 || actions.get(i).cameraY != 0) moving = true;
+                if (actions.get(i).facing != null) moving = true;
 
                 if (lastDirection == null) lastDirection = "Down";
 
