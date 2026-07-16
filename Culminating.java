@@ -1219,7 +1219,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.fillRect(0,0,WIDTH, HEIGHT);
 
         int pauseWidth = 450;
-        int pauseHeight = 425;
+        int pauseHeight = 300;
         int cornerCubeSize = 20;
         int pauseX = (Culminating.WIDTH - pauseWidth)/2;
         int pauseY = (Culminating.HEIGHT - pauseHeight)/2;
@@ -1245,7 +1245,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.fillRect(pauseX, pauseY + pauseHeight - cornerCubeSize,cornerCubeSize, cornerCubeSize);
         g2d.fillRect(pauseX+pauseWidth-cornerCubeSize, pauseY + pauseHeight - cornerCubeSize,cornerCubeSize, cornerCubeSize);
 
-        g2d.setFont(new Font("Serif", Font.ITALIC, 70));
+        g2d.setFont(new Font("Serif", Font.ITALIC, 50));
 
         g2d.setColor(new Color(160,146,74));
 
@@ -1254,10 +1254,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int textWidth = fm.stringWidth(text);
 
-        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2);
+        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2 - 80);
                 
         resetGameButton(g2d);
-        drawBackToMenuButton(g2d);
+        drawPauseBackToMenuButton(g2d);
     }
 
     public static void drawHero(Graphics2D g2d)
@@ -1740,11 +1740,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         g2d.setFont(new Font("Serif", Font.ITALIC, 24));
 
-        Rectangle resetGameButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
+        Rectangle resetGameButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 - 40, 240, 60);
 
         if (resetGameButton.contains(mouseX, mouseY))
         {
-            g2d.setColor(Color.GRAY);
+            g2d.setColor(new Color(101, 67,33));
 
             if (clicked)
             {
@@ -1755,12 +1755,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
         else
         {
-            g2d.setColor(Color.DARK_GRAY);
+            g2d.setColor(new Color(62, 39, 35));
         }
         
         g2d.fill(resetGameButton);
 
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(new Color(212, 175, 55));
         g2d.draw(resetGameButton);
 
         String button = "RESET GAME";
@@ -1790,6 +1790,35 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.fill(backToMenu);
 
         g2d.setColor(Color.WHITE);
+        g2d.draw(backToMenu);
+
+        String button = "RETURN TO MENU";
+        int buttonWidth = g2d.getFontMetrics().stringWidth(button);
+
+        g2d.drawString(button, backToMenu.x + backToMenu.width/2 - buttonWidth/2, backToMenu.y + 40);
+    }
+
+    public static void drawPauseBackToMenuButton(Graphics2D g2d)
+    {
+        Rectangle backToMenu = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
+
+        if (backToMenu.contains(mouseX, mouseY))
+        {
+            g2d.setColor(new Color(101, 67,33));
+
+            if (clicked)
+            {
+                state = MENU;
+            }
+        }
+        else
+        {
+            g2d.setColor(new Color(62, 39, 35));
+        }
+        
+        g2d.fill(backToMenu);
+
+        g2d.setColor(new Color(212, 175, 55));
         g2d.draw(backToMenu);
 
         String button = "RETURN TO MENU";
