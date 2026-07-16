@@ -14,6 +14,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int NO_TIMER_DOOR = 0;
     static final int FRAMES_PER_SECOND = 30;
 
+    static final int LEVEL_COUNT = 5;
+
     static int maxCoinDrop = 4;
     static int minCoinDrop = 1;
 
@@ -51,7 +53,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int spawnCameraX;
     static int spawnCameraY;
 
-    static final int SCROLL_SPEED = 40;
+    static final int SCROLL_SPEED = 20;
 
     static final int CAMERA_SPEED = 5;
 
@@ -128,7 +130,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static boolean rewinding = false;
 
-    static int menuScroll = 160;
+    static int menuScroll = 0;
 
     static {
         movementHistory.add(new java.util.ArrayList<>());
@@ -407,11 +409,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             int totalWidth = levels.length * boxSize + (levels.length - 1) * margin;
 
-            int maxScroll = Math.max(totalWidth, WIDTH - 160);
+            int maxScroll = Math.max(0, totalWidth - (WIDTH - 200));
 
-            if (menuScroll < 160)
+            if (menuScroll < 0)
             {
-                menuScroll = 160;
+                menuScroll = 0;
             }
 
             if (menuScroll > maxScroll)
@@ -423,15 +425,16 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static void loadAllLevels()
     {
-        levels = new Level[5];
-        bestRewinds = new int[5];
+        levels = new Level[LEVEL_COUNT];
+        bestRewinds = new int[LEVEL_COUNT];
 
         Arrays.fill(bestRewinds, -1);
-        levels[0] = createLevel(1);
-        levels[1] = createLevel(2);
-        levels[2] = createLevel(3);
-        levels[3] = createLevel(4);
-        levels[4] = createLevel(5);
+
+        for (int i = 0; i < LEVEL_COUNT; i++)
+        {
+            levels[0] = createLevel(i+1);
+        }
+        
 
     }
 
@@ -1426,7 +1429,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int margin = 220;
 
-        int boxX = (WIDTH-(boxSize + (levelCount - 1) * (boxSize + margin)))/2 - menuScroll;
+        int boxX = 100-menuScroll;
         int boxY = HEIGHT/2 - 60;
 
 
