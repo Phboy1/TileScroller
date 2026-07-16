@@ -1885,12 +1885,16 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
             if (clicked)
             {
-                if (currentLevelIndex <= levels.length - 1)
+                if (currentLevelIndex < levels.length - 1)
                 {
                     currentLevelIndex++;
                     loadCurrentLevel();
                     resetGame();
                     loadCurrentLevel();
+                }
+                else
+                {
+                    state = MENU;
                 }
 
                 clicked = false;
