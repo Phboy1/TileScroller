@@ -9,34 +9,34 @@ import javax.imageio.ImageIO;
 public class Ghost {
     Image sprite;
 
-    int frameAmount = 6;
+    static int frameAmount = 6;
     int frame = 0;
     long frameLength = 75000000L;
     long lastFrame = 0;
     boolean wasMoving;
     String lastDirection;
 
-    int attackFrameAmount = 4;
+    static int attackFrameAmount = 4;
     long attackFrameLength = 150000000L;
     long attackLastFrame = 0;
 
     long currentTime;
 
     int deathFrame = 0;
-    int deathFrameAmount = 4;
+    static int deathFrameAmount = 4;
     long deathFrameLength = 150000000L;
     long lastDeathFrame = 0;
-    Image[] deathSprites = new Image[deathFrameAmount];
+    static Image[] deathSprites = new Image[deathFrameAmount];
 
-    Image[] walkLeft = new Image[frameAmount];
-    Image[] walkRight = new Image[frameAmount];
-    Image[] walkUp = new Image[frameAmount];
-    Image[] walkDown = new Image[frameAmount];
+    static Image[] walkLeft = new Image[frameAmount];
+    static Image[] walkRight = new Image[frameAmount];
+    static Image[] walkUp = new Image[frameAmount];
+    static Image[] walkDown = new Image[frameAmount];
     
-    Image[] attackLeft = new Image[attackFrameAmount];
-    Image[] attackRight = new Image[attackFrameAmount];
-    Image[] attackUp = new Image[attackFrameAmount];
-    Image[] attackDown = new Image[attackFrameAmount];
+    static Image[] attackLeft = new Image[attackFrameAmount];
+    static Image[] attackRight = new Image[attackFrameAmount];
+    static Image[] attackUp = new Image[attackFrameAmount];
+    static Image[] attackDown = new Image[attackFrameAmount];
     
     static int attackX = 30;
     static int attackY = 30;
