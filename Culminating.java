@@ -1379,15 +1379,21 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         g2d.setColor(new Color(28, 20, 12));        
         g2d.fillRect(0, 0, WIDTH, HEIGHT);
+        g2d.setColor(new Color(36, 24, 16));
+        g2d.fillRoundRect(40 + 7, 40 + 7, WIDTH-80 - 14, HEIGHT-80 - 14, 6, 6);
 
         if (debugging)
         {
             unlockedLevels = levels.length;
         }
 
-        drawMenuFrame(g2d);
+        
         drawMenuTitle(g2d);
         drawLevelPath(g2d);
+        g2d.setColor(new Color(28, 20, 12));
+        g2d.fillRect(0,0,40,HEIGHT);
+        g2d.fillRect(WIDTH-40,0,40,HEIGHT);
+        drawMenuFrame(g2d);
     }
 
     public static void drawMenuFrame(Graphics2D g2d)
