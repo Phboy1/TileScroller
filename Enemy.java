@@ -133,6 +133,13 @@ public class Enemy {
             return;
         }
 
+        int col = (x + Culminating.TILE_SIZE/2) / Culminating.TILE_SIZE;
+        int row = (y + Culminating.TILE_SIZE/2) / Culminating.TILE_SIZE;
+
+        boolean inWater = Culminating.map[row][col] != null && Culminating.map[row][col].isWater();
+
+        if (inWater && Culminating.frameCount % 3 == 0) return;
+
         if (type.equals("patrolling"))
         {
             patrolling();

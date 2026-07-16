@@ -14,7 +14,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int NO_TIMER_DOOR = 0;
     static final int FRAMES_PER_SECOND = 30;
 
-    static final int LEVEL_COUNT = 5;
+    static final int LEVEL_COUNT = 6;
 
     static int maxCoinDrop = 4;
     static int minCoinDrop = 1;
@@ -493,6 +493,15 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             spawnRow = 3;
             startingGhosts = 12;
             name = "Lava Gauntlet";
+        }
+        else if (levelId == 6)
+        {
+            width = 100;
+            height = 100;
+            spawnCol = 9;
+            spawnRow = 9;
+            startingGhosts = 15;
+            name = "The Marshlands";
         }
         Level level = new Level(20, width, height);
 

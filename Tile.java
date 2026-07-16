@@ -52,7 +52,7 @@ public class Tile {
         }
         else if (type.equals("W"))
         {
-            g2d.setColor(Color.BLUE);
+            g2d.setColor(new Color(36, 60, 86));
         }
         else {
             g2d.setColor(Color.BLACK);

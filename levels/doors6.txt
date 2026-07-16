@@ -1,0 +1,11 @@
+x,y,width,height,id,isOpen,timerMax
+26,10,1,3,GATE A,false,NO_TIMER_DOOR
+66,10,1,3,GATE B,false,6
+80,27,3,1,GATE C,false,NO_TIMER_DOOR
+8,23,3,1,GATE D,false,6
+33,34,1,3,GATE E,false,NO_TIMER_DOOR
+65,38,1,3,GATE F,false,8
+50,53,3,1,GATE H,false,5
+14,53,3,1,GATE G,false,NO_TIMER_DOOR
+67,66,1,3,APPROACH,false,10
+85,82,1,3,FINAL,false,NO_TIMER_DOOR

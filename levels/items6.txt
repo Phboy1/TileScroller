@@ -1,0 +1,11 @@
+color,x,y,id
+blue,22,6,GATE A
+blue,60,12,GATE B
+blue,92,6,GATE C
+blue,6,18,GATE D
+blue,6,48,GATE E
+blue,38,26,GATE F
+blue,60,46,GATE H
+blue,55,68,GATE G
+blue,6,90,APPROACH
+blue,72,60,FINAL
