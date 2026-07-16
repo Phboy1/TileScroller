@@ -843,7 +843,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         frameCount++;
 
-        boolean inWater = map[(playerWorldY + PLAYER_SIZE/2)/TILE_SIZE][(playerWorldX + PLAYER_SIZE)/TILE_SIZE] != null && map[(playerWorldY + PLAYER_SIZE/2)/TILE_SIZE][(playerWorldX + PLAYER_SIZE)/TILE_SIZE].isWater();
+        boolean inWater = map[(playerWorldY + PLAYER_SIZE/2)/TILE_SIZE][(playerWorldX + PLAYER_SIZE)/TILE_SIZE] != null && map[(playerWorldY + PLAYER_SIZE/2 + 10)/TILE_SIZE][(playerWorldX + PLAYER_SIZE/2)/TILE_SIZE].isWater();
 
         System.out.println(inWater);
 
