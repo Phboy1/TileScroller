@@ -1220,13 +1220,30 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int pauseWidth = 450;
         int pauseHeight = 425;
+        int cornerCubeSize = 20;
+        int pauseX = (Culminating.WIDTH - pauseWidth)/2;
+        int pauseY = (Culminating.HEIGHT - pauseHeight)/2;
 
         g2d.setColor(new Color(46,37,25));
 
-        g2d.fillRoundRect((Culminating.WIDTH - pauseWidth)/2, (Culminating.HEIGHT - pauseHeight)/2, pauseWidth, pauseHeight,8,8);
+        g2d.fillRoundRect(pauseX, pauseY, pauseWidth, pauseHeight,8,8);
 
         g2d.setColor(new Color(107, 90, 62));
-        g2d.drawRoundRect((Culminating.WIDTH - pauseWidth)/2, (Culminating.HEIGHT - pauseHeight)/2, pauseWidth, pauseHeight, 8, 8);
+        g2d.drawRoundRect(pauseX, pauseY, pauseWidth, pauseHeight, 8, 8);
+
+        g2d.setColor(new Color(46, 37, 25));
+        g2d.fillRoundRect(pauseX, pauseY, pauseWidth, pauseHeight, 8, 8);
+        g2d.setColor(new Color(107, 90, 62));
+        g2d.drawRoundRect(pauseX, pauseY, pauseWidth, pauseHeight, 8, 8);
+        g2d.drawRoundRect(pauseX + 1, pauseY + 1, pauseWidth - 2, pauseHeight - 2, 8, 8);
+        g2d.drawRoundRect(pauseX + 3, pauseY + 3, pauseWidth - 6, pauseHeight - 6, 8, 8);
+        g2d.drawRoundRect(pauseX + 7, pauseY + 7, pauseWidth - 14, pauseHeight - 14, 6, 6);
+        g2d.drawRoundRect(pauseX + 1, pauseY + 1, pauseWidth - 2, pauseHeight - 2, 8, 8);
+
+        g2d.fillRect(pauseX, pauseY,cornerCubeSize, cornerCubeSize);
+        g2d.fillRect(pauseX+pauseWidth-cornerCubeSize, pauseY,cornerCubeSize, cornerCubeSize);
+        g2d.fillRect(pauseX, pauseY + pauseHeight - cornerCubeSize,cornerCubeSize, cornerCubeSize);
+        g2d.fillRect(pauseX+pauseWidth-cornerCubeSize, pauseY + pauseHeight - cornerCubeSize,cornerCubeSize, cornerCubeSize);
 
         g2d.setFont(new Font("Serif", Font.ITALIC, 70));
 
