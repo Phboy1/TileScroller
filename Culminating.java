@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.*;
 import javax.sound.sampled.*;
 
-public class Culminating extends Canvas implements KeyListener, MouseListener, MouseMotionListener {
+public class Culminating extends Canvas implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
     static BufferedImage img;
 
     static final int NO_TIMER_DOOR = 0;
@@ -50,6 +50,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int spawnPlayerYOffset;
     static int spawnCameraX;
     static int spawnCameraY;
+
+    static final int SCROLL_SPEED = 40;
 
     static final int CAMERA_SPEED = 5;
 
@@ -126,6 +128,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static boolean rewinding = false;
 
+    static int menuScroll = 160;
+
     static {
         movementHistory.add(new java.util.ArrayList<>());
     }
@@ -154,6 +158,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         game.addKeyListener(game);
         game.addMouseListener(game);
         game.addMouseMotionListener(game);
+        game.addMouseWheelListener(game);
         game.requestFocus();
 
         game.createBufferStrategy(3);
@@ -388,6 +393,31 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (e.getKeyCode() == KeyEvent.VK_E)
         { 
             interactHeld = false; 
+        }
+    }
+
+    public void mouseWheelMoved(MouseWheelEvent e)
+    {
+        if (state == MENU)
+        {
+            menuScroll += e.getWheelRotation() * SCROLL_SPEED;
+
+            int boxSize = 100;
+            int margin = 220;
+
+            int totalWidth = levels.length * boxSize + (levels.length - 1) * margin;
+
+            int maxScroll = Math.max(totalWidth, WIDTH - 160);
+
+            if (menuScroll < 160)
+            {
+                menuScroll = 160;
+            }
+
+            if (menuScroll > maxScroll)
+            {
+                menuScroll = maxScroll;
+            }
         }
     }
 
@@ -1396,7 +1426,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int margin = 220;
 
-        int boxX = (WIDTH-(boxSize + (levelCount - 1) * (boxSize + margin)))/2;
+        int boxX = (WIDTH-(boxSize + (levelCount - 1) * (boxSize + margin)))/2 - menuScroll;
         int boxY = HEIGHT/2 - 60;
 
 
