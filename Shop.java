@@ -92,7 +92,7 @@ public class Shop {
         drawButtonBackground(g2d, i, buttonX, buttonY, buttonWidth, buttonHeight);
         drawButtonText(g2d, i, buttonX, buttonY, buttonWidth, buttonHeight, isHovered);
 
-        if (Culminating.clicked && button.contains(Culminating.mouseX, Culminating.mouseY) && Culminating.coins >= shopPrices[i] && Culminating.shopOpen)
+        if (Culminating.clicked && button.contains(Culminating.mouseX, Culminating.mouseY) && Culminating.coins >= shopPrices[i] && Culminating.shopOpen && Culminating.state == Culminating.PLAYING)
         {
             purchaseItem(i);
         }

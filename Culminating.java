@@ -252,26 +252,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             {
                 drawPlaying(g2d);
 
-                g2d.setColor(new Color(0,0,0,200));
-
-                g2d.fillRect(0,0,WIDTH, HEIGHT);
-
-                g2d.setFont(new Font("Serif", Font.ITALIC, 70));
-
-                g2d.setColor(new Color(160,146,74));
-
-                String text = "~ Paused ~";
-                FontMetrics fm = g2d.getFontMetrics();
-
-                int textWidth = fm.stringWidth(text);
-
-                g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2);
-
-
-
-                
-                resetGameButton(g2d);
-                drawBackToMenuButton(g2d);
+                drawPause(g2d);
                 break;
             }
         }
@@ -1229,6 +1210,37 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 }
             }
         }
+    }
+
+    public static void drawPause(Graphics2D g2d)
+    {
+        g2d.setColor(new Color(0,0,0,200));
+
+        g2d.fillRect(0,0,WIDTH, HEIGHT);
+
+        int pauseWidth = 450;
+        int pauseHeight = 425;
+
+        g2d.setColor(new Color(46,37,25));
+
+        g2d.fillRoundRect((Culminating.WIDTH - pauseWidth)/2, (Culminating.HEIGHT - pauseHeight)/2, pauseWidth, pauseHeight,8,8);
+
+        g2d.setColor(new Color(107, 90, 62));
+        g2d.drawRoundRect((Culminating.WIDTH - pauseWidth)/2, (Culminating.HEIGHT - pauseHeight)/2, pauseWidth, pauseHeight, 8, 8);
+
+        g2d.setFont(new Font("Serif", Font.ITALIC, 70));
+
+        g2d.setColor(new Color(160,146,74));
+
+        String text = "~ Paused ~";
+        FontMetrics fm = g2d.getFontMetrics();
+
+        int textWidth = fm.stringWidth(text);
+
+        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2);
+                
+        resetGameButton(g2d);
+        drawBackToMenuButton(g2d);
     }
 
     public static void drawHero(Graphics2D g2d)
