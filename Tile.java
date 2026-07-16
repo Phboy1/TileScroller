@@ -50,6 +50,10 @@ public class Tile {
         else if (type.equals("E")) {
             g2d.setColor(new Color(255, 215, 0)); 
         }
+        else if (type.equals("W"))
+        {
+            g2d.setColor(Color.BLUE);
+        }
         else {
             g2d.setColor(Color.BLACK);
         }
@@ -71,6 +75,11 @@ public class Tile {
     public boolean isEndZone()
     {
         return type.equals("E");
+    }
+
+    public boolean isWater()
+    {
+        return type.equals("W");
     }
 
     public Rectangle getBounds(int xOffset, int yOffset) {

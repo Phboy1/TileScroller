@@ -92,6 +92,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static int ghostStart = 0;
 
+    static long frameCount = 0;
+
     static long startTime;
     static long currentTime;
     static double elapsedTime;
@@ -838,7 +840,18 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
                     
         clampCamera();
-        updatePlayerMovement(frameMovement);
+
+        frameCount++;
+
+        boolean inWater = map[(playerWorldY + PLAYER_SIZE/2)/TILE_SIZE][(playerWorldX + PLAYER_SIZE)/TILE_SIZE] != null && map[(playerWorldY + PLAYER_SIZE/2)/TILE_SIZE][(playerWorldX + PLAYER_SIZE)/TILE_SIZE].isWater();
+
+        System.out.println(inWater);
+
+        if (!inWater || frameCount % 2 == 0)
+        {
+            updatePlayerMovement(frameMovement);
+        }
+        
 
         for (Door door : doors)
         {
