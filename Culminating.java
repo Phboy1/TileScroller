@@ -432,7 +432,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         for (int i = 0; i < LEVEL_COUNT; i++)
         {
-            levels[0] = createLevel(i+1);
+            levels[i] = createLevel(i+1);
         }
         
 
