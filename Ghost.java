@@ -347,7 +347,7 @@ public class Ghost {
         if (actions.get(i).cameraX < 0 || actions.get(i).playerX < 0) sprite = walkLeft[frame];
 
         wasMoving = true;
-        lastDirection = ((actions.get(i).cameraY > 0 || actions.get(i).playerY > 0) ? "Down" : ((actions.get(i).cameraY < 0 || actions.get(i).playerY < 0) ? "Up" : ((actions.get(i).cameraX > 0 || actions.get(i).playerX > 0) ? "Right" : "Left")));
+        if (actions.get(i).facing != null) lastDirection = actions.get(i).facing;
     }
 
     public void ghostInteraction(ArrayList<Movement> actions)
