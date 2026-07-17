@@ -1064,7 +1064,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 player.playerXOffset += CAMERA_SPEED;
                 frameMovement.playerX -=CAMERA_SPEED;
             }
-            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0) && player.playerXOffset - CAMERA_SPEED > -(WIDTH-PLAYER_SIZE)/2)
+            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0) && player.playerXOffset - CAMERA_SPEED >= -(WIDTH-PLAYER_SIZE)/2)
             {
                 player.playerXOffset -= CAMERA_SPEED;
                 frameMovement.playerX += CAMERA_SPEED;
@@ -1078,13 +1078,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 frameMovement.playerX -= CAMERA_SPEED;
             }
 
-            if (xOffset == -(currentCols * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0) && player.playerXOffset - CAMERA_SPEED > -(WIDTH-PLAYER_SIZE)/2)
+            if (xOffset == -(currentCols * TILE_SIZE - WIDTH) && goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0) && player.playerXOffset - CAMERA_SPEED >= -(WIDTH-PLAYER_SIZE)/2)
             {
                 player.playerXOffset -= CAMERA_SPEED;
                 frameMovement.playerX += CAMERA_SPEED;
             }
 
-            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0) && player.playerXOffset + CAMERA_SPEED <= (WIDTH-PLAYER_SIZE)/ 2)
+            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
             {
                 if (player.playerXOffset > 0) 
                 {
