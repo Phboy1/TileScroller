@@ -10,9 +10,10 @@ The mechanic is simple. You move through a level, hit a problem, rewind to an ea
 
 # How It Works
 
-Levels are full of obstacles. Lava kills you. Enemies hunt you with pathfinding. Doors need buttons to be pressed. The shop sells time, better coin drops, and more ghosts. Everything in the level can kill your ghost bodies just like it kills you, so every decision about where to leave a ghost matters. Some buttons open multiple doors, some doors are timer doors, and some can only be pressed my manuvering enemies to press the buttons for you.
+Levels are full of obstacles. Lava kills you. Enemies hunt you with pathfinding. Doors need buttons to be pressed. The shop sells time, better coin drops, and more ghosts. Everything in the level can kill your ghost bodies just like it kills you, so every decision about where to leave a ghost matters. Some buttons open multiple doors, some doors are timer doors, and some can only be pressed my manuvering enemies to press the buttons for you. You can pause, and there is also water that slows you down.
 
 ## The Rewind System
+
 Every frame, the game records the offset of the tiles and the offset of the actual player. This gets stored in a Movement object that holds cameraX, cameraY, playerX, playerY, and direction the player was facing. All these Movement objects go into a list that keeps growing as the game runs. In Culminating.java I store a 2D array of Movement. 1 direction for all the ghosts that I might have, and 1 direction for the movement in one ghost life.
 
 ## Player Movement
@@ -25,15 +26,37 @@ Collision is tile-based. Before movement occurs, the game checks nearby tiles to
 
 ## Enemy System
 
-Enemies use pathfinding to navigate the map and hunt the player. They try to take the shortest path directly to the player using atan2 and some trigonometry to find the best angle to go towards the player. If the path is blocked it will try to move up down left or right to match the x or y value of the player. Enemies can be pushed out of doors incase they get stuck.
+Enemies use pathfinding to navigate the map and hunt the player. They try to take the shortest path directly to the player using atan2 and some trigonometry to find the best angle to go towards the player. If the path is blocked it will try to move up down left or right to match the x or y value of the player. Enemies can be pushed out of doors incase they get stuck. Enemies also spawn in the middle of the tiles now.
+
+## Level Editor
+
+The level editor was built into the playing() method, however, dying, water, and playing speed is all nullified so the player can move through walls and not die. Additionaly, there was lots of bugs with allowing the player to go into the void and getting ArrayOutOfBoundsExceptions. Combatted this with lots of short circuiting. Thank you Java. To change tile, scroll the mouse.
+
+## Menu
+
+The menu has a dynamically shifting path of levels. This is done using a sine wave and some funny math! Using the scroll wheel you can scroll to all the levels you want! This was very difficult to implement because when pressing the button, sometimes it would automatically bring me to the next level and it was very buggy.
+
+## Pause Menu
+
+This menu is activated when 'P' is pressed. When activated, the whole game stops and a pause timer starts to know how much to offset the main timer when getting unpaused.
 
 # Motivation
 
-I wanted a game where my past could affect my future, and I could constantly escape a dungeon.
+I wanted a game where my past could affect my future, and I could constantly escape a dungeon. I have expanded significantly from this small little game and I'm really proud of everything that I've accomplished, I've learned alot from this game.
+
+# AI USAGE
+
+I used AI for animations and for sound.
 
 # Controls
 
-WASD or arrow keys to move. Space to attack. E to interact with buttons. Q for the shop. R to rewind. Click a ghost to take control of that body.
+WASD or arrow keys to move. 
+Space to attack. 
+E to interact with buttons. 
+Q for the shop.
+P to pause.
+9 for level editor.
+0 for debug mode.
 
 # Screenshots from the Game
 
