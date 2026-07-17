@@ -472,6 +472,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 menuScroll = maxScroll;
             }
         }
+        else if (state == LEVEL_EDITOR)
+        {
+            editorTileIndex += e.getWheelRotation();
+            editorTileIndex = ((editorTileIndex % EDITOR_TILES.length) + EDITOR_TILES.length) % EDITOR_TILES.length;
+        }
     }
 
     static void loadAllLevels()
@@ -1775,7 +1780,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int tileX = ((mouseX -xOffset)/TILE_SIZE) * TILE_SIZE;
         int tileY = ((mouseY-yOffset)/TILE_SIZE) * TILE_SIZE;
 
-        Tile previewTile = new Tile(tileX, tileY, TILE_SIZE, EDITOR_TILES[0]);
+        Tile previewTile = new Tile(tileX, tileY, TILE_SIZE, EDITOR_TILES[editorTileIndex]);
 
         previewTile.draw(g2d, xOffset, yOffset);
 
