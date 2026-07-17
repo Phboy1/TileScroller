@@ -1775,9 +1775,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int tileX = ((mouseX -xOffset)/TILE_SIZE) * TILE_SIZE;
         int tileY = ((mouseY-yOffset)/TILE_SIZE) * TILE_SIZE;
 
-        g2d.setColor(Color.WHITE);
+        Tile previewTile = new Tile(tileX, tileY, TILE_SIZE, EDITOR_TILES[0]);
 
-        g2d.fillRect(tileX + xOffset, tileY + yOffset, TILE_SIZE,TILE_SIZE);
+        previewTile.draw(g2d, xOffset, yOffset);
+
+        g2d.setColor(Color.WHITE);
+        g2d.drawRect(tileX + xOffset, tileY + yOffset, TILE_SIZE, TILE_SIZE);
     }
 
     public static void drawTiles(Graphics2D g2d)
