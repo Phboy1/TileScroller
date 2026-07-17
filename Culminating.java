@@ -24,6 +24,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static boolean debugging = false;
     static boolean editing = false;
 
+    static boolean currentlyEditing = false;
+
     static int maxGhostAmount;
 
     static int state = 0;
@@ -262,12 +264,16 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
             case LEVEL_EDITOR:
             {
-                loadCurrentLevel();
-                resetLevelEditorState();
+                if (!currentlyEditing)
+                {
+                    loadCurrentLevel();
+                    resetLevelEditorState();
+                    currentlyEditing = true;
+                }
+                
                 for (int i = 0; i < EDITOR_SPEED_MULTIPLIER; i++)
                 {
                     playing();
-
                 }
                 drawPlaying(g2d);
                 break;
@@ -324,7 +330,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_9) editing = !editing;
+        if (e.getKeyCode() == KeyEvent.VK_9)
+        {
+            editing = !editing;
+            currentlyEditing = false;
+        }
 
         if (e.getKeyCode() == KeyEvent.VK_0) debugging = !debugging;
 
