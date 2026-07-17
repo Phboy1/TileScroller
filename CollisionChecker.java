@@ -6,6 +6,8 @@ public class CollisionChecker
 {
     public boolean canMove(Player player, int moveX, int moveY)
     {
+        if (Culminating.editing) return true;
+
 
         int hitboxXOffset = player.hitboxXOffset;
         int hitboxYOffset = player.hitboxYOffset;

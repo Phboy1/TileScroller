@@ -921,11 +921,13 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         updateGhosts();
 
-        for (Enemy enemy : enemies)
+        if (!editing)
         {
-            enemy.update();
+            for (Enemy enemy : enemies)
+            {
+                enemy.update();
+            }
         }
-
         updateInteracting(frameMovement);
 
         for (Door door : doors)
@@ -936,10 +938,17 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         clampCamera();
 
         frameCount++;
+        
 
-        boolean inWater = map[(playerWorldY + PLAYER_SIZE/2)/TILE_SIZE][(playerWorldX + PLAYER_SIZE)/TILE_SIZE] != null && map[(playerWorldY + PLAYER_SIZE/2 + 10)/TILE_SIZE][(playerWorldX + PLAYER_SIZE/2)/TILE_SIZE].isWater();
+        int waterRow = (playerWorldY + PLAYER_SIZE/2 + 10)/TILE_SIZE;
+        int waterCol = (playerWorldX + PLAYER_SIZE/2)/TILE_SIZE;
 
-        System.out.println(inWater);
+        boolean inWater = false;
+        if (waterRow >= 0 && waterRow < currentRows && waterCol >= 0 && waterCol < currentCols)
+        {
+            Tile feetTile = map[waterRow][waterCol];
+            inWater = feetTile != null && feetTile.isWater();
+}
 
         if (!inWater || frameCount % 2 == 0)
         {
@@ -949,7 +958,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         for (Door door : doors)
         {
-            if (!door.isOpen && player.getBounds(WIDTH, HEIGHT).intersects(new Rectangle(door.x + xOffset, door.y + yOffset, door.width, door.height)))
+            if (!door.isOpen && player.getBounds(WIDTH, HEIGHT).intersects(new Rectangle(door.x + xOffset, door.y + yOffset, door.width, door.height)) && !editing)
             {
                 pushOut(door, frameMovement);
             }
@@ -958,6 +967,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         playerBounds();
                     
         if (player.attacking)
+            
         {
             frameMovement.attacking = true;
         }
@@ -970,7 +980,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     
         movementHistory.get(rewindCount).add(frameMovement);
 
-        playerDeathCheck();
+        if (!editing)
+        {
+            playerDeathCheck();
+        }  
         ghostDeathCheck();
         timerUpdate();
     }
