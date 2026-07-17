@@ -948,7 +948,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             Tile feetTile = map[waterRow][waterCol];
             inWater = feetTile != null && feetTile.isWater();
-}
+        }
 
         if (!inWater || frameCount % 2 == 0)
         {
@@ -985,7 +985,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             playerDeathCheck();
         }  
         ghostDeathCheck();
-        timerUpdate();
+
+        if (!editing)
+        {
+            timerUpdate();
+        }
     }
 
     public static void updateGhosts()
