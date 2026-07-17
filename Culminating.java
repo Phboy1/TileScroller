@@ -14,6 +14,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int NO_TIMER_DOOR = 0;
     static final int FRAMES_PER_SECOND = 30;
 
+    static final int EDITOR_SPEED_MULTIPLIER = 3;
+
     static final int LEVEL_COUNT = 6;
 
     static int maxCoinDrop = 4;
@@ -223,6 +225,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 }
                 break;  
             }
+            case LEVEL_EDITOR:
+            {
+                break;
+            }
             case WIN:
             {
                 break;
@@ -257,6 +263,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             case LEVEL_EDITOR:
             {
                 loadCurrentLevel();
+                resetLevelEditorState();
+                for (int i = 0; i < EDITOR_SPEED_MULTIPLIER; i++)
+                {
+                    playing();
+
+                }
                 drawPlaying(g2d);
                 break;
             }
@@ -388,6 +400,19 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (state == HERO && e.getKeyCode() == KeyEvent.VK_ENTER)
         {
             state = MENU;
+        }
+
+        if (editing)
+        {
+            if (e.getKeyCode() == KeyEvent.VK_S) goingDown = true;
+            if (e.getKeyCode() == KeyEvent.VK_W) goingUp = true;
+            if (e.getKeyCode() == KeyEvent.VK_A) goingLeft = true;
+            if (e.getKeyCode() == KeyEvent.VK_D) goingRight = true;
+
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) goingDown = true;
+            if (e.getKeyCode() == KeyEvent.VK_UP) goingUp = true;
+            if (e.getKeyCode() == KeyEvent.VK_LEFT) goingLeft = true;
+            if (e.getKeyCode() == KeyEvent.VK_RIGHT) goingRight = true;
         }
 
         
@@ -545,6 +570,37 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         setSpawn(level.spawnX, level.spawnY);
     
+    }
+
+    static void resetLevelEditorState()
+    {
+        xOffset = spawnCameraX;
+        yOffset = spawnCameraY;
+
+        player.playerXOffset = spawnPlayerXOffset;
+        player.playerYOffset = spawnPlayerYOffset;
+        player.lastDirection = "Down";
+
+        for (Items item : items)
+        {
+            item.activated = false;
+        };
+
+        for (Enemy enemy : enemies)
+        {
+            enemy.reset();
+        }
+
+        for (Door door : doors)
+        {
+            door.isOpen = (door.startPosition.equals("Closed") ? false : true);
+            door.startTime = 0;
+            door.currentTime = 0;
+            door.elaspedTime = 0;
+        }
+
+        movementHistory.get(rewindCount).clear();
+        startTime = System.nanoTime();
     }
 
     static void setSpawn(int col, int row)
@@ -896,10 +952,11 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             frameMovement.attacking = true;
         }
 
-        if (goingUp) frameMovement.facing = "Up";
-        else if (goingDown) frameMovement.facing = "Down";
-        else if (goingLeft) frameMovement.facing = "Left";
+        
+        if (goingLeft) frameMovement.facing = "Left";
         else if (goingRight) frameMovement.facing = "Right";
+        else if (goingUp) frameMovement.facing = "Up";
+        else if (goingDown) frameMovement.facing = "Down";
                     
         movementHistory.get(rewindCount).add(frameMovement);
 
