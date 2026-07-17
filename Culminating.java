@@ -86,6 +86,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int playerWorldX = WIDTH / 2 - PLAYER_SIZE / 2 - xOffset - player.playerXOffset;
     static int playerWorldY = HEIGHT / 2 - PLAYER_SIZE / 2 - yOffset - player.playerYOffset;
 
+    static final String[] EDITOR_TILES = {"8", "_", "L", "W", "-", "E", "1", " "};
+    static int editorTileIndex = 0;
+
     static CollisionChecker CollisionChecker;
 
     static boolean goingUp = false;
@@ -276,6 +279,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                     playing();
                 }
                 drawPlaying(g2d);
+                drawMouseMovement(g2d);
                 break;
             }
             case WIN:
@@ -1764,6 +1768,16 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             shop.update(g2d, SHOP_WIDTH, SHOP_HEIGHT);
         }
+    }
+
+    public static void drawMouseMovement(Graphics2D g2d)
+    {
+        int tileX = ((mouseX -xOffset)/TILE_SIZE) * TILE_SIZE;
+        int tileY = ((mouseY-yOffset)/TILE_SIZE) * TILE_SIZE;
+
+        g2d.setColor(Color.WHITE);
+
+        g2d.fillRect(tileX + xOffset, tileY + yOffset, TILE_SIZE,TILE_SIZE);
     }
 
     public static void drawTiles(Graphics2D g2d)
