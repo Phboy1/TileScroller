@@ -136,7 +136,13 @@ public class Enemy {
         int col = (x + Culminating.TILE_SIZE/2) / Culminating.TILE_SIZE;
         int row = (y + Culminating.TILE_SIZE/2) / Culminating.TILE_SIZE;
 
-        boolean inWater = Culminating.map[row][col] != null && Culminating.map[row][col].isWater();
+        boolean inWater = false;
+        if (row >= 0 && row < Culminating.currentRows && col >= 0 && col < Culminating.currentCols)
+        {
+            Tile feetTile = Culminating.map[row][col];
+            inWater = feetTile != null && feetTile.isWater();
+        }
+        
 
         if (inWater && Culminating.frameCount % 3 == 0) return;
 
