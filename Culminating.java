@@ -1059,12 +1059,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         if (currentCols * TILE_SIZE < WIDTH)
         {
-            if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0))
+            if (goingLeft && CollisionChecker.canMove(player, -CAMERA_SPEED, 0) && player.playerXOffset - CAMERA_SPEED <= (WIDTH-PLAYER_SIZE)/2)
             {
                 player.playerXOffset += CAMERA_SPEED;
                 frameMovement.playerX -=CAMERA_SPEED;
             }
-            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0))
+            if (goingRight && CollisionChecker.canMove(player, CAMERA_SPEED, 0) && player.playerXOffset + CAMERA_SPEED >= -(WIDTH-PLAYER_SIZE)/2)
             {
                 player.playerXOffset -= CAMERA_SPEED;
                 frameMovement.playerX += CAMERA_SPEED;
@@ -1115,12 +1115,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         if (currentRows * TILE_SIZE < HEIGHT)
         {
-            if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED))
+            if (goingUp && CollisionChecker.canMove(player, 0, -CAMERA_SPEED) && player.playerYOffset + CAMERA_SPEED <= (HEIGHT-PLAYER_SIZE)/2)
             {
                 player.playerYOffset += CAMERA_SPEED;
                 frameMovement.playerY -=CAMERA_SPEED;
             }
-            if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED))
+            if (goingDown && CollisionChecker.canMove(player, 0, CAMERA_SPEED) && player.playerYOffset - CAMERA_SPEED >= -(HEIGHT-PLAYER_SIZE)/2)
             {
                 player.playerYOffset -= CAMERA_SPEED;
                 frameMovement.playerY += CAMERA_SPEED;
