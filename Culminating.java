@@ -20,6 +20,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int minCoinDrop = 1;
 
     static boolean debugging = false;
+    static boolean editing = false;
 
     static int maxGhostAmount;
 
@@ -30,6 +31,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static final int PLAYING = 2;
     static final int WIN = 3;
     static final int PAUSE = 4;
+    static final int LEVEL_EDITOR = 5;
 
     static boolean paused = false;
 
@@ -252,6 +254,12 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 drawPlaying(g2d);
                 break;
             }
+            case LEVEL_EDITOR:
+            {
+                loadCurrentLevel();
+                drawPlaying(g2d);
+                break;
+            }
             case WIN:
             {
                 drawWin(g2d);
@@ -304,6 +312,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     }
 
     public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_9) editing = !editing;
+
         if (e.getKeyCode() == KeyEvent.VK_0) debugging = !debugging;
 
         if (!rewinding && !interactHeld && !playerDying && !player.attacking && state == PLAYING)
@@ -819,6 +829,15 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void playing()
     {
+        if (editing)
+        {
+            state = LEVEL_EDITOR;
+        }
+        else
+        {
+            state = PLAYING;
+        }
+
         if (rewindSoundPlaying && rewindClip != null)
         {
             rewindClip.stop();
