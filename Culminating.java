@@ -959,7 +959,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             inWater = feetTile != null && feetTile.isWater();
         }
 
-        if (!inWater || frameCount % 2 == 0)
+        if (editing || !inWater || frameCount % 2 == 0)
         {
             updatePlayerMovement(frameMovement);
         }
