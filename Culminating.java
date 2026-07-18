@@ -110,6 +110,9 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int rewindCount = 0;
     static int finalRewinds = 0;
 
+    static double musicVolume = 1.0;
+    static double sfxVolume = 1.0;
+
     static boolean playerDying = false;
 
     static volatile Clip rewindClip;
@@ -397,6 +400,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
                 {
                     if (rewindSoundPlaying && rewindClip != null)
                     {
+                        changeVolume(rewindClip, sfxVolume);
                         rewindClip.loop(Clip.LOOP_CONTINUOUSLY);
                     }
 
@@ -764,6 +768,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(resource("TileScroller/assets/rewind.wav"));
             rewindClip = AudioSystem.getClip();
             rewindClip.open(audioInputStream);
+            changeVolume(rewindClip, sfxVolume);
         } 
         catch (Exception e)
         {
@@ -775,6 +780,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(resource("TileScroller/assets/backgroundSound.wav"));
             backgroundAudioClip = AudioSystem.getClip();
             backgroundAudioClip.open(audioInputStream);
+            changeVolume(backgroundAudioClip, musicVolume);
             backgroundAudioClip.loop(Clip.LOOP_CONTINUOUSLY);
             backgroundAudioClip.start();
         }
@@ -787,6 +793,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(resource("TileScroller/assets/enemyDeath.wav"));
             deathClip = AudioSystem.getClip();
             deathClip.open(audioInputStream);
+            changeVolume(deathClip, sfxVolume);
         }
         catch (Exception e)
         { 
@@ -802,6 +809,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         if (!rewindSoundPlaying && rewindClip != null)
         {
             rewindClip.setFramePosition(0);
+            changeVolume(rewindClip, sfxVolume);
             rewindClip.loop(Clip.LOOP_CONTINUOUSLY);
             rewindSoundPlaying = true;
         }
@@ -897,6 +905,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         {
             backgroundAudioClip.stop();
             backgroundAudioClip.setFramePosition(0);
+            changeVolume(backgroundAudioClip, musicVolume);
             backgroundAudioClip.loop(Clip.LOOP_CONTINUOUSLY);
             backgroundAudioClip.start();
         }
@@ -2129,6 +2138,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(resource(path));
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
+            changeVolume(clip, sfxVolume);
             clip.addLineListener(event -> {
                 if (event.getType() == LineEvent.Type.STOP) clip.close();
             });
@@ -2139,6 +2149,24 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             e.printStackTrace();
         }
     } 
+
+    public static void changeVolume(Clip clip, double volume)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        try
+        {
+            FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float min = gain.getMinimum();
+            float dB = volume <= 0.0001f ? min : (float)(20 * Math.log10(volume));
+            gain.setValue(Math.max(min, Math.min(gain.getMaximum(), dB)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     public static void playDeathSound()
     {
