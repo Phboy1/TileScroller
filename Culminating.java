@@ -1459,7 +1459,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int textWidth = fm.stringWidth(text);
 
-        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2 - 140);
+        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2 - 130);
                 
         resetGameButton(g2d);
         drawPauseBackToMenuButton(g2d);
@@ -1472,9 +1472,10 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int barHeight = 20;
 
         int barX = (WIDTH - barWidth)/2;
-        int barY = HEIGHT/2 +150;
+        int barY = HEIGHT/2 + 90;
 
-        g2d.setColor(Color.WHITE);
+        g2d.setColor(new Color(30, 26, 20));
+
         g2d.fillRect(barX,barY, barWidth, barHeight);
 
         g2d.setFont(new Font("Bahnschrift", Font.BOLD, 16));
@@ -1485,6 +1486,14 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int soundWidth = fm.stringWidth(label);
         g2d.drawString(label, (WIDTH-soundWidth)/2, barY - 10);
 
+        int fillWidth = (int) (barWidth * musicVolume);
+
+        g2d.setColor(new Color(160, 130, 50));
+        g2d.fillRoundRect(barX, barY, fillWidth, barHeight, 10, 10);
+
+        g2d.setColor(new Color(107, 90, 62));
+
+        g2d.drawRoundRect(barX, barY, barWidth, barHeight, 10, 10);
     }
 
     public static void drawHero(Graphics2D g2d)
@@ -1993,7 +2002,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         g2d.setFont(new Font("Serif", Font.ITALIC, 24));
 
-        Rectangle resetGameButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 - 40, 240, 60);
+        Rectangle resetGameButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 - 100, 240, 60);
 
         if (resetGameButton.contains(mouseX, mouseY))
         {
@@ -2053,7 +2062,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void drawPauseBackToMenuButton(Graphics2D g2d)
     {
-        Rectangle backToMenu = new Rectangle(WIDTH/2 - 120, HEIGHT/2 + 40, 240, 60);
+        Rectangle backToMenu = new Rectangle(WIDTH/2 - 120, HEIGHT/2 -20, 240, 60);
 
         if (backToMenu.contains(mouseX, mouseY))
         {
