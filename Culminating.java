@@ -99,6 +99,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     static int mouseX;
     static int mouseY;
 
+    static int volumeScroll = 0;
+
     static int ghostStart = 0;
 
     static long frameCount = 0;
@@ -478,8 +480,26 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         }
         else if (state == LEVEL_EDITOR)
         {
-            editorTileIndex += e.getWheelRotation();
+            editorTileIndex -= e.getWheelRotation();
             editorTileIndex = ((editorTileIndex % EDITOR_TILES.length) + EDITOR_TILES.length) % EDITOR_TILES.length;
+        }
+        else if (state == PAUSE)
+        {
+            volumeScroll -= e.getWheelRotation();
+            System.out.println(e.getWheelRotation());
+
+            if (volumeScroll > 20)
+            {
+                volumeScroll = 20;
+            }
+            if (volumeScroll < 0)
+            {
+                volumeScroll = 0;
+            }
+
+            musicVolume = volumeScroll / 20.0;
+
+            changeVolume(backgroundAudioClip, musicVolume);
         }
     }
 
@@ -1404,7 +1424,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.fillRect(0,0,WIDTH, HEIGHT);
 
         int pauseWidth = 450;
-        int pauseHeight = 300;
+        int pauseHeight = 400;
         int cornerCubeSize = 20;
         int pauseX = (Culminating.WIDTH - pauseWidth)/2;
         int pauseY = (Culminating.HEIGHT - pauseHeight)/2;
@@ -1439,10 +1459,32 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int textWidth = fm.stringWidth(text);
 
-        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2 - 80);
+        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2 - 140);
                 
         resetGameButton(g2d);
         drawPauseBackToMenuButton(g2d);
+        drawVolumeControls(g2d);
+    }
+
+    public static void drawVolumeControls(Graphics2D g2d)
+    {
+        int barWidth = 300;
+        int barHeight = 20;
+
+        int barX = (WIDTH - barWidth)/2;
+        int barY = HEIGHT/2 +150;
+
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(barX,barY, barWidth, barHeight);
+
+        g2d.setFont(new Font("Bahnschrift", Font.BOLD, 16));
+        g2d.setColor(new Color(200, 174, 104));
+        String label = "Sound: " + (int)(musicVolume * 100) + "%";
+        FontMetrics fm = g2d.getFontMetrics();
+
+        int soundWidth = fm.stringWidth(label);
+        g2d.drawString(label, (WIDTH-soundWidth)/2, barY - 10);
+
     }
 
     public static void drawHero(Graphics2D g2d)
