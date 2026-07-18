@@ -1425,7 +1425,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         g2d.fillRect(0,0,WIDTH, HEIGHT);
 
         int pauseWidth = 450;
-        int pauseHeight = 400;
+        int pauseHeight = 350;
         int cornerCubeSize = 20;
         int pauseX = (Culminating.WIDTH - pauseWidth)/2;
         int pauseY = (Culminating.HEIGHT - pauseHeight)/2;
@@ -1460,7 +1460,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int textWidth = fm.stringWidth(text);
 
-        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2 - 130);
+        g2d.drawString(text, (WIDTH - textWidth)/2, HEIGHT/2 - 105);
                 
         resetGameButton(g2d);
         drawPauseBackToMenuButton(g2d);
@@ -1473,7 +1473,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
         int barHeight = 20;
 
         int barX = (WIDTH - barWidth)/2;
-        int barY = HEIGHT/2 + 90;
+        int barY = HEIGHT/2 + 115;
 
         Rectangle bar = new Rectangle(barX, barY, barWidth, barHeight);
 
@@ -2024,7 +2024,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
     {
         g2d.setFont(new Font("Serif", Font.ITALIC, 24));
 
-        Rectangle resetGameButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 - 100, 240, 60);
+        Rectangle resetGameButton = new Rectangle(WIDTH/2 - 120, HEIGHT/2 - 75, 240, 60);
 
         if (resetGameButton.contains(mouseX, mouseY))
         {
@@ -2084,7 +2084,7 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     public static void drawPauseBackToMenuButton(Graphics2D g2d)
     {
-        Rectangle backToMenu = new Rectangle(WIDTH/2 - 120, HEIGHT/2 -20, 240, 60);
+        Rectangle backToMenu = new Rectangle(WIDTH/2 - 120, HEIGHT/2 +5, 240, 60);
 
         if (backToMenu.contains(mouseX, mouseY))
         {
