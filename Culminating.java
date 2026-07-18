@@ -80,6 +80,8 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
     static Player player = new Player(PLAYER_SIZE, CAMERA_SPEED);
 
+    static boolean draggingVolumeSlider = false;
+
     static int xOffset = 0;
     static int yOffset = 0;
 
@@ -498,7 +500,6 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
             }
 
             musicVolume = volumeScroll / 20.0;
-
             changeVolume(backgroundAudioClip, musicVolume);
         }
     }
@@ -1473,6 +1474,27 @@ public class Culminating extends Canvas implements KeyListener, MouseListener, M
 
         int barX = (WIDTH - barWidth)/2;
         int barY = HEIGHT/2 + 90;
+
+        Rectangle bar = new Rectangle(barX, barY, barWidth, barHeight);
+
+        if (bar.contains(mouseX, mouseY) && clicked)
+        {
+            draggingVolumeSlider = true;
+        }
+
+        if (!clicked)
+        {
+            draggingVolumeSlider = false;
+        }
+
+        if (draggingVolumeSlider)
+        {
+            double ratio = (mouseX - barX) / (double) barWidth;
+            ratio = Math.max(0, Math.min(1, ratio));
+            musicVolume = ratio;
+            volumeScroll = (int)(musicVolume * 20);
+            changeVolume(backgroundAudioClip, musicVolume);
+        }
 
         g2d.setColor(new Color(30, 26, 20));
 
